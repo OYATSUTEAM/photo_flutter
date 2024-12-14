@@ -1,20 +1,13 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
-import 'package:testing/main.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:testing/services/profile/profile_services.dart';
 import 'package:testing/ui/camera/profile_camera_screen.dart';
 import 'package:testing/ui/myProfile/myProfile.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart' as http;
 
 final AuthServices _authServices = locator.get();
 final ProfileServices profileServices = ProfileServices();

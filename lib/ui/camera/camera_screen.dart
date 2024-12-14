@@ -131,19 +131,6 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
-  // void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-  //   if (controller == null) {
-  //     return;
-  //   }
-
-  //   final offset = Offset(
-  //     details.localPosition.dx / constraints.maxWidth,
-  //     details.localPosition.dy / constraints.maxHeight,
-  //   );
-  //   controller!.setExposurePoint(offset);
-  //   controller!.setFocusPoint(offset);
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -206,12 +193,8 @@ class _CameraScreenState extends State<CameraScreen>
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          16.0,
-                          8.0,
-                          16.0,
-                          8.0,
-                        ),
+                        padding:
+                            const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -233,47 +216,40 @@ class _CameraScreenState extends State<CameraScreen>
                                     items: [
                                       DropdownMenuItem<FlashMode>(
                                         value: FlashMode.off,
-                                        child: Icon(
-                                          Icons.flash_off,
-                                          size: 30,
-                                          color:
-                                              _currentFlashMode == FlashMode.off
-                                                  ? Colors.yellow
-                                                  : Colors.white,
-                                        ),
+                                        child: Icon(Icons.flash_off,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.off
+                                                ? Colors.yellow
+                                                : Colors.white),
                                       ),
                                       DropdownMenuItem<FlashMode>(
                                         value: FlashMode.auto,
-                                        child: Icon(
-                                          Icons.flash_auto,
-                                          size: 30,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.auto
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
+                                        child: Icon(Icons.flash_auto,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.auto
+                                                ? Colors.yellow
+                                                : Colors.white),
                                       ),
                                       DropdownMenuItem<FlashMode>(
                                         value: FlashMode.always,
                                         child: Icon(
-                                          size: 30,
-                                          Icons.flash_on,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.always
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
+                                            size: 30,
+                                            Icons.flash_on,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.always
+                                                ? Colors.yellow
+                                                : Colors.white),
                                       ),
                                       DropdownMenuItem<FlashMode>(
                                         value: FlashMode.torch,
-                                        child: Icon(
-                                          Icons.highlight,
-                                          size: 30,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.torch
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
+                                        child: Icon(Icons.highlight,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.torch
+                                                ? Colors.yellow
+                                                : Colors.white),
                                       ),
                                     ],
                                   ),
@@ -287,9 +263,8 @@ class _CameraScreenState extends State<CameraScreen>
                                       if (!shouldDelete!) {
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                PostPreviewScreen(),
-                                          ),
+                                              builder: (context) =>
+                                                  PostPreviewScreen()),
                                         );
                                       } else {
                                         XFile? rawImage = await takePicture();
@@ -312,9 +287,8 @@ class _CameraScreenState extends State<CameraScreen>
                                         setState(() {});
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                PostPreviewScreen(),
-                                          ),
+                                              builder: (context) =>
+                                                  PostPreviewScreen()),
                                         );
                                       }
                                     } else {
@@ -338,9 +312,8 @@ class _CameraScreenState extends State<CameraScreen>
 
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              PostPreviewScreen(),
-                                        ),
+                                            builder: (context) =>
+                                                PostPreviewScreen()),
                                       );
                                     }
                                   },
@@ -399,10 +372,7 @@ class _CameraScreenState extends State<CameraScreen>
                   Row(),
                   Text(
                     'Permission denied',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 24),
                   ),
                   SizedBox(height: 24),
                   ElevatedButton(
@@ -413,10 +383,7 @@ class _CameraScreenState extends State<CameraScreen>
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         'Give permission',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 24),
                       ),
                     ),
                   ),
@@ -446,10 +413,7 @@ class _CameraScreenState extends State<CameraScreen>
               onPressed: () {
                 Navigator.of(dialogContext).pop(true); // User pressed Delete
               },
-              child: const Text(
-                '削除',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

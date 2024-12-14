@@ -6,7 +6,6 @@ import 'package:testing/services/other/other_service.dart';
 import 'package:testing/services/profile/profile_services.dart';
 import 'package:testing/ui/other/other_profile_screen.dart';
 import 'package:testing/ui/screen/chat_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 final otherService = OtherService(locator.get(), locator.get());
 ProfileServices profileService = ProfileServices();

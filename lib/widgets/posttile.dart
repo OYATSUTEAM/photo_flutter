@@ -1,8 +1,4 @@
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/other/other_service.dart';
-// import 'package:testing/ui/banner_screen.dart';
 
 // final OtherService otherService;
 class Posttile extends StatelessWidget {

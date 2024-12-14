@@ -25,11 +25,7 @@ ProfileServices profileServices = ProfileServices();
 
 class _OtherProfile extends State<OtherProfile> {
   final User? user = _auth.currentUser;
-  bool isShowAll = true;
-  bool firstImage = false,
-      secondImage = false,
-      thirdImage = false,
-      forthImage = false;
+  String whichProfileShow = 'showAll';
   String otherMainProfileURL = profileService.mainURL;
   String otherFirstProfileURL = profileService.firstURL;
   String otherSecondProfileURL = profileService.secondURL;
@@ -52,6 +48,8 @@ class _OtherProfile extends State<OtherProfile> {
   }
 
   Future<void> _setProfileInitiate() async {
+    final fetchedIsShowAll =
+        await profileService.profileShowAll(widget.otherUid);
     String fetchedUrl = await profileService.getMainProfileUrl(widget.otherUid);
     String fetchedUrl1 =
         await profileService.getFirstProfileUrl(widget.otherUid);
@@ -63,6 +61,7 @@ class _OtherProfile extends State<OtherProfile> {
         await profileService.getForthProfileUrl(widget.otherUid);
     if (mounted) {
       setState(() {
+        whichProfileShow = fetchedIsShowAll;
         otherMainProfileURL = fetchedUrl;
         otherFirstProfileURL = fetchedUrl1;
         otherSecondProfileURL = fetchedUrl2;
@@ -171,26 +170,25 @@ class _OtherProfile extends State<OtherProfile> {
                   Center(
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(otherMainProfileURL),
-                      radius: 76,
+                      radius: MediaQuery.of(context).size.width * 0.25,
                     ),
                   ),
 
-                  const SizedBox(height: 10), // Spacing between image and name
+                  const SizedBox(height: 5), // Spacing between image and name
                   Text(
-                    name ?? 'ローディング ...',
+                    name,
                     style: const TextStyle(
                       fontSize: 26,
                     ),
                   ),
                   SizedBox(
-                    height: 10,
+                    height: 5,
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: TextButton(
                         style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
-                            // padding: const EdgeInsets.all(16.0),
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 60)),
                         onPressed: () {
@@ -214,7 +212,8 @@ class _OtherProfile extends State<OtherProfile> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (isShowAll || firstImage)
+                                if (whichProfileShow == 'firstProfileImage' ||
+                                    whichProfileShow == 'showAll')
                                   Container(
                                       width: MediaQuery.of(context).size.width *
                                           0.43,
@@ -224,7 +223,8 @@ class _OtherProfile extends State<OtherProfile> {
                                       child: ProfileImageTile(
                                           otherFirstProfileURL,
                                           'firstProfileImage')),
-                                if (isShowAll || secondImage)
+                                if (whichProfileShow == 'secondProfileImage' ||
+                                    whichProfileShow == 'showAll')
                                   Container(
                                     width: MediaQuery.of(context).size.width *
                                         0.43,
@@ -247,7 +247,8 @@ class _OtherProfile extends State<OtherProfile> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (isShowAll || thirdImage)
+                                if (whichProfileShow == 'thirdProfileImage' ||
+                                    whichProfileShow == 'showAll')
                                   Container(
                                     width: MediaQuery.of(context).size.width *
                                         0.43,
@@ -257,7 +258,8 @@ class _OtherProfile extends State<OtherProfile> {
                                         otherThirdProfileURL,
                                         'thirdProfileImage'),
                                   ),
-                                if (isShowAll || forthImage)
+                                if (whichProfileShow == 'forthProfileImage' ||
+                                    whichProfileShow == 'showAll')
                                   Container(
                                     width: MediaQuery.of(context).size.width *
                                         0.43,
@@ -319,9 +321,6 @@ class MyMenuButton extends StatelessWidget {
         child: PopupMenuButton<String>(
           color: const Color.fromARGB(0, 180, 171, 171),
           offset: Offset(0, 30),
-          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-          menuPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-          position: PopupMenuPosition.over,
           child: TextButton(
             onPressed: null,
             child: Text(
@@ -329,10 +328,7 @@ class MyMenuButton extends StatelessWidget {
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
           ),
-          constraints: BoxConstraints(
-            maxHeight: 100,
-            maxWidth: 80,
-          ),
+          constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
           onSelected: (value) {
             if (value == "report") {
               print("Report selected");
@@ -353,42 +349,29 @@ class MyMenuButton extends StatelessWidget {
           itemBuilder: (BuildContext context) {
             return [
               PopupMenuItem(
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                value: "report",
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 100, // Set width here
-                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(
-                        150, 180, 171, 171), // Background color
-                    borderRadius: BorderRadius.circular(10), // Rounded corners
-                  ),
-                  child: Text(
-                    "報告",
-                    style: TextStyle(fontSize: 10),
-                  ),
-                ),
-              ),
+                  height: 20,
+                  value: "report",
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("報告", style: TextStyle(fontSize: 10)),
+                        ]),
+                  )),
               PopupMenuItem(
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                value: "block",
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 100, // Set width here
-                  padding: EdgeInsets.symmetric(
-                      vertical: 6, horizontal: 0), // Add padding
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(
-                        150, 180, 171, 171), // Background color
-                    borderRadius: BorderRadius.circular(10), // Rounded corners
-                  ),
-                  child: Text(
-                    "ブロック",
-                    style: TextStyle(fontSize: 10),
-                  ),
-                ),
-              )
+                  height: 20,
+                  value: "block",
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("ブロック", style: TextStyle(fontSize: 10)),
+                        ],
+                      )))
             ];
           },
         ));

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileServices {
@@ -152,11 +151,35 @@ class ProfileServices {
     }
   }
 
-  Future<void> publicAccount(String uid, String isPublic) async {
+  Future<void> publicAccount(String uid, bool isPublic) async {
     try {
       await _database.collection("Users").doc(uid).update({'public': isPublic});
     } catch (e) {
       print("Error updating profile: $e");
+    }
+  }
+
+  Future<bool> isPublicAccount(String uid) async {
+    try {
+      final ref = await _database.collection('Users').doc(uid).get();
+      return ref.get('public');
+    } catch (e) {
+      print(e);
+      return true;
+    }
+  }
+
+  Future<String> profileShowAll(String uid) async {
+    try {
+      final ref = await _database.collection('Users').doc(uid).get();
+      final isShowAll = ref.get('isShowAll');
+      if (!isShowAll) {
+        return ref.get('whichIsDisplayed');
+      }
+      return 'showAll';
+    } catch (e) {
+      print(e);
+      return 'first';
     }
   }
 }

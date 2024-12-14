@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/ui/screen/banner_screen.dart';
 
 class AuthServices {
   final FirebaseAuth user;
@@ -41,13 +40,6 @@ class AuthServices {
       if (documentSnapshot.exists && documentSnapshot.data() != null) {
         return documentSnapshot.data() as Map<String, dynamic>?;
       }
-
-      // if (documentSnapshot.exists) {
-      //   return documentSnapshot.data() as Map<String, dynamic>?;
-      // } else {
-      //   print("No document found.");
-      //   return null;
-      // }
     } catch (e) {
       print("Error fetching document: $e");
       return null;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:testing/services/profile/profile_services.dart';
 import 'package:testing/ui/other/other_profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -20,6 +21,8 @@ class OtherProfilePreviewScreen extends StatefulWidget {
   @override
   _OtherPreviewScreenState createState() => _OtherPreviewScreenState();
 }
+
+ProfileServices profileServices = ProfileServices();
 
 final AuthServices _authServices = locator.get();
 String? uid = _authServices.getCurrentuser()!.uid;
@@ -66,7 +69,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
       });
       if (user != null) {
         setState(() {
-          username = user!['username'];
+          username = user['username'];
           name = user['name'];
           final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
           final likeWhichProfile = 'like-${widget.whichProfile}';
@@ -137,6 +140,32 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   Widget build(BuildContext context) {
     try {
       return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 36,
+            title: Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.576,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            username,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      )),
+                  MyMenuButton()
+                ],
+              ),
+            ),
+          ),
           backgroundColor: Colors.black,
           body: Stack(children: [
             SingleChildScrollView(
@@ -334,38 +363,6 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                   ]
                 ])),
             Positioned(
-              top: 8,
-              right: 0,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: 'post',
-                  icon: const SizedBox.shrink(),
-                  alignment: Alignment.topLeft,
-                  dropdownColor: const Color.fromARGB(99, 21, 22, 21),
-                  onChanged: (String? newMode) async {
-                    if (newMode == 'post') {
-                      await shareInternetImage(
-                          imageURL!, '${widget.whichProfile}');
-                    }
-                  },
-                  items: [
-                    DropdownMenuItem<String>(
-                      value: 'post',
-                      child: Text('投稿'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: 'report',
-                      child: Text('報告'),
-                    ),
-                    // DropdownMenuItem<String>(
-                    //   value: 'block',
-                    //   child: Text('ブロック'),
-                    // ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
               bottom: 0,
               left: 0, // Adjusted to account for padding
               child: IconButton(
@@ -386,5 +383,82 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
         ),
       );
     }
+  }
+
+  Widget MyMenuButton() {
+    return SizedBox(
+        width: 55,
+        child: PopupMenuButton<String>(
+          // color: Color.fromRGBO(0, 0, 0, 0),
+          offset: Offset(0, 30),
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+          menuPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+          position: PopupMenuPosition.over,
+          child: TextButton(
+            onPressed: null,
+            child: Text(
+              ". . .",
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            ),
+          ),
+          constraints: BoxConstraints(
+            maxHeight: 100,
+            maxWidth: 80,
+          ),
+          onSelected: (value) async {
+            if (value == "report") {
+              setState(() {});
+              print("Report selected");
+            } else if (value == "share") {
+              await shareInternetImage(imageURL!, widget.whichProfile);
+              Future.delayed(Duration(seconds: 1), () {
+                Navigator.of(context).pop();
+              });
+            }
+          },
+          itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem(
+                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                value: "report",
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 100, // Set width here
+                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(149, 0, 0, 0),
+
+                    // Background color
+                    borderRadius: BorderRadius.circular(10), // Rounded corners
+                  ),
+                  child: Text(
+                    "報告",
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                value: "share",
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 100, // Set width here
+                  padding: EdgeInsets.symmetric(
+                      vertical: 6, horizontal: 0), // Add padding
+                  decoration: BoxDecoration(
+                    color:
+                        const Color.fromARGB(149, 5, 4, 4), // Background color
+
+                    borderRadius: BorderRadius.circular(10), // Rounded corners
+                  ),
+                  child: Text(
+                    "投稿",
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ),
+              )
+            ];
+          },
+        ));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/ui/screen/banner_screen.dart';
 import 'package:testing/ui/screen/follow_follower_screen.dart';
 import 'package:testing/ui/other/etc_screen.dart';
 import 'package:testing/ui/screen/settings_screen.dart';

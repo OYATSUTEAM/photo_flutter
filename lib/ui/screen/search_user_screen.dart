@@ -3,7 +3,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/ui/other/other_profile_screen.dart';
 import 'package:testing/widgets/usertile.dart';
 
 final ChatService _chatService = locator.get();

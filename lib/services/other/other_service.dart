@@ -295,7 +295,6 @@ class OtherService {
       print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
 
       final List<Map<String, dynamic>> recentFiles = [];
-      final List<String> refs = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
       for (final otherUid in otherUidList) {
         DocumentSnapshot userSnapshot =
@@ -343,7 +342,6 @@ class OtherService {
       }
       print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
       final List<Map<String, dynamic>> recentFiles = [];
-      final List<String> refs = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
       for (final otherUid in otherUidList) {
         final ListResult profileRef = await FirebaseStorage.instance
@@ -386,7 +384,6 @@ class OtherService {
       }
       print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
       final List<Map<String, dynamic>> recentFiles = [];
-      final List<String> refs = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
       for (final otherUid in otherUidList) {
         final ListResult profileRef = await FirebaseStorage.instance
@@ -429,7 +426,6 @@ class OtherService {
       }
       print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
       final List<Map<String, dynamic>> recentFiles = [];
-      final List<String> refs = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
       for (final otherUid in otherUidList) {
         final ListResult profileRef = await FirebaseStorage.instance

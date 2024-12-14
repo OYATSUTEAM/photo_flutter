@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/other/other_service.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:testing/ui/other/other_profile_screen.dart';
 import 'package:testing/widgets/othertile.dart';
 

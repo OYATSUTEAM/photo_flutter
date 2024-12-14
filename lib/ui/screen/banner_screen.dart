@@ -143,10 +143,7 @@ class _BannerScreen extends State<BannerScreen> {
                           Navigator.pop(context);
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (
-                              context,
-                            ) =>
-                                    CameraScreen()),
+                                builder: (context) => CameraScreen()),
                           );
                           if (!mounted) return;
                         },

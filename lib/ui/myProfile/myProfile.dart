@@ -7,7 +7,6 @@ import 'package:testing/ui/camera/profile_preview_screen.dart';
 import 'package:testing/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
@@ -131,14 +130,6 @@ class _MyProfile extends State<MyProfile> {
     if (shouldDelete == true) {
       try {
         await profileServices.deleteProfile(uid, whichProfile);
-
-        // final ref =
-        //     FirebaseStorage.instance.ref().child("images/$uid/${whichProfile}");
-
-        // // Attempt to delete the file
-        // await ref.delete();
-        // setState(() {});
-        // print("File deleted successfully.");
       } catch (e) {
         if (e.toString().contains('object-not-found')) {
           print("File does not exist.");
@@ -149,25 +140,25 @@ class _MyProfile extends State<MyProfile> {
     }
   }
 
-  Future<void> _setThisImage(String whichImage) async {
-    setIsShowAll(false);
+  Future<void> _setThisImage(String whichProfile) async {
+    setIsShowAll(false, whichProfile);
     setState(() {
-      if (whichImage == 'firstProfileImage') {
+      if (whichProfile == 'firstProfileImage') {
         firstImage = true;
         secondImage = false;
         thirdImage = false;
         forthImage = false;
-      } else if (whichImage == 'secondProfileImage') {
+      } else if (whichProfile == 'secondProfileImage') {
         firstImage = false;
         secondImage = true;
         thirdImage = false;
         forthImage = false;
-      } else if (whichImage == 'thirdProfileImage') {
+      } else if (whichProfile == 'thirdProfileImage') {
         firstImage = false;
         secondImage = false;
         thirdImage = true;
         forthImage = false;
-      } else if (whichImage == 'forthProfileImage') {
+      } else if (whichProfile == 'forthProfileImage') {
         firstImage = false;
         secondImage = false;
         thirdImage = false;
@@ -176,7 +167,7 @@ class _MyProfile extends State<MyProfile> {
     });
   }
 
-  Future<void> setIsShowAll(bool value) async {
+  Future<void> setIsShowAll(bool value, String whichProfile) async {
     final user = FirebaseAuth.instance.currentUser;
     setState(() {
       isShowAll = value;
@@ -184,10 +175,11 @@ class _MyProfile extends State<MyProfile> {
 
     if (user != null) {
       final userDoc =
-          FirebaseFirestore.instance.collection("users").doc(user.uid);
-
+          FirebaseFirestore.instance.collection("Users").doc(user.uid);
       try {
         await userDoc.set({"isShowAll": value}, SetOptions(merge: true));
+        await userDoc
+            .set({"whichIsDisplayed": whichProfile}, SetOptions(merge: true));
         print("isShowAll updated to $value for user ${user.uid}");
       } catch (e) {
         print("Error updating isShowAll: $e");
@@ -400,7 +392,7 @@ class _MyProfile extends State<MyProfile> {
             right: 0,
             child: IconButton(
               onPressed: () => isShowAll == false
-                  ? setIsShowAll(true)
+                  ? setIsShowAll(true, whichProfile)
                   : _setThisImage(whichProfile),
               icon: Icon(
                 Icons.content_copy,

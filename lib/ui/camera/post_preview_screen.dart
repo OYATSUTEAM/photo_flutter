@@ -83,7 +83,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   }
 
   Future<void> shareImage() async {
-    final result_file = await Share.shareXFiles(
+    await Share.shareXFiles(
         [XFile(allFileListPath.first), XFile(allFileListPath.last)],
         text: textController.text.trim());
 

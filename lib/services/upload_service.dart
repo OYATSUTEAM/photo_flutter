@@ -2,10 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
-import 'package:share_plus/share_plus.dart';
-
 class UploadService {
-  FirebaseFirestore _database = FirebaseFirestore.instance;
   late DocumentSnapshot documentSnapshot;
   UploadTask? uploadTask;
 
@@ -30,8 +27,7 @@ class UploadService {
     final ref = FirebaseStorage.instance.ref().child("images/$uid/$profileURL");
     try {
       uploadTask = ref.putFile(File(imageFilePath!), metadata);
-      final snapshot = await uploadTask!.whenComplete(() => null);
-      final downloadUrl = await snapshot.ref.getDownloadURL();
+      await uploadTask!.whenComplete(() => null);
       print(
           '$imageFilePath!!!!!!!!!!!this is called and downloadurl is !!!!!!!!!!!!!!!!');
     } catch (e) {

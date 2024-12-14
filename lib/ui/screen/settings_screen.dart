@@ -58,10 +58,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           });
           if (switchResult) {
             ThemeManager.saveTheme(true);
-            profileService.publicAccount(uid, 'true');
+            profileService.publicAccount(uid, true);
           } else {
             ThemeManager.saveTheme(false);
-            profileService.publicAccount(uid, 'false');
+            profileService.publicAccount(uid, false);
           }
           context.read<ThemeBloc>().add(ThemeDarkedMode());
         },

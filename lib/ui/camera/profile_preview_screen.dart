@@ -9,9 +9,7 @@ import 'package:testing/ui/camera/profile_camera_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:testing/ui/other/other_users.dart';
 import 'dart:io';
-import 'package:testing/ui/screen/banner_screen.dart';
 import 'package:testing/widgets/othertile.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
@@ -143,7 +141,6 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
       String profileUrl = await profileRef.getDownloadURL();
       return profileUrl;
     } catch (e) {
-      print("$e!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       if (widget.whichProfile == 'firstProfileImage')
         return _firstURL;
       else if (widget.whichProfile == 'secondProfileImage')
@@ -209,7 +206,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                             IconButton(
                               onPressed: () async {
                                 Map<String, dynamic>? user =
-                                    await _authServices.getUserDetail(uid!);
+                                    await _authServices.getUserDetail(uid);
                                 if (mounted)
                                   setState(() {
                                     _scrollToBottom();
