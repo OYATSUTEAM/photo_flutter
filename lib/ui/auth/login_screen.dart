@@ -1,0 +1,143 @@
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:testing/DI/service_locator.dart';
+import 'package:testing/services/auth/auth_service.dart';
+import 'package:testing/widgets/my_button.dart';
+import 'package:testing/widgets/my_textfield.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key, required this.callBack});
+  final VoidCallback callBack;
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // final FirebaseAuth user = locator.get();
+
+  Future<void> signIn(
+    String email,
+    String password,
+  ) async {
+    final authUser = AuthServices(locator.get(), locator.get());
+    try {
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+      }
+      await authUser.signIn(
+        email,
+        password,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } on Exception catch (ex) {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(ex.toString()),
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var emailController = TextEditingController();
+    // var usernameController = TextEditingController();
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 40,
+              ),
+              Text(
+                "メールアドレス",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              MyTextField(
+                hint: "",
+                obsecure: false,
+                controller: emailController,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // Text(
+              //   "ユーザー名",
+              //   style: TextStyle(
+              //     fontSize: 24,
+              //     color: Theme.of(context).colorScheme.primary,
+              //   ),
+              // ),
+              // const SizedBox(
+              //   height: 10,
+              // ),
+              // MyTextField(
+              //   hint: "",
+              //   obsecure: false,
+              //   controller: usernameController,
+              // ),
+              const SizedBox(
+                height: 255,
+              ),
+              MyButton(
+                text: "ログイン",
+                onTap: () async {
+                  await signIn(
+                    emailController.text.trim(),
+                    '123456',
+                  );
+                },
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "会員でない？ ",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: widget.callBack,
+                    child: Text(
+                      "今すぐ登録",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

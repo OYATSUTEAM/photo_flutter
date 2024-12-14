@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "43706569274",
+    "project_id": "cameraapp-87770",
+    "storage_bucket": "cameraapp-87770.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915215970623:android:caea9ce4118f6fc078638a",
+        "android_client_info": {
+          "package_name": "com.bluepine.camera"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzbx03FNypH_QQC0jmu4aHXupUoAezoho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+} 
