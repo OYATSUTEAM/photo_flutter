@@ -88,135 +88,136 @@ class _BannerScreen extends State<BannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        drawer: MyDrawer(),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.grey,
-          elevation: 0,
-          title: const Text("バナー"),
-          centerTitle: true,
-        ),
-        body: Stack(children: [
-          Positioned(
-            bottom: 30, // 30 pixels from the bottom
-            left: 0,
-            right: 0,
-            child: Container(
-              child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    30.0,
-                    8.0,
-                    30.0,
-                    8.0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ///  home button
-                      IconButton(
-                        onPressed: () async {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ),
-                          );
-                        },
-                        iconSize: 40,
-                        icon: const Icon(
-                          Icons.home_outlined,
-                          color: Colors.white,
-                          weight: 100,
-                        ),
-                      ),
-                      //// post button
-                      IconButton(
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              });
-                          Navigator.pop(context);
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) => CameraScreen()),
-                          );
-                          if (!mounted) return;
-                        },
-                        iconSize: 40,
-                        icon: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        ),
-                      ),
-                      /////////////////////////////////////////////////////////////////// //// search button /////////////////////////////////////////////////////////////
-                      IconButton(
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              });
-                          Navigator.pop(context);
-                          if (!mounted) return;
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => SearchUser(),
-                            ),
-                          );
-                        },
-                        iconSize: 40,
-                        icon: const Icon(
-                          Icons.search,
-                          color: Colors.white,
-                        ),
-                      ),
-                      ////
-
-                      FloatingActionButton(
-                        backgroundColor: Colors.transparent,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(myProfileURL != null
-                              ? myProfileURL!
-                              : _myProfileURL),
-                          radius: 20,
-                        ),
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              });
-                          Navigator.pop(context);
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                // print(userDetail);
-                                return MyProfile();
-                              },
-                            ),
-                          );
-                        },
-                      ),
-
-                      ///   transfer button
-                    ],
-                  )
-                  //   ],
-                  // ),
-                  ),
+    return SafeArea(
+        child: Scaffold(
+            drawer: MyDrawer(),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.grey,
+              elevation: 0,
+              title: const Text("バナー"),
+              centerTitle: true,
             ),
-          )
-        ]));
+            body: Stack(children: [
+              Positioned(
+                bottom: 30, // 30 pixels from the bottom
+                left: 0,
+                right: 0,
+                child: Container(
+                  child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        30.0,
+                        8.0,
+                        30.0,
+                        8.0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ///  home button
+                          IconButton(
+                            onPressed: () async {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => HomeScreen(),
+                                ),
+                              );
+                            },
+                            iconSize: 40,
+                            icon: const Icon(
+                              Icons.home_outlined,
+                              color: Colors.white,
+                              weight: 100,
+                            ),
+                          ),
+                          //// post button
+                          IconButton(
+                            onPressed: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  });
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (context) => CameraScreen()),
+                              );
+                              if (!mounted) return;
+                            },
+                            iconSize: 40,
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                          /////////////////////////////////////////////////////////////////// //// search button /////////////////////////////////////////////////////////////
+                          IconButton(
+                            onPressed: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  });
+                              Navigator.pop(context);
+                              if (!mounted) return;
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SearchUser(),
+                                ),
+                              );
+                            },
+                            iconSize: 40,
+                            icon: const Icon(
+                              Icons.search,
+                              color: Colors.white,
+                            ),
+                          ),
+                          ////
+
+                          FloatingActionButton(
+                            backgroundColor: Colors.transparent,
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(myProfileURL != null
+                                  ? myProfileURL!
+                                  : _myProfileURL),
+                              radius: 20,
+                            ),
+                            onPressed: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  });
+                              Navigator.pop(context);
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    // print(userDetail);
+                                    return MyProfile();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+
+                          ///   transfer button
+                        ],
+                      )
+                      //   ],
+                      // ),
+                      ),
+                ),
+              )
+            ])));
   }
 }

@@ -32,7 +32,8 @@ class _OtherUsersScreenState extends State<OtherUsers> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(title: Text("他のユーザー")),
       body: FutureBuilder<List<dynamic>?>(
         future: _otherUidFuture,
@@ -67,6 +68,6 @@ class _OtherUsersScreenState extends State<OtherUsers> {
           }
         },
       ),
-    );
+    ));
   }
 }

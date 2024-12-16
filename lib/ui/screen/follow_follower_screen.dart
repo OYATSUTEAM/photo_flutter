@@ -70,7 +70,8 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
   }
 
   Widget FollowScreen() {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       body: FutureBuilder<List<dynamic>?>(
         future: _followUidFuture,
         builder: (context, snapshot) {
@@ -104,7 +105,7 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
           }
         },
       ),
-    );
+    ));
   }
 
   Widget FollowerScreen() {

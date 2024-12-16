@@ -42,7 +42,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String isPublic = 'true';
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
@@ -86,6 +87,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

@@ -23,24 +23,9 @@ class AddCameraScreen extends StatefulWidget {
 class _AddCameraScreenState extends State<AddCameraScreen>
     with WidgetsBindingObserver {
   CameraController? controller;
-  // VideoPlayerController? videoController;
-
-  // File? _imageFile;
-  // File? _videoFile;
-
-  // Initial values
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
   bool _isRearCameraSelected = true;
-  // bool _isRecordingInProgress = false;
-  // double _minAvailableExposureOffset = -1.0;
-  // double _maxAvailableExposureOffset = 2.0;
-  // double _minAvailableZoom = 1.0;
-  // double _maxAvailableZoom = 1.0;
-
-  // Current values
-  // double _currentZoomLevel = 1.0;
-  // double _currentExposureOffset = 0.0;
   FlashMode? _currentFlashMode;
 
   List<File> allFileList = [];
@@ -81,29 +66,12 @@ class _AddCameraScreenState extends State<AddCameraScreen>
         fileNames.add({0: int.parse(name), 1: file.path.split('/').last});
       }
     });
-
-    // if (fileNames.isNotEmpty) {
-    //   final recentFile =
-    //       fileNames.reduce((curr, next) => curr[0] > next[0] ? curr : next);
-    //   String recentFileName = recentFile[1];
-    //   if (recentFileName.contains('.mp4')) {
-    //     _videoFile = File('${directory.path}/$recentFileName');
-    //     _imageFile = null;
-    //     // _startVideoPlayer();
-    //   } else {
-    //     _imageFile = File('${directory.path}/$recentFileName');
-    //     _videoFile = null;
-    //   }
-
-    //   setState(() {});
-    // }
   }
 
   Future<XFile?> takePicture() async {
     final CameraController? cameraController = controller;
 
     if (cameraController!.value.isTakingPicture) {
-      // A capture is already pending, do nothing.
       return null;
     }
 
@@ -127,10 +95,7 @@ class _AddCameraScreenState extends State<AddCameraScreen>
     }
   }
 
-  void resetCameraValues() async {
-    // _currentZoomLevel = 1.0;
-    // _currentExposureOffset = 0.0;
-  }
+  void resetCameraValues() async {}
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     final previousCameraController = controller;
@@ -157,20 +122,6 @@ class _AddCameraScreenState extends State<AddCameraScreen>
 
     try {
       await cameraController.initialize();
-      // await Future.wait([
-      //   cameraController
-      //       .getMinExposureOffset()
-      //       .then((value) => _minAvailableExposureOffset = value),
-      //   cameraController
-      //       .getMaxExposureOffset()
-      //       .then((value) => _maxAvailableExposureOffset = value),
-      //   cameraController
-      //       .getMaxZoomLevel()
-      //       .then((value) => _maxAvailableZoom = value),
-      //   cameraController
-      //       .getMinZoomLevel()
-      //       .then((value) => _minAvailableZoom = value),
-      // ]);
 
       _currentFlashMode = controller!.value.flashMode;
     } on CameraException catch (e) {

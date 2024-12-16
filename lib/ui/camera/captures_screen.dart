@@ -115,7 +115,8 @@ class _CapturesScreenState extends State<CapturesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -177,6 +178,6 @@ class _CapturesScreenState extends State<CapturesScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

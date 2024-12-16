@@ -154,178 +154,184 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
   Widget build(BuildContext context) {
     try {
       // Main UI rendering
-      return Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            toolbarHeight: 36,
-            title: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    child: MyMenuButton(() => setState(() {
-                          _setUpProfilePreview();
-                        })),
-                  )
-                ],
+      return SafeArea(
+          child: Scaffold(
+              backgroundColor: Colors.black,
+              appBar: AppBar(
+                toolbarHeight: 36,
+                title: Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 60,
+                        child: MyMenuButton(() => setState(() {
+                              _setUpProfilePreview();
+                            })),
+                      )
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          body: Container(
-              height: MediaQuery.of(context).size.height,
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+              body: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
+                          // mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Container(
-                                width: MediaQuery.of(context).size.width * 0.97,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.8,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.97,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.8,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                        color: Colors.grey,
+                                        image: DecorationImage(
+                                          image: NetworkImage(imageURL!),
+                                          fit: BoxFit.cover,
+                                        ))),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(width: 35),
+                                IconButton(
+                                  onPressed: () async {
+                                    Map<String, dynamic>? user =
+                                        await _authServices.getUserDetail(uid);
+                                    if (mounted)
+                                      setState(() {
+                                        _scrollToBottom();
+                                        isCommenting = !isCommenting;
+                                        username = user?['username'];
+                                      });
+                                  },
+                                  icon: Icon(Icons.chat_bubble_outline),
+                                ),
+                                Text(comments.length.toString()),
+                                SizedBox(width: 20),
+                                Icon(Icons.thumb_up),
+                                SizedBox(width: 20),
+                                Text(like.length.toString()),
+                                SizedBox(width: 20),
+                                Icon(Icons.thumb_down),
+                                SizedBox(width: 20),
+                                Text(dislike.length.toString()),
+                                SizedBox(width: 20),
+                                Icon(Icons.favorite_outline),
+                                SizedBox(width: 20),
+                                Text(favourite.length.toString()),
+                              ],
+                            ),
+                            isCommenting
+                                ? SizedBox(
+                                    height: 0,
+                                  )
+                                : SizedBox(
+                                    height: 50,
+                                  ),
+                            if (isCommenting)
+                              Container(
+                                height: 300,
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    color: Colors.grey,
-                                    image: DecorationImage(
-                                      image: NetworkImage(imageURL!),
-                                      fit: BoxFit.cover,
-                                    ))),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(width: 35),
-                            IconButton(
-                              onPressed: () async {
-                                Map<String, dynamic>? user =
-                                    await _authServices.getUserDetail(uid);
-                                if (mounted)
-                                  setState(() {
-                                    _scrollToBottom();
-                                    isCommenting = !isCommenting;
-                                    username = user?['username'];
-                                  });
-                              },
-                              icon: Icon(Icons.chat_bubble_outline),
-                            ),
-                            Text(comments.length.toString()),
-                            SizedBox(width: 20),
-                            Icon(Icons.thumb_up),
-                            SizedBox(width: 20),
-                            Text(like.length.toString()),
-                            SizedBox(width: 20),
-                            Icon(Icons.thumb_down),
-                            SizedBox(width: 20),
-                            Text(dislike.length.toString()),
-                            SizedBox(width: 20),
-                            Icon(Icons.favorite_outline),
-                            SizedBox(width: 20),
-                            Text(favourite.length.toString()),
-                          ],
-                        ),
-                        isCommenting
-                            ? SizedBox(
-                                height: 0,
-                              )
-                            : SizedBox(
-                                height: 50,
-                              ),
-                        if (isCommenting)
-                          Container(
-                            height: 300,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors
-                                    .white, // Set the border color to white
-                                width: 2.0, // Set the width of the border
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(
-                                  8.0)), // Optional: Add rounded corners
-                            ),
-                            child: ListView.builder(
-                              itemCount: comments.length,
-                              itemBuilder: (context, index) {
-                                var comment = comments[index];
-                                var timestamp = comment['timestamp'];
-                                var otherUid = comment['uid'];
+                                  border: Border.all(
+                                    color: Colors
+                                        .white, // Set the border color to white
+                                    width: 2.0, // Set the width of the border
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      8.0)), // Optional: Add rounded corners
+                                ),
+                                child: ListView.builder(
+                                  itemCount: comments.length,
+                                  itemBuilder: (context, index) {
+                                    var comment = comments[index];
+                                    var timestamp = comment['timestamp'];
+                                    var otherUid = comment['uid'];
 
-                                String formattedTimestamp = timestamp != null
-                                    ? timestamp
-                                        .toDate()
-                                        .toString() // Format the timestamp if not null
-                                    : 'No timestamp available';
+                                    String formattedTimestamp = timestamp !=
+                                            null
+                                        ? timestamp
+                                            .toDate()
+                                            .toString() // Format the timestamp if not null
+                                        : 'No timestamp available';
 
-                                return FutureBuilder(
-                                  future: _authServices.getDocument(otherUid),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return ListTile(
-                                        title: Text(comment['comment']),
-                                        subtitle: Text(
-                                            'ユーザー: ローディング...'), ///////////////////loading
-                                        trailing: Text(formattedTimestamp),
-                                      );
-                                    }
-                                    if (snapshot.hasError) {
-                                      return ListTile(
-                                        title: Text(comment['comment']),
-                                        subtitle:
-                                            Text('ユーザー: Error loading user'),
-                                        trailing: Text(formattedTimestamp),
-                                      );
-                                    }
+                                    return FutureBuilder(
+                                      future:
+                                          _authServices.getDocument(otherUid),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return ListTile(
+                                            title: Text(comment['comment']),
+                                            subtitle: Text(
+                                                'ユーザー: ローディング...'), ///////////////////loading
+                                            trailing: Text(formattedTimestamp),
+                                          );
+                                        }
+                                        if (snapshot.hasError) {
+                                          return ListTile(
+                                            title: Text(comment['comment']),
+                                            subtitle: Text(
+                                                'ユーザー: Error loading user'),
+                                            trailing: Text(formattedTimestamp),
+                                          );
+                                        }
 
-                                    var otherUser = snapshot.data;
-                                    var otherUserName =
-                                        otherUser?['username'] ??
-                                            'Unknown User';
+                                        var otherUser = snapshot.data;
+                                        var otherUserName =
+                                            otherUser?['username'] ??
+                                                'Unknown User';
 
-                                    return ListTile(
-                                      title: Text(comment['comment']),
-                                      subtitle: Text('ユーザー: $otherUserName'),
-                                      trailing: Text(formattedTimestamp),
+                                        return ListTile(
+                                          title: Text(comment['comment']),
+                                          subtitle:
+                                              Text('ユーザー: $otherUserName'),
+                                          trailing: Text(formattedTimestamp),
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                      bottom: -6,
-                      left: 0, // Adjusted to account for padding
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(Icons.undo))),
-                  Positioned(
-                      bottom: -6,
-                      right: 0, // Adjusted to account for padding
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => ProfileCameraScreen(
-                                  whichProfile: widget.whichProfile,
                                 ),
                               ),
-                            );
-                          },
-                          icon: Icon(Icons.camera_alt))),
-                ],
-              )));
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                          bottom: -6,
+                          left: 0, // Adjusted to account for padding
+                          child: IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(Icons.undo))),
+                      Positioned(
+                          bottom: -6,
+                          right: 0, // Adjusted to account for padding
+                          child: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileCameraScreen(
+                                      whichProfile: widget.whichProfile,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.camera_alt))),
+                    ],
+                  ))));
     } catch (e) {
       // Fallback UI in case of error
       return Scaffold(

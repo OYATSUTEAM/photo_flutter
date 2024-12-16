@@ -60,7 +60,8 @@ class _EtcScreenState extends State<EtcScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
@@ -215,7 +216,7 @@ class _EtcScreenState extends State<EtcScreen> {
               )),
             ],
           )),
-    );
+    ));
   }
 
   Widget RecommendedUsersTile(String imageURL, String whichProfile) {

@@ -117,7 +117,8 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       );
     }
 
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       backgroundColor: Colors.black,
       body: Column(
         children: [
@@ -206,7 +207,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildImageTile(String filePath) {

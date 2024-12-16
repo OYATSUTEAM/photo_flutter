@@ -41,7 +41,8 @@ class _SearchUserState extends State<SearchUser> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -91,7 +92,7 @@ class _SearchUserState extends State<SearchUser> {
         ),
       ),
       body: BuildUserList(query: query),
-    );
+    ));
   }
 }
 

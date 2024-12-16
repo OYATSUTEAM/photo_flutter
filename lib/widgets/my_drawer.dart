@@ -12,118 +12,119 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-        width: MediaQuery.of(context).size.width * 0.9,
-        backgroundColor: const Color.fromARGB(255, 14, 12, 12),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+    return SafeArea(
+        child: Drawer(
+            width: MediaQuery.of(context).size.width * 0.9,
+            backgroundColor: const Color.fromARGB(255, 14, 12, 12),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "設定",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "利用規約", //terms of service
-                    onTap: () async {},
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "公開設定", //public setting
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => SettingsScreen(),
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "設定",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
                         ),
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "プライバシーポリシー", //privacy policy
-                    onTap: () async {},
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "その他", //others
-                    onTap: () async {
-                      // final finalContext = context;
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "利用規約", //terms of service
+                        onTap: () async {},
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "公開設定", //public setting
+                        onTap: () async {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SettingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "プライバシーポリシー", //privacy policy
+                        onTap: () async {},
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "その他", //others
+                        onTap: () async {
+                          // final finalContext = context;
 
-                      // Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => EtcScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "他のユーザー", //others
-                    onTap: () async {
-                      // final finalContext = context;
+                          // Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EtcScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "他のユーザー", //others
+                        onTap: () async {
+                          // final finalContext = context;
 
-                      // Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => OtherUsers(),
-                        ),
-                      );
-                    },
+                          // Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => OtherUsers(),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      MyButton(
+                        text: "フォローとフォロワー",
+                        onTap: () async {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => FollowAndFollower(),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: 175,
+                      ),
+                      MyButton(
+                          text: "ログアウト",
+                          color: Colors.red,
+                          onTap: () async {
+                            print('logout is called');
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                });
+                            await AuthServices(locator.get(), locator.get())
+                                .signOut();
+                            Navigator.pop(context);
+                          }),
+                    ],
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "フォローとフォロワー",
-                    onTap: () async {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => FollowAndFollower(),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 175,
-                  ),
-                  MyButton(
-                      text: "ログアウト",
-                      color: Colors.red,
-                      onTap: () async {
-                        print('logout is called');
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            });
-                        await AuthServices(locator.get(), locator.get())
-                            .signOut();
-                        Navigator.pop(context);
-                      }),
-                ],
-              ),
-            ]));
+                ])));
   }
 }

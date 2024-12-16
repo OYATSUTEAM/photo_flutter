@@ -208,7 +208,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
 
     try {
       // Main UI rendering
-      return Scaffold(
+      return SafeArea(
+          child: Scaffold(
         backgroundColor: Colors.black,
         body:
             Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
@@ -261,7 +262,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         ]),
         // ],
         // ),
-      );
+      ));
     } catch (e) {
       // Fallback UI in case of error
       return Scaffold(

@@ -58,7 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
@@ -207,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
               )),
             ],
           )),
-    );
+    ));
   }
 
   Widget RecommendedUsersTile(String imageURL, String whichProfile) {

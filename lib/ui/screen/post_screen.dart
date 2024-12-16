@@ -8,7 +8,8 @@ class PostScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return SafeArea(
+        child: Drawer(
       backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,6 +78,6 @@ class PostScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
