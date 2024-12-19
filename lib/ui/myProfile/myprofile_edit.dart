@@ -4,13 +4,16 @@ import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:testing/services/profile/profile_services.dart';
+import 'package:testing/ui/auth/reset_password.dart';
 import 'package:testing/ui/camera/profile_camera_screen.dart';
 import 'package:testing/ui/myProfile/myProfile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 
+import 'package:testing/widgets/my_button.dart';
+
 final AuthServices _authServices = locator.get();
-final ProfileServices profileServices = ProfileServices();
+final ProfileServices _profileServices = ProfileServices();
 // File? _imageFile;
 File? _selectImage;
 UploadTask? uploadTask;
@@ -27,15 +30,16 @@ class MyProfileEdit extends StatefulWidget {
 }
 
 class _MyProfileEdit extends State<MyProfileEdit> {
-  String myMainProfileURL = profileServices.mainURL;
-  String editProfileURL = profileServices.mainURL;
+  String myMainProfileURL = _profileServices.mainURL;
+  String editProfileURL = _profileServices.mainURL;
   String email = 'default@gmail.com',
       uid = 'default',
-      username = 'default',
-      name = 'default';
+      username = 'ローディング...',
+      name = 'ローディング...',
+      password = '``````';
   final currentUser = _authServices.getCurrentuser();
   final _formKey = GlobalKey<FormState>(); // Form key for validation
-
+  bool isLoading = true;
   @override
   void initState() {
     _setUpInitial();
@@ -46,8 +50,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
   Future<void> _setUpInitial() async {
     try {
       final fetchedUid = _authServices.getCurrentuser()!.uid;
+      final fetchedEmail = _authServices.getCurrentuser()!.email;
       setState(() {
         uid = fetchedUid;
+        email = fetchedEmail!;
       });
     } catch (e) {
       print('$e this error occurred in my profile.');
@@ -56,14 +62,17 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
   Future<void> fetchUsername() async {
     try {
-      final fetchedMainURL = await profileServices.getMainProfileUrl(uid);
-      final fetchedEditURL = await profileServices.getEditProfileUrl(uid);
+      final fetchedMainURL = await _profileServices.getMainProfileUrl(uid);
+      final fetchedEditURL = await _profileServices.getEditProfileUrl(uid);
       Map<String, dynamic>? user = await _authServices.getUserDetail(uid);
+      final currentPassword = await _profileServices.getUserPassword(uid);
       setState(() {
         username = user?['username'];
         name = user?['name'];
         myMainProfileURL = fetchedMainURL;
         editProfileURL = fetchedEditURL;
+        password = currentPassword;
+        isLoading = false;
       });
     } catch (e) {
       print('$e this error occurred in my profile.');
@@ -110,6 +119,12 @@ class _MyProfileEdit extends State<MyProfileEdit> {
   }
 
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     final nameController = TextEditingController(text: name);
     final usernameController = TextEditingController(text: username);
 
@@ -124,7 +139,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
                   // Profile Image
                   Center(
                     child: Stack(
@@ -166,7 +181,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   const SizedBox(height: 10),
                   // Name Input
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Padding(
@@ -198,18 +213,18 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   const SizedBox(height: 10),
                   // Username Input
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25.0),
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
-                          'ユーザー名', /////////////////////////////////////////////////////////////////// username
+                          'ユーザーネーム', /////////////////////////////////////////////////////////////////// username
                           style: TextStyle(fontSize: 20),
                         ),
                       ),
                       SizedBox(
-                        width: 200,
+                        width: 100,
                         child: TextFormField(
                           controller: usernameController,
                           decoration: const InputDecoration(
@@ -219,7 +234,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                           textAlign: TextAlign.center,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'ユーザー名を空にすることはできません。';
+                              return 'ユーザーネームを空にすることはできません。';
                             }
                             return null;
                           },
@@ -227,6 +242,20 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 15),
+
+                  MyButton(
+                      text: "ログイン",
+                      onTap: () async {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => ResetPasswordScreen(
+                                  whichProfile: widget.whichProfile,
+                                  email: email,
+                                  uid: uid)),
+                        );
+                      })
                 ],
               ),
               // Cancel Button
@@ -245,7 +274,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   child: const Text(
                     'キャンセル',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: Colors.white,
                     ),
                   ),
@@ -278,31 +307,36 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                           );
                         },
                       );
-                      await profileServices.updateProfile(
-                        uid,
-                        nameController.text.trim(),
-                        usernameController.text.trim(),
-                        email,
-                        '123456',
-                      );
+                      if (mounted) {
+                        await _profileServices.updateProfile(
+                          uid,
+                          nameController.text.trim(),
+                          usernameController.text.trim(),
+                          email,
+                          password,
+                        );
+                      }
                       if (!mounted) return;
                       if (mounted) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => MyProfile(),
-                          ),
-                        );
                         widget.whichProfile != 'myMainProfileURL'
-                            ? _uploadFile()
+                            ? _uploadFile().then((_) {
+                                Navigator.pop(context);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => MyProfile(),
+                                  ),
+                                );
+                              })
                             : null;
                       }
                     }
                     ;
                   },
+//==============================================================================  save   ======================================================================
                   child: const Text(
-                    '保存', //////////////////////////////////////////save/////////////////
+                    '保存',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       color: Colors.white,
                     ),
                   ),

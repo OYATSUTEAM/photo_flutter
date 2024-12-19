@@ -36,7 +36,8 @@ String _thirdURL =
     "https://img.freepik.com/premium-photo/default-avatar-profile-icon-gray-placeholder-man-woman-isolated-white-background_660230-21610.jpg";
 String _forthURL =
     "https://img.freepik.com/premium-vector/grandparents-icon-vector-image-can-be-used-child-adoption_120816-381816.jpg?semt=ais_hybrid";
-
+String mainURL =
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 bool isCommenting = false; // To track if comment input is visible
 List<Map<String, dynamic>> comments = [];
 List<dynamic> like = [], dislike = [], favourite = [];
@@ -141,7 +142,9 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
       String profileUrl = await profileRef.getDownloadURL();
       return profileUrl;
     } catch (e) {
-      if (widget.whichProfile == 'firstProfileImage')
+      if (widget.whichProfile == 'mainProfileImage')
+        return mainURL;
+      else if (widget.whichProfile == 'firstProfileImage')
         return _firstURL;
       else if (widget.whichProfile == 'secondProfileImage')
         return _secondURL;
@@ -204,31 +207,32 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                               ],
                             ),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(width: 35),
-                                IconButton(
-                                  onPressed: () async {
-                                    Map<String, dynamic>? user =
-                                        await _authServices.getUserDetail(uid);
-                                    if (mounted)
-                                      setState(() {
-                                        _scrollToBottom();
-                                        isCommenting = !isCommenting;
-                                        username = user?['username'];
-                                      });
-                                  },
-                                  icon: Icon(Icons.chat_bubble_outline),
-                                ),
-                                Text(comments.length.toString()),
-                                SizedBox(width: 20),
-                                Icon(Icons.thumb_up),
-                                SizedBox(width: 20),
-                                Text(like.length.toString()),
-                                SizedBox(width: 20),
-                                Icon(Icons.thumb_down),
-                                SizedBox(width: 20),
-                                Text(dislike.length.toString()),
-                                SizedBox(width: 20),
+                                // SizedBox(width: 35),
+                                // IconButton(
+                                //   onPressed: () async {
+                                //     Map<String, dynamic>? user =
+                                //         await _authServices.getUserDetail(uid);
+                                //     if (mounted)
+                                //       setState(() {
+                                //         _scrollToBottom();
+                                //         isCommenting = !isCommenting;
+                                //         username = user?['username'];
+                                //       });
+                                //   },
+                                //   icon: Icon(Icons.chat_bubble_outline),
+                                // ),
+                                // Text(comments.length.toString()),
+                                // SizedBox(width: 20),
+                                // Icon(Icons.thumb_up),
+                                // SizedBox(width: 20),
+                                // Text(like.length.toString()),
+                                // SizedBox(width: 20),
+                                // Icon(Icons.thumb_down),
+                                // SizedBox(width: 20),
+                                // Text(dislike.length.toString()),
+                                // SizedBox(width: 20),
                                 Icon(Icons.favorite_outline),
                                 SizedBox(width: 20),
                                 Text(favourite.length.toString()),

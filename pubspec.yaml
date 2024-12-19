@@ -55,6 +55,8 @@ dependencies:
   camera: ^0.11.0+2
   # gal: ^2.3.0
   permission_handler: ^11.3.1
+  firebase_app_check: ^0.3.1+7
+  # firebase_app_check: ^0.3.1+7
   # video_player: ^2.9.2
   # image_field: ^0.0.10
   # flutter_plugin_android_lifecycle: ^2.0.23

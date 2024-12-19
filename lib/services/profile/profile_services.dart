@@ -19,10 +19,21 @@ class ProfileServices {
   Future<void> updateProfile(String? uid, String? name, String? username,
       String? email, String? password) async {
     try {
-      await _database.collection("Users").doc(uid).update({
-        'name': name,
-        'username': username,
-      });
+      await _database
+          .collection("Users")
+          .doc(uid)
+          .update({'name': name, 'username': username, 'password': password});
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  Future<void> updatePassword(String uid, String password) async {
+    try {
+      await _database
+          .collection("Users")
+          .doc(uid)
+          .update({'password': password});
     } catch (e) {
       print("Error updating profile: $e");
     }
@@ -169,6 +180,45 @@ class ProfileServices {
     }
   }
 
+  Future<String> getUserPassword(String uid) async {
+    try {
+      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      if (documentSnapshot.exists && documentSnapshot.data() != null) {
+        return documentSnapshot.get('password');
+      }
+      return '123456';
+    } catch (e) {
+      print("Error fetching document: $e");
+      return '123456';
+    }
+  }
+
+  Future<String> getUserName(String uid) async {
+    try {
+      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      if (documentSnapshot.exists && documentSnapshot.data() != null) {
+        return documentSnapshot.get('name');
+      }
+      return 'ローディング...';
+    } catch (e) {
+      print("Error fetching document: $e");
+      return 'ユーザー読み込みエラー';
+    }
+  }
+
+  Future<String> getUserUsername(String uid) async {
+    try {
+      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      if (documentSnapshot.exists && documentSnapshot.data() != null) {
+        return documentSnapshot.get('username');
+      }
+      return 'ローディング...';
+    } catch (e) {
+      print("Error fetching document: $e");
+      return 'ユーザー読み込みエラー';
+    }
+  }
+
   Future<String> profileShowAll(String uid) async {
     try {
       final ref = await _database.collection('Users').doc(uid).get();
@@ -180,6 +230,29 @@ class ProfileServices {
     } catch (e) {
       print(e);
       return 'first';
+    }
+  }
+
+  Future<void> reportThisUser(
+      String uid, String otherUid, String reportContent) async {
+    DateTime time = DateTime.now();
+    try {
+      // Define the Firestore reference path
+      final reportRef = FirebaseFirestore.instance
+          .collection("Users")
+          .doc(uid)
+          .collection("reports")
+          .doc(otherUid);
+
+      // Update the report content and time
+      await reportRef.set({
+        'reportContent': reportContent,
+        'time': time.toIso8601String(), // Convert DateTime to a string format
+      });
+
+      print("Report updated successfully");
+    } catch (e) {
+      print("Error updating report: $e");
     }
   }
 }

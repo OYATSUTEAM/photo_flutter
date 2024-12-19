@@ -52,7 +52,7 @@ class AuthServices {
   ) async {
     try {
       final UserCredential userCredential = await user
-          .signInWithEmailAndPassword(email: email, password: '123456');
+          .signInWithEmailAndPassword(email: email, password: password);
       return userCredential;
     } on FirebaseAuthException catch (error) {
       String errorMessage = "";
@@ -97,7 +97,7 @@ class AuthServices {
       final UserCredential userCredential =
           await user.createUserWithEmailAndPassword(
         email: email,
-        password: password, // Use the passed `password` parameter here
+        password: password,
       );
       await _database.collection("Users").doc(userCredential.user?.uid).set({
         "uid": userCredential.user?.uid,
@@ -108,6 +108,7 @@ class AuthServices {
         'other': [],
         'follow': [],
         'follower': [],
+        'isShowAll': true,
       });
       return await signIn(email, password);
     } on FirebaseAuthException {

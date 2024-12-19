@@ -18,54 +18,69 @@ class RegisterScreen extends StatefulWidget {
 }
 
 final authUser = AuthServices(locator.get(), locator.get());
+bool isLoading = true;
 
 class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> signUp(
     String email,
     String name,
     String username,
+    String password,
+    String passwordConfirm,
   ) async {
     // bool isDialogShown = false;
 
-    try {
-      // Show loading dialog
-
-      // Check if the email or username already exists
-      final users = await chatService.getuserStream().first;
-      final isExist = users.any((userData) => userData['email'] == email);
-      final existingUserQuery = await _database
-          .collection("Users")
-          .where('username', isEqualTo: username)
-          .get();
-
-      if (isExist) {
-        throw Exception(
-            'ユーザは既に存在します！'); //////////////////////////////The user already exists!/////////////////////////////
-      } else if (existingUserQuery.docs.isNotEmpty) {
-        throw Exception(
-            'ユーザー名はすでに使われています。\n別のユーザー名を選択してください。'); /////////Username is already in use. \Please select a different user name.////////
-      }
-      // if (mounted) {
-      //   showDialog(
-      //     context: context,
-      //     builder: (context) {
-      //       return Center(
-      //         child: CircularProgressIndicator(),
-      //       );
-      //     },
-      //   );
-      // }
-      final finalContext = context;
-      await authUser.signUp(email, '123456', name, username);
-      if (finalContext.mounted) {
-        Navigator.pop(finalContext); // Close the dialog
-      }
-    } on Exception catch (ex) {
+    if (password == passwordConfirm) {
       showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            content: Text(ex.toString()),
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+      try {
+        // Check if the email or username already exists
+        final users = await chatService.getuserStream().first;
+        final isExist = users.any((userData) => userData['email'] == email);
+        final existingUserQuery = await _database
+            .collection("Users")
+            .where('username', isEqualTo: username)
+            .get();
+//=======================================================================user is already exist=====================================================================//
+        if (isExist) {
+          throw Exception('ユーザは既に存在します！');
+        } else if (existingUserQuery.docs.isNotEmpty) {
+          throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
+//=======================================================Username is already in use. \Please select a different user name.===========================================//
+        }
+
+        final result = await authUser.signUp(email, password, name, username);
+        if (mounted) {
+          Navigator.pop(context);
+          print(
+              "$result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!this is sign up result!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
+      } on Exception catch (ex) {
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+        print("$ex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(ex.toString()),
+            );
+          },
+        );
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            content: Text("Passwords dont' match"),
           );
         },
       );
@@ -77,6 +92,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     var emailController = TextEditingController();
     var nameController = TextEditingController();
     var userNameController = TextEditingController();
+    var passwordController = TextEditingController();
+    var pwConfirmController = TextEditingController();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -87,12 +104,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 "メールアドレス",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   color: Colors.white,
                   fontFamily: 'NotoSansJP',
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               MyTextField(
                 hint: "",
                 obsecure: false,
@@ -102,11 +119,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 "名前",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               MyTextField(
                 hint: "",
                 obsecure: false,
@@ -114,27 +131,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                "ユーザー名",
+                "ユーザーネーム",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               MyTextField(
                 hint: "",
                 obsecure: false,
                 controller: userNameController,
               ),
-              const SizedBox(height: 205),
+              const SizedBox(height: 10),
+              Text(
+                "パスワード",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              MyTextField(
+                hint: "6文字以上のパスワードを入力して下さい。",
+                obsecure: true,
+                controller: passwordController,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "パスワードの確認",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              MyTextField(
+                hint: "パスワードの確認",
+                obsecure: true,
+                controller: pwConfirmController,
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               MyButton(
                 text: "続ける",
                 onTap: () {
                   signUp(
-                    emailController.text.trim(),
-                    nameController.text.trim(),
-                    userNameController.text.trim(),
-                  );
+                      emailController.text.trim(),
+                      nameController.text.trim(),
+                      userNameController.text.trim(),
+                      passwordController.text.trim(),
+                      pwConfirmController.text.trim());
                 },
               ),
               const SizedBox(height: 5),

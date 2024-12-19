@@ -11,6 +11,7 @@ import 'package:testing/theme/light_mode.dart';
 import 'package:testing/theme/dark_mode.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
@@ -20,7 +21,22 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+//  await FirebaseAppCheck .instance.activate(
+//     androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity
+//   );
+  await FirebaseAppCheck.instance.activate(
+      appleProvider: AppleProvider.debug,
+      androidProvider: AndroidProvider.debug);
+
+  //  FirebaseAppCheck.instance.activate(
+  //   webProvider: ReCaptchaV3Provider('your-recaptcha-site-key'),
+  //   androidProvider: AndroidProvider
+  //       .debug, // Replace 'debug' with real provider in production
+  //   appleProvider: AppleProvider.appAttest,
+  // );
   await initSerivceLocator();
+  // String? token = await FirebaseAppCheck.instance.getToken();
+  // print("$token!!!!!!!!!!!this is token");
   runApp(
     BlocProvider(
       create: (context) => ThemeBloc(),
@@ -34,8 +50,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // String? uid = _authServices.getCurrentuser()?.uid;
-
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         if (state is ThemeInitState) {

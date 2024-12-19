@@ -64,8 +64,6 @@ class MyDrawer extends StatelessWidget {
                       MyButton(
                         text: "その他", //others
                         onTap: () async {
-                          // final finalContext = context;
-
                           // Navigator.pop(context);
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -105,7 +103,7 @@ class MyDrawer extends StatelessWidget {
                         },
                       ),
                       SizedBox(
-                        height: 175,
+                        height: MediaQuery.of(context).size.height * 0.23,
                       ),
                       MyButton(
                           text: "ログアウト",
