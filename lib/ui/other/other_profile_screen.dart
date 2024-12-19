@@ -7,8 +7,11 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testing/ui/other/other_profile_preview_screen.dart';
+import 'package:testing/ui/other/report_screen.dart';
 import 'package:testing/widgets/othertile.dart';
 import 'package:testing/services/other/other_service.dart';
+
+enum Options { option1, option2, option3 }
 
 class OtherProfile extends StatefulWidget {
   final String otherUid;
@@ -24,6 +27,7 @@ final otherService = OtherService(locator.get(), locator.get());
 ProfileServices profileServices = ProfileServices();
 
 class _OtherProfile extends State<OtherProfile> {
+  bool isLoading = true;
   final User? user = _auth.currentUser;
   String whichProfileShow = 'showAll';
   String otherMainProfileURL = profileService.mainURL;
@@ -67,6 +71,7 @@ class _OtherProfile extends State<OtherProfile> {
         otherSecondProfileURL = fetchedUrl2;
         otherThirdProfileURL = fetchedUrl3;
         otherForthProfileURL = fetchedUrl4;
+        isLoading = false;
       });
     }
   }
@@ -131,11 +136,18 @@ class _OtherProfile extends State<OtherProfile> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Scaffold(
+      // drawer: ReportScreen(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: 36,
-        title: Expanded(
+        title: SizedBox(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -192,7 +204,13 @@ class _OtherProfile extends State<OtherProfile> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 60)),
                         onPressed: () {
-                          otherService.followOther(widget.otherUid);
+                          otherService.followOther(widget.otherUid).then((_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text('お客様は「${otherUsername}」をフォローしました。')),
+                            );
+                          });
                         },
                         child: Text(
                           "フォロー", // follow
@@ -311,11 +329,28 @@ class _OtherProfile extends State<OtherProfile> {
       ),
     );
   }
-}
+// }
 
-class MyMenuButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+// _OtherProfile _otherProfile = _OtherProfile();
+
+// class MyMenuButton extends StatefulWidget {
+//   @override
+//   _MyMenuButtonStatus createState() => _MyMenuButtonStatus();
+// }
+
+// class _MyMenuButtonStatus extends State<MyMenuButton> {
+  var spamController = TextEditingController();
+  var sexController = TextEditingController();
+  var otherHaressmentController = TextEditingController();
+  var scamController = TextEditingController();
+  var otherController = TextEditingController();
+  var impersonationController = TextEditingController();
+
+  Widget MyMenuButton() {
+    // return GestureDetector(
+
+    // @override
+    // Widget build(BuildContext context) {
     return SizedBox(
         width: 55,
         child: PopupMenuButton<String>(
@@ -331,9 +366,17 @@ class MyMenuButton extends StatelessWidget {
           constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
           onSelected: (value) {
             if (value == "report") {
-              print("Report selected");
+              // if (_otherProfile.widget != null) {
+              showModalBottomSheet(
+                context: context,
+                scrollControlDisabledMaxHeightRatio: 0.9,
+                builder: (context) {
+                  return ReportScreen(otherUid: widget.otherUid);
+                },
+              );
+              // }
             } else if (value == "block") {
-              otherService.blockOther(uid!);
+              otherService.blockOther(widget.otherUid);
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -342,7 +385,7 @@ class MyMenuButton extends StatelessWidget {
                     );
                   });
               Future.delayed(Duration(seconds: 1), () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               });
             }
           },

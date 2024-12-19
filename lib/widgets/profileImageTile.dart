@@ -16,7 +16,6 @@ class ProfileImageTile extends StatefulWidget {
   });
   final String whichProfile;
   final bool isShowAll;
-  // final String imageURL;
   final void Function()? onTap;
   final VoidCallback onDeletePressed;
   final VoidCallback onSetPressed;

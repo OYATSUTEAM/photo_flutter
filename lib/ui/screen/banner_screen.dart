@@ -202,7 +202,6 @@ class _BannerScreen extends State<BannerScreen> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) {
-                                    // print(userDetail);
                                     return MyProfile();
                                   },
                                 ),

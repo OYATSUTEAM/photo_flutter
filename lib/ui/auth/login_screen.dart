@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
+import 'package:testing/ui/auth/reset_password.dart';
 import 'package:testing/widgets/my_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testing/widgets/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,6 +17,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   // final FirebaseAuth user = locator.get();
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
 
   Future<void> signIn(
     String email,
@@ -51,9 +55,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  reset_password() async {
+    await FirebaseAuth.instance
+        .sendPasswordResetEmail(email: emailController.text.trim());
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var emailController = TextEditingController();
     // var usernameController = TextEditingController();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -83,36 +92,34 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 10,
               ),
-              // Text(
-              //   "ユーザー名",
-              //   style: TextStyle(
-              //     fontSize: 24,
-              //     color: Theme.of(context).colorScheme.primary,
-              //   ),
-              // ),
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // MyTextField(
-              //   hint: "",
-              //   obsecure: false,
-              //   controller: usernameController,
-              // ),
+              Text(
+                "パスワード",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(
-                height: 255,
+                height: 10,
+              ),
+              MyTextField(
+                hint: "",
+                obsecure: true,
+                controller: passwordController,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.2,
               ),
               MyButton(
                 text: "ログイン",
                 onTap: () async {
                   await signIn(
                     emailController.text.trim(),
-                    '123456',
+                    passwordController.text.trim(),
                   );
                 },
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

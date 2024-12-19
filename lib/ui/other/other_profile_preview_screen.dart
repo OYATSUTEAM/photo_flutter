@@ -172,9 +172,9 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                 SingleChildScrollView(
                     controller: _scrollController,
                     child: Column(children: [
-                      SizedBox(
-                        height: 48,
-                      ),
+                      // SizedBox(
+                      //   height: 48,
+                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -192,55 +192,56 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                         ],
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(width: 15),
-                          IconButton(
-                            onPressed: () async {
-                              Map<String, dynamic>? user =
-                                  await _authServices.getUserDetail(uid!);
-                              setState(() {
-                                _scrollToBottom();
-                                isCommenting = !isCommenting;
-                                username = user?['username'];
-                              });
-                            },
-                            icon: Icon(Icons.chat_bubble_outline),
-                          ),
-                          Text(comments.length.toString()),
-                          SizedBox(width: 30),
-                          IconButton(
-                            onPressed: () {
-                              isLikeClickable
-                                  ? setState(() {
-                                      otherService.increamentLike(
-                                          widget.otherUid, widget.whichProfile);
-                                      isLikeClickable = false;
-                                      isDislikeClickable = true;
-                                      _setUpProfilePreview();
-                                    })
-                                  : setState(() {
-                                      otherService.decreamentDislike(
-                                          widget.otherUid, widget.whichProfile);
-                                    });
-                            },
-                            icon: Icon(Icons.thumb_up),
-                          ),
-                          Text(like.length.toString()),
-                          SizedBox(width: 30),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                otherService.increamentDislike(
-                                    widget.otherUid, widget.whichProfile);
-                                isDislikeClickable = false;
-                                isLikeClickable = true;
-                                _setUpProfilePreview();
-                              });
-                            },
-                            icon: Icon(Icons.thumb_down),
-                          ),
-                          Text(dislike.length.toString()),
-                          SizedBox(width: 30),
+                          // SizedBox(width: 15),
+                          // IconButton(
+                          //   onPressed: () async {
+                          //     Map<String, dynamic>? user =
+                          //         await _authServices.getUserDetail(uid!);
+                          //     setState(() {
+                          //       _scrollToBottom();
+                          //       isCommenting = !isCommenting;
+                          //       username = user?['username'];
+                          //     });
+                          //   },
+                          //   icon: Icon(Icons.chat_bubble_outline),
+                          // ),
+                          // Text(comments.length.toString()),
+                          // SizedBox(width: 30),
+                          // IconButton(
+                          //   onPressed: () {
+                          //     isLikeClickable
+                          //         ? setState(() {
+                          //             otherService.increamentLike(
+                          //                 widget.otherUid, widget.whichProfile);
+                          //             isLikeClickable = false;
+                          //             isDislikeClickable = true;
+                          //             _setUpProfilePreview();
+                          //           })
+                          //         : setState(() {
+                          //             otherService.decreamentDislike(
+                          //                 widget.otherUid, widget.whichProfile);
+                          //           });
+                          //   },
+                          //   icon: Icon(Icons.thumb_up),
+                          // ),
+                          // Text(like.length.toString()),
+                          // SizedBox(width: 30),
+                          // IconButton(
+                          //   onPressed: () {
+                          //     setState(() {
+                          //       otherService.increamentDislike(
+                          //           widget.otherUid, widget.whichProfile);
+                          //       isDislikeClickable = false;
+                          //       isLikeClickable = true;
+                          //       _setUpProfilePreview();
+                          //     });
+                          //   },
+                          //   icon: Icon(Icons.thumb_down),
+                          // ),
+                          // Text(dislike.length.toString()),
+                          // SizedBox(width: 30),
                           IconButton(
                             onPressed: () {
                               setState(() {
@@ -416,7 +417,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
             } else if (value == "share") {
               await shareInternetImage(imageURL!, widget.whichProfile);
               Future.delayed(Duration(seconds: 1), () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               });
             }
           },
