@@ -24,6 +24,8 @@ class DefaultFirebaseOptions {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
+        case TargetPlatform.iOS:
+        return ios;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -45,6 +47,12 @@ class DefaultFirebaseOptions {
       apiKey: 'AIzaSyBzbx03FNypH_QQC0jmu4aHXupUoAezoho',
       appId: '1:915215970623:android:caea9ce4118f6fc078638a',
       messagingSenderId: '915215970623',
+      projectId: 'cameraapp-87770',
+      storageBucket: 'cameraapp-87770.firebasestorage.app');
+        static const FirebaseOptions ios = FirebaseOptions(
+      apiKey: 'AIzaSyCB8lQfG60E_MPDKnVrgKZFwiYBYaOJ_VA',
+      appId: '1:700244737798:ios:164a2bffe4e638218e6887',
+      messagingSenderId: '700244737798',
       projectId: 'cameraapp-87770',
       storageBucket: 'cameraapp-87770.firebasestorage.app');
 }
