@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
       projectId: 'unprocessedsns',
       storageBucket: 'unprocessedsns.firebasestorage.app');
   static const FirebaseOptions ios = FirebaseOptions(
-      apiKey: 'AIzaSyA1GS0-ibDbyTcgPP1qEBq0Iv8oBHzJSHk',
+      apiKey: 'AIzaSyCB8lQfG60E_MPDKnVrgKZFwiYBYaOJ_VA',
       appId: '1:700244737798:ios:164a2bffe4e638218e6887',
       messagingSenderId: '700244737798',
       projectId: 'unprocessedsns',
