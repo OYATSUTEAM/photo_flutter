@@ -31,14 +31,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // bool isDialogShown = false;
 
     if (password == passwordConfirm) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+      // showDialog(
+      //   context: context,
+      //   builder: (context) {
+      //     return const Center(
+      //       child: CircularProgressIndicator(),
+      //     );
+      //   },
+      // );
       try {
         // Check if the email or username already exists
         final users = await chatService.getuserStream().first;
