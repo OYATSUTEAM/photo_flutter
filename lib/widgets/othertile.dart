@@ -121,10 +121,11 @@ class _OthertileState extends State<Othertile> {
             ),
             TextButton(
               onPressed: () async {
+                String safeEmail = useremail ?? "defaultemail@example.com";
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ChatScreen(
-                      receiverEmail: useremail!,
+                      receiverEmail: safeEmail,
                       receiverId: widget.otherUid,
                     ),
                   ),
