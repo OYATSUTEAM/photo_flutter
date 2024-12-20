@@ -161,7 +161,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                     ),
                   ],
                 ),
-          const SizedBox(height: 180),
+          const SizedBox(height: 130),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: TextField(
@@ -223,8 +223,8 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Imagetile(
-            onDeletePressed: () =>
-                deleteFileWithConfirmation(context, File(filePath)),
+            onDeletePressed: () {},
+            // deleteFileWithConfirmation(context, File(filePath)),
             onSetPressed: () {},
             image_File: File(filePath),
             onTap: () {

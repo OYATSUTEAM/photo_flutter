@@ -18,22 +18,16 @@ List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-//  await FirebaseAppCheck .instance.activate(
-//     androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity
-//   );
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   await FirebaseAppCheck.instance.activate(
       appleProvider: AppleProvider.debug,
       androidProvider: AndroidProvider.debug);
 
-  //  FirebaseAppCheck.instance.activate(
-  //   webProvider: ReCaptchaV3Provider('your-recaptcha-site-key'),
-  //   androidProvider: AndroidProvider
-  //       .debug, // Replace 'debug' with real provider in production
-  //   appleProvider: AppleProvider.appAttest,
-  // );
   await initSerivceLocator();
   // String? token = await FirebaseAppCheck.instance.getToken();
   // print("$token!!!!!!!!!!!this is token");
