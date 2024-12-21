@@ -30,6 +30,8 @@ class MyProfileEdit extends StatefulWidget {
 }
 
 class _MyProfileEdit extends State<MyProfileEdit> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   String myMainProfileURL = _profileServices.mainURL;
   String editProfileURL = _profileServices.mainURL;
   String email = 'default@gmail.com',
@@ -72,6 +74,8 @@ class _MyProfileEdit extends State<MyProfileEdit> {
         myMainProfileURL = fetchedMainURL;
         editProfileURL = fetchedEditURL;
         password = currentPassword;
+        nameController.text = name;
+        usernameController.text = username;
         isLoading = false;
       });
     } catch (e) {
@@ -124,9 +128,6 @@ class _MyProfileEdit extends State<MyProfileEdit> {
         child: CircularProgressIndicator(),
       );
     }
-
-    final nameController = TextEditingController(text: name);
-    final usernameController = TextEditingController(text: username);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

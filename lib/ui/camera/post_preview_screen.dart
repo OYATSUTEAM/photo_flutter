@@ -83,15 +83,46 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   }
 
   Future<void> shareImage() async {
-    await Share.shareXFiles(
+    if (allFileListPath.first != allFileListPath.last) {
+      await Share.shareXFiles(
         [XFile(allFileListPath.first), XFile(allFileListPath.last)],
-        text: textController.text.trim());
-
-    for (final path in allFileListPath) {
-      final file = File(path);
-      if (await file.exists()) {
-        await file.delete(); // Delete each file
-      }
+        text: textController.text.trim(),
+      ).then((_) async {
+        // Iterate over the list in reverse to safely remove items while iterating
+        for (int i = allFileListPath.length - 1; i >= 0; i--) {
+          final path = allFileListPath[i];
+          final file = File(path);
+          if (await file.exists()) {
+            await file.delete(); // Delete the file
+            allFileListPath.removeAt(i); // Remove the path from the list
+          }
+        }
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(),
+          ),
+        );
+      });
+    } else {
+      await Share.shareXFiles(
+        [XFile(allFileListPath.first)],
+        text: textController.text.trim(),
+      ).then((_) async {
+        // Iterate over the list in reverse to safely remove items while iterating
+        for (int i = allFileListPath.length - 1; i >= 0; i--) {
+          final path = allFileListPath[i];
+          final file = File(path);
+          if (await file.exists()) {
+            await file.delete(); // Delete the file
+            allFileListPath.removeAt(i); // Remove the path from the list
+          }
+        }
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(),
+          ),
+        );
+      });
     }
 
     setState(() {});
@@ -120,7 +151,8 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
     return SafeArea(
         child: Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
+      body: Center(
+          child: Column(
         children: [
           const SizedBox(
             height: 15,
@@ -190,12 +222,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                 child: TextButton(
                   onPressed: () async {
                     // // Add post logic here
-                    await shareImage();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => CameraScreen(),
-                      ),
-                    );
+                    await shareImage().then((_) {});
                   },
                   child: const Text(
                     '投稿',
@@ -206,7 +233,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             ],
           ),
         ],
-      ),
+      )),
     ));
   }
 
@@ -223,8 +250,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Imagetile(
-            onDeletePressed: () {},
-            // deleteFileWithConfirmation(context, File(filePath)),
+            onDeletePressed: () {
+              deleteFileWithConfirmation(context, File(filePath));
+            },
             onSetPressed: () {},
             image_File: File(filePath),
             onTap: () {

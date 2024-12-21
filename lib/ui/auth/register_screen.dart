@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/services/chat/chat_services.dart';
@@ -76,21 +77,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  var emailController = TextEditingController();
+  var nameController = TextEditingController();
+  var userNameController = TextEditingController();
+  var passwordController = TextEditingController();
+  var pwConfirmController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    var emailController = TextEditingController();
-    var nameController = TextEditingController();
-    var userNameController = TextEditingController();
-    var passwordController = TextEditingController();
-    var pwConfirmController = TextEditingController();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Expanded(
+      body: SingleChildScrollView(
+          child: SafeArea(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 40),
               Text(
                 "メールアドレス",
                 style: TextStyle(
@@ -161,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obsecure: true,
                 controller: pwConfirmController,
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.2),
               MyButton(
                 text: "続ける",
                 onTap: () {
@@ -201,7 +204,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

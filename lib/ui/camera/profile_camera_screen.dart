@@ -52,7 +52,7 @@ class _CameraScreenState extends State<ProfileCameraScreen>
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
-      onNewCameraSelected(cameras[0]);
+      onNewCameraSelected(cameras[1]);
       refreshAlreadyCapturedImages();
     } else {
       log('Camera Permission: DENIED');

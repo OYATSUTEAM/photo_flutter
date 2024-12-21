@@ -172,7 +172,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   );
                 },
                 child: Text(
-                  "今すぐ登録",
+                  "プロフィールの編集 に行く",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

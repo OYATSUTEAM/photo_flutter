@@ -41,7 +41,7 @@ class _CameraScreenState extends State<CameraScreen>
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
-      onNewCameraSelected(cameras[0]);
+      onNewCameraSelected(cameras[1]);
       refreshAlreadyCapturedImages();
     } else {
       log('Camera Permission: DENIED');
@@ -258,15 +258,8 @@ class _CameraScreenState extends State<CameraScreen>
                                   onTap: () async {
                                     if (allFileList.length > 0) {
                                       await deleteAllFileWithConfirmation(
-                                          context);
-
-                                      if (!shouldDelete!) {
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PostPreviewScreen()),
-                                        );
-                                      } else {
+                                              context)
+                                          .then((_) async {
                                         XFile? rawImage = await takePicture();
                                         File imageFile = File(rawImage!.path);
 
@@ -290,7 +283,16 @@ class _CameraScreenState extends State<CameraScreen>
                                               builder: (context) =>
                                                   PostPreviewScreen()),
                                         );
-                                      }
+                                      });
+
+                                      // if (!shouldDelete!) {
+                                      //   Navigator.of(context).pushReplacement(
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             PostPreviewScreen()),
+                                      //   );
+                                      // } else {
+                                      // }
                                     } else {
                                       XFile? rawImage = await takePicture();
                                       File imageFile = File(rawImage!.path);
@@ -396,57 +398,57 @@ class _CameraScreenState extends State<CameraScreen>
   Future<void> deleteAllFileWithConfirmation(
     BuildContext context,
   ) async {
-    shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('削除の確認'),
-          content: const Text('すでに撮影した画像を本当に削除しますか？'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false); // User pressed Cancel
-              },
-              child: const Text('キャンセル'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true); // User pressed Delete
-              },
-              child: const Text('削除', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
+    // shouldDelete = await showDialog<bool>(
+    //   context: context,
+    //   builder: (BuildContext dialogContext) {
+    //     return AlertDialog(
+    //       title: const Text('削除の確認'),
+    //       content: const Text('すでに撮影した画像を本当に削除しますか？'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(dialogContext).pop(false); // User pressed Cancel
+    //           },
+    //           child: const Text('キャンセル'),
+    //         ),
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(dialogContext).pop(true); // User pressed Delete
+    //           },
+    //           child: const Text('削除', style: TextStyle(color: Colors.red)),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
 
-    if (shouldDelete == true) {
-      try {
-        setState(() {});
-        List<File> filesToRemove = [];
-        showDialog(
-            context: context,
-            builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        for (final File file in allFileList) {
-          if (await file.exists()) {
-            await file.delete(); // Delete each file
-            filesToRemove.add(file); // Mark the file for removal
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('ファイルが存在しません。')),
+    // if (shouldDelete == true) {
+    try {
+      setState(() {});
+      List<File> filesToRemove = [];
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          }
+          });
+      for (final File file in allFileList) {
+        if (await file.exists()) {
+          await file.delete(); // Delete each file
+          filesToRemove.add(file); // Mark the file for removal
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('ファイルが存在しません。')),
+          );
         }
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
-        );
       }
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
+      );
     }
   }
+  // }
 }
