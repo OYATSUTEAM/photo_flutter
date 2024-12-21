@@ -31,14 +31,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // bool isDialogShown = false;
 
     if (password == passwordConfirm) {
-      // showDialog(
-      //   context: context,
-      //   builder: (context) {
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
       try {
         // Check if the email or username already exists
         final users = await chatService.getuserStream().first;
@@ -58,14 +50,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final result = await authUser.signUp(email, password, name, username);
         if (mounted) {
           Navigator.pop(context);
-          print(
-              "$result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!this is sign up result!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         }
       } on Exception catch (ex) {
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
-        print("$ex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         showDialog(
           context: context,
           builder: (context) {
