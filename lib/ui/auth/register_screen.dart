@@ -87,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Center(
+        child: Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
