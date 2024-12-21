@@ -77,11 +77,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  var emailController = TextEditingController();
-  var nameController = TextEditingController();
-  var userNameController = TextEditingController();
-  var passwordController = TextEditingController();
-  var pwConfirmController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController pwConfirmController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

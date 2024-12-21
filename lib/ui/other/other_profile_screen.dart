@@ -339,12 +339,12 @@ class _OtherProfile extends State<OtherProfile> {
 // }
 
 // class _MyMenuButtonStatus extends State<MyMenuButton> {
-  var spamController = TextEditingController();
-  var sexController = TextEditingController();
-  var otherHaressmentController = TextEditingController();
-  var scamController = TextEditingController();
-  var otherController = TextEditingController();
-  var impersonationController = TextEditingController();
+  TextEditingController spamController = TextEditingController();
+  TextEditingController sexController = TextEditingController();
+  TextEditingController otherHaressmentController = TextEditingController();
+  TextEditingController scamController = TextEditingController();
+  TextEditingController otherController = TextEditingController();
+  TextEditingController impersonationController = TextEditingController();
 
   Widget MyMenuButton() {
     // return GestureDetector(

@@ -27,9 +27,9 @@ class ResetPasswordScreen extends StatefulWidget {
 ProfileServices _profileServices = ProfileServices();
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  var currentPasswordController = TextEditingController();
-  var confirmPasswordController = TextEditingController();
-  var newPasswordController = TextEditingController();
+  TextEditingController currentPasswordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  TextEditingController newPasswordController = TextEditingController();
   User? user = FirebaseAuth.instance.currentUser;
 
   reset_password() async {
