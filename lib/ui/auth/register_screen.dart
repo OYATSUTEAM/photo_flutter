@@ -84,6 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     var passwordController = TextEditingController();
     var pwConfirmController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
