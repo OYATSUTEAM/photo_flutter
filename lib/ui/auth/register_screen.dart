@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/services/chat/chat_services.dart';
