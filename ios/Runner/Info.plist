@@ -59,14 +59,14 @@
 	<true/>
 	<key>CFBundleURLTypes</key>
 	<array>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>ShareMedia-$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-        </array>
-    </dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ShareMedia-$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>
