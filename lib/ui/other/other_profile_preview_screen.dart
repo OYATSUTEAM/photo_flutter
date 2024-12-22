@@ -143,7 +143,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
           child: Scaffold(
               appBar: AppBar(
                 toolbarHeight: 36,
-                title: Expanded(
+                title: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
