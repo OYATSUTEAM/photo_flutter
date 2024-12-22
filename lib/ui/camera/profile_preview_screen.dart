@@ -111,10 +111,12 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
         final filePath = '${tempDir.path}/$fileName';
 
         final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
-
-        await Share.shareXFiles([XFile(filePath)],
+        await file.writeAsBytes(response.bodyBytes).then((_) async{
+               await Share.shareXFiles([XFile(filePath)],
             text: 'Check out this image!');
+        });
+
+        // await 
       } else {
         print('Failed to download image: ${response.statusCode}');
       }
@@ -381,7 +383,8 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
             } else if (value == "share") {
               await shareInternetImage(imageURL!, widget.whichProfile);
               Future.delayed(Duration(seconds: 1), () {
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                print('share image!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
               });
             }
           },
