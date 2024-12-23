@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/other/other_service.dart';
 import 'package:testing/ui/camera/profile_preview_screen.dart';
 
@@ -14,7 +13,8 @@ class EtcScreen extends StatefulWidget {
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
-final otherService = OtherService(locator.get(), locator.get());
+// final otherService = OtherService(locator.get(), locator.get());
+OtherService otherService = OtherService();
 
 List<Map<String, dynamic>> recommendedOtherUsers = [];
 List<Map<String, dynamic>> recommendedFollowUsers = [];

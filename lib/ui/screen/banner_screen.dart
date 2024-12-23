@@ -164,8 +164,8 @@ class _BannerScreen extends State<BannerScreen> {
                                       child: CircularProgressIndicator(),
                                     );
                                   });
-                              Navigator.pop(context);
                               if (!mounted) return;
+                              Navigator.pop(context);
 
                               Navigator.of(context).push(
                                 MaterialPageRoute(

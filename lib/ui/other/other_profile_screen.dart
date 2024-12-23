@@ -8,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testing/ui/other/other_profile_preview_screen.dart';
 import 'package:testing/ui/other/report_screen.dart';
-import 'package:testing/widgets/othertile.dart';
 import 'package:testing/services/other/other_service.dart';
 
 enum Options { option1, option2, option3 }
@@ -21,20 +20,22 @@ class OtherProfile extends StatefulWidget {
   _OtherProfile createState() => _OtherProfile();
 }
 
+OtherService otherService = OtherService();
+
 FirebaseAuth _auth = FirebaseAuth.instance;
 final AuthServices _authServices = locator.get();
-final otherService = OtherService(locator.get(), locator.get());
+// final otherService = OtherService(locator.get(), locator.get());
 ProfileServices profileServices = ProfileServices();
 
 class _OtherProfile extends State<OtherProfile> {
   bool isLoading = true;
   final User? user = _auth.currentUser;
   String whichProfileShow = 'showAll';
-  String otherMainProfileURL = profileService.mainURL;
-  String otherFirstProfileURL = profileService.firstURL;
-  String otherSecondProfileURL = profileService.secondURL;
-  String otherThirdProfileURL = profileService.thirdURL;
-  String otherForthProfileURL = profileService.forthURL;
+  String otherMainProfileURL = profileServices.mainURL;
+  String otherFirstProfileURL = profileServices.firstURL;
+  String otherSecondProfileURL = profileServices.secondURL;
+  String otherThirdProfileURL = profileServices.thirdURL;
+  String otherForthProfileURL = profileServices.forthURL;
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
@@ -53,16 +54,17 @@ class _OtherProfile extends State<OtherProfile> {
 
   Future<void> _setProfileInitiate() async {
     final fetchedIsShowAll =
-        await profileService.profileShowAll(widget.otherUid);
-    String fetchedUrl = await profileService.getMainProfileUrl(widget.otherUid);
+        await profileServices.profileShowAll(widget.otherUid);
+    String fetchedUrl =
+        await profileServices.getMainProfileUrl(widget.otherUid);
     String fetchedUrl1 =
-        await profileService.getFirstProfileUrl(widget.otherUid);
+        await profileServices.getFirstProfileUrl(widget.otherUid);
     String fetchedUrl2 =
-        await profileService.getSecondProfileUrl(widget.otherUid);
+        await profileServices.getSecondProfileUrl(widget.otherUid);
     String fetchedUrl3 =
-        await profileService.getThirdProfileUrl(widget.otherUid);
+        await profileServices.getThirdProfileUrl(widget.otherUid);
     String fetchedUrl4 =
-        await profileService.getForthProfileUrl(widget.otherUid);
+        await profileServices.getForthProfileUrl(widget.otherUid);
     if (mounted) {
       setState(() {
         whichProfileShow = fetchedIsShowAll;
@@ -364,7 +366,7 @@ class _OtherProfile extends State<OtherProfile> {
             ),
           ),
           constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
-          onSelected: (value) {
+          onSelected: (value) async {
             if (value == "report") {
               // if (_otherProfile.widget != null) {
               showModalBottomSheet(
@@ -376,7 +378,7 @@ class _OtherProfile extends State<OtherProfile> {
               );
               // }
             } else if (value == "block") {
-              otherService.blockOther(widget.otherUid);
+              await otherService.blockThisUser(widget.otherUid);
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -385,7 +387,9 @@ class _OtherProfile extends State<OtherProfile> {
                     );
                   });
               Future.delayed(Duration(seconds: 1), () {
-                Navigator.pop(context);
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               });
             }
           },

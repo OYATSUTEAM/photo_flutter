@@ -91,7 +91,7 @@ class AuthServices {
     }
   }
 
-  Future<UserCredential?> signUp(
+  Future<UserCredential?> register(
       String email, String password, String name, String username) async {
     try {
       final UserCredential userCredential =
@@ -109,6 +109,7 @@ class AuthServices {
         'follow': [],
         'follower': [],
         'isShowAll': true,
+        'public': true,
       });
       return await signIn(email, password);
     } on FirebaseAuthException {

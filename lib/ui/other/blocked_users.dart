@@ -1,32 +1,52 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/services/chat/chat_services.dart';
+import 'package:testing/services/profile/profile_services.dart';
 import 'package:testing/ui/other/other_profile_screen.dart';
+import 'package:testing/widgets/blocktile.dart';
 import 'package:testing/widgets/othertile.dart';
 
 final ChatService chatService = locator.get();
 final AuthServices authServices = locator.get();
+ProfileServices profileServices = ProfileServices();
 
-class OtherUsers extends StatefulWidget {
+class BlockedUsers extends StatefulWidget {
   @override
-  _OtherUsersScreenState createState() => _OtherUsersScreenState();
+  _BlockedUsersScreenState createState() => _BlockedUsersScreenState();
 }
 
-class _OtherUsersScreenState extends State<OtherUsers> {
+String email = 'default@gmail.com',
+    name = 'ローディング...',
+    username = 'ローディング...',
+    uid = 'default';
+
+class _BlockedUsersScreenState extends State<BlockedUsers> {
   Future<List<dynamic>?>? _otherUidFuture;
   String data = "Initial Data";
   @override
   void initState() {
     super.initState();
-    _otherUidFuture = chatService.getOtherUidArray(); // Call the function
+    getCurrentUserUID();
+    updateData();
+  }
+
+  void getCurrentUserUID() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        uid = user.uid;
+        email = user.email!;
+      });
+    }
   }
 
   Future<void> updateData() async {
     setState(() {
       data = "Updated Data";
-      _otherUidFuture = chatService.getOtherUidArray(); // Call the function
+      _otherUidFuture =
+          profileServices.getBlockedUsers(uid); // Call the function
     });
   }
 
@@ -34,7 +54,7 @@ class _OtherUsersScreenState extends State<OtherUsers> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(title: Text("他のユーザー")),
+      appBar: AppBar(title: Text("ブロックとブロックされた")),
       body: FutureBuilder<List<dynamic>?>(
         future: _otherUidFuture,
         builder: (context, snapshot) {
@@ -43,17 +63,15 @@ class _OtherUsersScreenState extends State<OtherUsers> {
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data == null) {
-            return Center(
-                child: Text(
-                    "データなし")); /////////////////////////////no data/////////////////
+            return Center(child: Text("データなし"));
           } else {
-            final OtherUsers = snapshot.data!;
+            final BlockedUsers = snapshot.data!;
             return ListView.builder(
-              itemCount: OtherUsers.length,
+              itemCount: BlockedUsers.length,
               itemBuilder: (context, index) {
-                String otherUid = OtherUsers[index];
+                String otherUid = BlockedUsers[index];
                 return ListTile(
-                    title: OtherTile(
+                    title: Blocktile(
                   onButtonPressed: () => updateData,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(

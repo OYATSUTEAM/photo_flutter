@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:testing/DI/service_locator.dart';
 import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/ui/auth/reset_password.dart';
 import 'package:testing/widgets/my_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testing/widgets/my_textfield.dart';
@@ -43,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pop(context);
       }
     } on Exception catch (ex) {
-      Navigator.pop(context);
       showDialog(
         context: context,
         builder: (context) {

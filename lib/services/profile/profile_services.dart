@@ -239,9 +239,9 @@ class ProfileServices {
     try {
       // Define the Firestore reference path
       final reportRef = FirebaseFirestore.instance
-          .collection("Users")
+          .collection("Reports")
           .doc(uid)
-          .collection("reports")
+          .collection("Users")
           .doc(otherUid);
 
       // Update the report content and time
@@ -253,6 +253,108 @@ class ProfileServices {
       print("Report updated successfully");
     } catch (e) {
       print("Error updating report: $e");
+    }
+  }
+
+  Future<List<dynamic>?>? getBlockedUsers(String uid) async {
+    try {
+      DocumentReference documentReference =
+          _database.collection("Users").doc(uid);
+
+      DocumentSnapshot documentSnapshot = await documentReference.get();
+
+      if (documentSnapshot.exists) {
+        List<dynamic>? blokedUser = documentSnapshot.get('block');
+
+        if (blokedUser != null) {
+          return blokedUser;
+        } else {
+          print("'blocked' field is null or not an array.");
+          return null;
+        }
+      } else {
+        print("Document does not exist.");
+        return null;
+      }
+    } catch (e) {
+      print("Failed to get 'blocked' array: $e");
+      return null;
+    }
+  }
+
+  Future<List<dynamic>?>? getBlockedMeUsers(String uid) async {
+    try {
+      DocumentReference documentReference =
+          _database.collection("Users").doc(uid);
+
+      DocumentSnapshot documentSnapshot = await documentReference.get();
+
+      if (documentSnapshot.exists) {
+        List<dynamic>? blokedUser = documentSnapshot.get('blocked');
+
+        if (blokedUser != null) {
+          return blokedUser;
+        } else {
+          print("'blocked' field is null or not an array.");
+          return null;
+        }
+      } else {
+        print("Document does not exist.");
+        return null;
+      }
+    } catch (e) {
+      print("Failed to get 'blocked' array: $e");
+      return null;
+    }
+  }
+
+  Future<bool> isUserBlocked(String currentUserUid, String otherUid) async {
+    try {
+      // Reference to the user's document
+      final docRef =
+          FirebaseFirestore.instance.collection('Users').doc(currentUserUid);
+
+      // Fetch the user's document
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // Get the block list
+        List<dynamic> blockList = docSnapshot.data()?['block'] ?? [];
+
+        // Check if the otherUid is in the block list
+        return blockList.contains(otherUid);
+      } else {
+        print("User document not found.");
+        return false;
+      }
+    } catch (e) {
+      print("Error checking block list: $e");
+      return false;
+    }
+  }
+
+  Future<bool> isMeBlocked(String currentUserUid, String otherUid) async {
+    try {
+      // Reference to the user's document
+      final docRef =
+          FirebaseFirestore.instance.collection('Users').doc(otherUid);
+
+      // Fetch the user's document
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // Get the block list
+        List<dynamic> blockList = docSnapshot.data()?['blocked'] ?? [];
+
+        // Check if the otherUid is in the block list
+        return blockList.contains(currentUserUid);
+      } else {
+        print("User document not found.");
+        return false;
+      }
+    } catch (e) {
+      print("Error checking block list: $e");
+      return false;
     }
   }
 }

@@ -48,11 +48,11 @@ class _MyProfile extends State<MyProfile> {
 
   @override
   void initState() {
+    super.initState();
     getCurrentUserUID();
     _setProfileInitiate();
     fetchURLs();
     fetchUsername();
-    super.initState();
   }
 
   void getCurrentUserUID() {
@@ -367,7 +367,7 @@ class _MyProfile extends State<MyProfile> {
         print('sdfsdfsdf');
         print(
             '$whichProfile!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!which profile');
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => ProfilePreviewScreen(
               whichProfile: whichProfile,

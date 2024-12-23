@@ -24,7 +24,9 @@ class ProfilePreviewScreen extends StatefulWidget {
   _PreviewScreenState createState() => _PreviewScreenState();
 }
 
-final otherService = OtherService(locator.get(), locator.get());
+OtherService otherService = OtherService();
+
+// final otherService = OtherService(locator.get(), locator.get());
 ScrollController _scrollController = ScrollController();
 
 final AuthServices _authServices = locator.get();
@@ -51,8 +53,6 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
   @override
   void initState() {
     getCurrentUserUID();
-    print(
-        '${widget.whichProfile}!!!!!!!!!!this is important!!!${widget.whichProfile}');
     _setUpProfilePreview();
     super.initState();
   }
@@ -111,12 +111,12 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
         final filePath = '${tempDir.path}/$fileName';
 
         final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes).then((_) async{
-               await Share.shareXFiles([XFile(filePath)],
-            text: 'Check out this image!');
+        await file.writeAsBytes(response.bodyBytes).then((_) async {
+          await Share.shareXFiles([XFile(filePath)],
+              text: 'Check out this image!');
         });
 
-        // await 
+        // await
       } else {
         print('Failed to download image: ${response.statusCode}');
       }
@@ -125,16 +125,16 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
     }
   }
 
-  @override
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        400,
-        duration: Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-      );
-    }
-  }
+  // @override
+  // void _scrollToBottom() {
+  //   if (_scrollController.hasClients) {
+  //     _scrollController.animateTo(
+  //       400,
+  //       duration: Duration(milliseconds: 100),
+  //       curve: Curves.easeOut,
+  //     );
+  //   }
+  // }
 
   Future<String> getWhichProfileUrl() async {
     try {
@@ -374,7 +374,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
           ),
           onSelected: (value) async {
             if (value == "delete") {
-              await profileService.deleteProfile(
+              await profileServices.deleteProfile(
                   widget.uid, widget.whichProfile);
               setState(() {
                 delete();

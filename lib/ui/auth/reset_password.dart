@@ -1,13 +1,9 @@
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
 import 'package:testing/services/profile/profile_services.dart';
 import 'package:testing/ui/myProfile/myprofile_edit.dart';
 import 'package:testing/widgets/my_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testing/widgets/my_textfield.dart';
-import 'package:testing/widgets/othertile.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({
@@ -24,7 +20,7 @@ class ResetPasswordScreen extends StatefulWidget {
   _ResetPasswordScreenState createState() => _ResetPasswordScreenState();
 }
 
-ProfileServices _profileServices = ProfileServices();
+ProfileServices profileServices = ProfileServices();
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   TextEditingController currentPasswordController = TextEditingController();
@@ -40,7 +36,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       }
       if (user != null) {
         final currentPassword =
-            await _profileServices.getUserPassword(user!.uid);
+            await profileServices.getUserPassword(user!.uid);
         print('${widget.email}, !!!!!, $currentPassword');
         if (currentPasswordController.text.trim() == currentPassword) {
           if (newPasswordController.text.trim() ==
@@ -52,7 +48,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: CircularProgressIndicator(),
                   );
                 });
-            profileService.updatePassword(
+            profileServices.updatePassword(
                 widget.uid, newPasswordController.text.trim());
             AuthCredential credential = await EmailAuthProvider.credential(
               email: widget.email,

@@ -6,17 +6,18 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 final FirebaseStorage _storage = FirebaseStorage.instance;
 
 class OtherService {
-  final FirebaseAuth user;
-  final FirebaseFirestore database;
+  final FirebaseAuth user = FirebaseAuth.instance;
+  // final FirebaseAuth user;
+  final FirebaseFirestore database = FirebaseFirestore.instance;
 
-  OtherService(this.database, this.user);
+  // OtherService(this.database, this.user);
 
   User? getCurrentuser() {
     print(user.currentUser);
     return user.currentUser;
   }
 
-  Future<void> updateOther(String otherUid) async {
+  Future<void> addUser(String otherUid) async {
     final String uid = user.currentUser!.uid;
     try {
       // Get a reference to the Firestore document
@@ -117,7 +118,7 @@ class OtherService {
     }
   }
 
-  Future<void> blockOther(String otherUid) async {
+  Future<void> blockThisUser(String otherUid) async {
     final String uid = user.currentUser!.uid;
     try {
       DocumentReference documentReference =
@@ -129,6 +130,19 @@ class OtherService {
           database.collection("Users").doc(otherUid);
       await otherDocumentReference.update({
         'blocked': FieldValue.arrayUnion([uid]) // Add value to the array
+      });
+    } catch (e) {
+      print("Failed to update 'other' field: $e");
+    }
+  }
+
+  Future<void> unBlockThisUser(String otherUid) async {
+    final String uid = user.currentUser!.uid;
+    try {
+      DocumentReference documentReference =
+          database.collection("Users").doc(uid);
+      await documentReference.update({
+        'block': FieldValue.arrayRemove([otherUid]) // Add value to the array
       });
     } catch (e) {
       print("Failed to update 'other' field: $e");
@@ -300,7 +314,7 @@ class OtherService {
         DocumentSnapshot userSnapshot =
             await database.collection("Users").doc(otherUid).get();
 
-        final isPublic = userSnapshot.get('public');
+        bool isPublic = userSnapshot.get('public');
 
         final ListResult profileRef = await FirebaseStorage.instance
             .ref()
@@ -313,7 +327,7 @@ class OtherService {
           if (timestampString != null) {
             final DateTime timestamp = DateTime.parse(timestampString);
             if (timestamp.isAfter(threeDaysAgo)) {
-              if (isPublic != 'false')
+              if (isPublic)
                 recentFiles.add({"fileRef": fileRef, "uid": otherUid});
             }
           }

@@ -24,9 +24,9 @@ void main() async {
     );
   }
 
-  await FirebaseAppCheck.instance.activate(
-      appleProvider: AppleProvider.debug,
-      androidProvider: AndroidProvider.debug);
+  // await FirebaseAppCheck.instance.activate(
+  //     appleProvider: AppleProvider.debug,
+  //     androidProvider: AndroidProvider.debug);
 
   await initSerivceLocator();
   // String? token = await FirebaseAppCheck.instance.getToken();

@@ -12,11 +12,11 @@ OtherService otherService = OtherService();
 // final otherService = OtherService(locator.get(), locator.get());
 ProfileServices profileServices = ProfileServices();
 
-class OtherTile extends StatefulWidget {
+class Blocktile extends StatefulWidget {
   final void Function()? onTap;
   final String otherUid;
   final void Function()? onButtonPressed;
-  const OtherTile({
+  const Blocktile({
     super.key,
     required this.onTap,
     required this.otherUid,
@@ -24,13 +24,13 @@ class OtherTile extends StatefulWidget {
   });
 
   @override
-  OtherTileState createState() => OtherTileState();
+  BlocktileState createState() => BlocktileState();
 }
 
 bool isUserBlocked = false;
 bool isMeBlocked = false;
 
-class OtherTileState extends State<OtherTile> {
+class BlocktileState extends State<Blocktile> {
   String? username;
   bool isLoading = true;
   String? useremail;
@@ -192,35 +192,6 @@ class OtherTileState extends State<OtherTile> {
                   ),
                 ),
               ),
-
-            if (!isUserBlocked)
-              TextButton(
-                onPressed: () async {
-                  if (mounted) {
-                    widget.onButtonPressed!();
-                    await otherService.deleteOther(widget.otherUid);
-                    Navigator.pop(context);
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(12),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6.0, vertical: 5.0),
-                  child: Text(
-                    'delete',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14, // Font size
-                      fontWeight: FontWeight.bold, // Font weight (bold)
-                    ),
-                  ),
-                ),
-              ),
             if (isMeBlocked)
               Text(
                 'blocked',
@@ -236,3 +207,35 @@ class OtherTileState extends State<OtherTile> {
     );
   }
 }
+
+
+
+
+// if (!isUserBlocked)
+            //   TextButton(
+            //     onPressed: () async {
+            //       if (mounted) {
+            //         widget.onButtonPressed!();
+            //         await otherService.deleteOther(widget.otherUid);
+            //         Navigator.pop(context);
+            //       }
+            //     },
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         color: Theme.of(context).colorScheme.secondary,
+            //         borderRadius: const BorderRadius.all(
+            //           Radius.circular(12),
+            //         ),
+            //       ),
+            //       padding: const EdgeInsets.symmetric(
+            //           horizontal: 6.0, vertical: 5.0),
+            //       child: Text(
+            //         'delete',
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 14, // Font size
+            //           fontWeight: FontWeight.bold, // Font weight (bold)
+            //         ),
+            //       ),
+            //     ),
+            //   ),
