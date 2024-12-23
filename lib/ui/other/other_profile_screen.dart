@@ -181,7 +181,17 @@ class _OtherProfile extends State<OtherProfile> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => OtherProfilePreviewScreen(
+                            whichProfile: 'mainProfileImage',
+                            otherUid: widget.otherUid,
+                          ),
+                        ),
+                      );
+                    },
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(otherMainProfileURL),
                       radius: MediaQuery.of(context).size.width * 0.25,
