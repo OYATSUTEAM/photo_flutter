@@ -257,7 +257,17 @@ class _MyProfile extends State<MyProfile> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => ProfilePreviewScreen(
+                            whichProfile: 'mainProfileImage',
+                            uid: uid,
+                          ),
+                        ),
+                      );
+                    },
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(myMainProfileURL),
                       radius: MediaQuery.of(context).size.width * 0.25,

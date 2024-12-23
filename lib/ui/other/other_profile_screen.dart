@@ -181,7 +181,17 @@ class _OtherProfile extends State<OtherProfile> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => OtherProfilePreviewScreen(
+                            whichProfile: 'mainProfileImage',
+                            otherUid: widget.otherUid,
+                          ),
+                        ),
+                      );
+                    },
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(otherMainProfileURL),
                       radius: MediaQuery.of(context).size.width * 0.25,
@@ -367,30 +377,35 @@ class _OtherProfile extends State<OtherProfile> {
           ),
           constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
           onSelected: (value) async {
-            if (value == "report") {
-              // if (_otherProfile.widget != null) {
-              showModalBottomSheet(
-                context: context,
-                scrollControlDisabledMaxHeightRatio: 0.9,
-                builder: (context) {
-                  return ReportScreen(otherUid: widget.otherUid);
-                },
-              );
-              // }
-            } else if (value == "block") {
-              await otherService.blockThisUser(widget.otherUid);
-              showDialog(
+            bool isReportTrue = await profileServices.isReportTrue();
+
+            if (isReportTrue) {
+              if (value == "report") {
+                showModalBottomSheet(
                   context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      content: Text('このユーザーをブロックしました'),
-                    );
-                  });
-              Future.delayed(Duration(seconds: 1), () {
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              });
+                  scrollControlDisabledMaxHeightRatio: 0.9,
+                  builder: (context) {
+                    return ReportScreen(otherUid: widget.otherUid);
+                  },
+                );
+              }
+            } else if (value == "block") {
+              bool isBlockTrue = await profileServices.isBlockTrue();
+              if (isBlockTrue) {
+                await otherService.blockThisUser(widget.otherUid);
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Text('このユーザーをブロックしました'),
+                      );
+                    });
+                Future.delayed(Duration(seconds: 1), () {
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                });
+              }
             }
           },
           itemBuilder: (BuildContext context) {
