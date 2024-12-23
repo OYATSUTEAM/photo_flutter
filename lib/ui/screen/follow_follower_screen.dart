@@ -90,7 +90,7 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
                 // print(
                 //     'otherUid : $otherUid !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
                 return ListTile(
-                    title: Othertile(
+                    title: OtherTile(
                   onButtonPressed: updateData,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
@@ -127,7 +127,7 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
                 print(otherArray[index]);
                 String otherUid = otherArray[index];
                 return ListTile(
-                    title: Othertile(
+                    title: OtherTile(
                   onButtonPressed: updateData,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(

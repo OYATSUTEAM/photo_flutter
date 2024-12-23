@@ -47,8 +47,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 //=======================================================Username is already in use. \Please select a different user name.===========================================//
         }
 
-        final result = await authUser.signUp(email, password, name, username);
+        final result = await authUser.register(email, password, name, username);
+
         if (mounted) {
+          print("$result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
           Navigator.pop(context);
         }
       } on Exception catch (ex) {

@@ -55,12 +55,12 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
     } catch (e) {
       print(e);
       if (widget.whichProfile == 'firstProfileImage')
-        return profileService.firstURL;
+        return profileServices.firstURL;
       else if (widget.whichProfile == 'secondProfileImage')
-        return profileService.secondURL;
+        return profileServices.secondURL;
       else if (widget.whichProfile == 'thirdProfileImage')
-        return profileService.thirdURL;
-      return profileService.forthURL;
+        return profileServices.thirdURL;
+      return profileServices.forthURL;
     }
   }
 
@@ -77,7 +77,7 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
                 color: Colors.grey,
                 image: DecorationImage(
                   image: NetworkImage(
-                      imageURL != null ? imageURL! : profileService.mainURL),
+                      imageURL != null ? imageURL! : profileServices.mainURL),
                   fit: BoxFit.cover,
                 )),
           ),

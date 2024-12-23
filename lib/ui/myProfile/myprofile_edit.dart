@@ -13,7 +13,7 @@ import 'dart:typed_data';
 import 'package:testing/widgets/my_button.dart';
 
 final AuthServices _authServices = locator.get();
-final ProfileServices _profileServices = ProfileServices();
+final ProfileServices profileServices = ProfileServices();
 // File? _imageFile;
 File? _selectImage;
 UploadTask? uploadTask;
@@ -32,8 +32,8 @@ class MyProfileEdit extends StatefulWidget {
 class _MyProfileEdit extends State<MyProfileEdit> {
   TextEditingController nameController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
-  String myMainProfileURL = _profileServices.mainURL;
-  String editProfileURL = _profileServices.mainURL;
+  String myMainProfileURL = profileServices.mainURL;
+  String editProfileURL = profileServices.mainURL;
   String email = 'default@gmail.com',
       uid = 'default',
       username = 'ローディング...',
@@ -64,10 +64,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
   Future<void> fetchUsername() async {
     try {
-      final fetchedMainURL = await _profileServices.getMainProfileUrl(uid);
-      final fetchedEditURL = await _profileServices.getEditProfileUrl(uid);
+      final fetchedMainURL = await profileServices.getMainProfileUrl(uid);
+      final fetchedEditURL = await profileServices.getEditProfileUrl(uid);
       Map<String, dynamic>? user = await _authServices.getUserDetail(uid);
-      final currentPassword = await _profileServices.getUserPassword(uid);
+      final currentPassword = await profileServices.getUserPassword(uid);
       setState(() {
         username = user?['username'];
         name = user?['name'];
@@ -309,7 +309,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                         },
                       );
                       if (mounted) {
-                        await _profileServices.updateProfile(
+                        await profileServices.updateProfile(
                           uid,
                           nameController.text.trim(),
                           usernameController.text.trim(),

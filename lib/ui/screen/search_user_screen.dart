@@ -165,7 +165,7 @@ class BuildUserList extends StatelessWidget {
                       itemCount: filteredUsers.length,
                       itemBuilder: (context, index) {
                         final user = filteredUsers[index];
-                        return BuilduserStreamList(userData: user);
+                        return BuilduserStreamList(otherUserdata: user);
                       },
                     ),
             ),
@@ -177,9 +177,9 @@ class BuildUserList extends StatelessWidget {
 }
 
 class BuilduserStreamList extends StatelessWidget {
-  final Map<String, dynamic> userData;
+  final Map<String, dynamic> otherUserdata;
 
-  const BuilduserStreamList({super.key, required this.userData});
+  const BuilduserStreamList({super.key, required this.otherUserdata});
 
   @override
   Widget build(BuildContext context) {
@@ -190,20 +190,20 @@ class BuilduserStreamList extends StatelessWidget {
           child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
     }
 
-    final email = userData['email'] ?? ''; // Ensure non-null email
-    final uid = userData['uid'] ?? ''; // Ensure non-null uid
-    final name = userData['name'] ?? "ユーザー不明"; // User Unknown
+    final otherEmail = otherUserdata['email'] ?? ''; // Ensure non-null email
+    final otherUid = otherUserdata['uid'] ?? ''; // Ensure non-null uid
+    final otherName = otherUserdata['name'] ?? "ユーザー不明"; // User Unknown
 
-    if (email != currentUser.email) {
+    if (otherEmail != currentUser.email) {
       return Column(
         children: [
           SizedBox(
             height: 10,
           ),
           UserTile(
-            text: name,
+            text: otherName,
             onTap: () {},
-            uid: uid,
+            otherUid: otherUid,
           )
         ],
       );

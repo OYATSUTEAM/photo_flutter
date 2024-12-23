@@ -151,7 +151,7 @@ class _ReportScreen extends State<ReportScreen> {
                 SizedBox(height: 20),
                 ElevatedButton(
                     onPressed: () {
-                      profileService
+                      profileServices
                           .reportThisUser(
                               uid, widget.otherUid, _selectedOption!)
                           .then((_) {
