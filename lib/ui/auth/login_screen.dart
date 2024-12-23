@@ -62,9 +62,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     // var usernameController = TextEditingController();
-    return Scaffold(
+    return
+
+     Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
+      body: 
+        SingleChildScrollView(
+      child:
+      SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -141,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-        ),
+        )),
       ),
     );
   }
