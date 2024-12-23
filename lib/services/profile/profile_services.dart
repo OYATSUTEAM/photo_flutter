@@ -357,4 +357,36 @@ class ProfileServices {
       return false;
     }
   }
+
+  Future<bool> isBlockTrue() async {
+    try {
+      documentSnapshot = await _database
+          .collection("Report_Block")
+          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .get();
+      if (documentSnapshot.exists && documentSnapshot.data() != null) {
+        return documentSnapshot.get('block');
+      }
+      return false;
+    } catch (e) {
+      print("Error fetching document: $e");
+      return false;
+    }
+  }
+
+  Future<bool> isReportTrue() async {
+    try {
+      documentSnapshot = await _database
+          .collection("Report_Block")
+          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .get();
+      if (documentSnapshot.exists && documentSnapshot.data() != null) {
+        return documentSnapshot.get('report');
+      }
+      return false;
+    } catch (e) {
+      print("Error fetching document: $e");
+      return false;
+    }
+  }
 }
