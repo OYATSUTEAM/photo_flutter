@@ -213,7 +213,7 @@ class _UserTileState extends State<UserTile> {
                   ),
             if (isMeBlocked)
               Text(
-                'ブロックされた',
+                'blocked',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14, // Font size
