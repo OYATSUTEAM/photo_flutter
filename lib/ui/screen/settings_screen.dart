@@ -39,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       username = 'ローディング...',
       uid = 'default';
   bool switchResult = ThemeManager.readTheme();
-  String isPublic = 'true';
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
