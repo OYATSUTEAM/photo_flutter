@@ -221,6 +221,38 @@ class OtherTileState extends State<OtherTile> {
                   ),
                 ),
               ),
+            if (!isUserBlocked)
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        receiverEmail: useremail!,
+                        receiverId: widget.otherUid,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(12),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0, vertical: 5.0),
+                  child: Text(
+                    'chat',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14, // Font size
+                      fontWeight: FontWeight.bold, // Font weight (bold)
+                    ),
+                  ),
+                ),
+              ),
+
             if (isMeBlocked)
               Text(
                 'blocked',
