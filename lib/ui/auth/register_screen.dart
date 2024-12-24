@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/widgets/my_button.dart';
-import 'package:testing/widgets/my_textfield.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/widgets/my_button.dart';
+import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatService = locator.get();
 final FirebaseFirestore _database = FirebaseFirestore.instance;

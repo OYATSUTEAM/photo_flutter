@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:testing/bloc/theme_event.dart';
-import 'package:testing/bloc/theme_state.dart';
-import 'package:testing/theme/dark_mode.dart';
-import 'package:testing/theme/light_mode.dart';
-import 'package:testing/theme/theme_manager.dart';
+import 'package:photo_sharing_app/bloc/theme_event.dart';
+import 'package:photo_sharing_app/bloc/theme_state.dart';
+import 'package:photo_sharing_app/theme/dark_mode.dart';
+import 'package:photo_sharing_app/theme/light_mode.dart';
+import 'package:photo_sharing_app/theme/theme_manager.dart';
 
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   ThemeBloc()

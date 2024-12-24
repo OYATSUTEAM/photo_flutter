@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/services/other/other_service.dart';
-import 'package:testing/ui/camera/profile_preview_screen.dart';
+import 'package:photo_sharing_app/services/other/other_service.dart';
+import 'package:photo_sharing_app/ui/camera/profile_preview_screen.dart';
 
 class EtcScreen extends StatefulWidget {
   const EtcScreen({super.key});

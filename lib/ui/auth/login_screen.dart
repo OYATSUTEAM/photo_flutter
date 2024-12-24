@@ -1,10 +1,10 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/widgets/my_button.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/widgets/my_textfield.dart';
+import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.callBack});
@@ -62,15 +62,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     // var usernameController = TextEditingController();
-    return
-
-     Scaffold(
+    return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: 
-        SingleChildScrollView(
-      child:
-      SafeArea(
-        child: Center(
+      body: SingleChildScrollView(
+        child: SafeArea(
+            child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

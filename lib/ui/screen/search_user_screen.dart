@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/widgets/usertile.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/widgets/usertile.dart';
 
 final ChatService _chatService = locator.get();
 final AuthServices _authServices = locator.get();

@@ -3,7 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileServices {
   FirebaseFirestore _database = FirebaseFirestore.instance;
-  late DocumentSnapshot documentSnapshot;
+  late final DocumentSnapshot documentSnapshot;
   final firestore = FirebaseStorage;
 
   String mainURL =
@@ -360,14 +360,12 @@ class ProfileServices {
 
   Future<bool> isBlockTrue() async {
     try {
-      documentSnapshot = await _database
+      DocumentSnapshot userSnapshot = await _database
           .collection("Report_Block")
           .doc('iv9tvYcUKGpaX1WxpFU9')
           .get();
-      if (documentSnapshot.exists && documentSnapshot.data() != null) {
-        return documentSnapshot.get('block');
-      }
-      return false;
+      bool isBlockTrue = userSnapshot.get('block');
+      return isBlockTrue;
     } catch (e) {
       print("Error fetching document: $e");
       return false;
@@ -376,17 +374,37 @@ class ProfileServices {
 
   Future<bool> isReportTrue() async {
     try {
-      documentSnapshot = await _database
+      DocumentSnapshot userSnapshot = await _database
           .collection("Report_Block")
           .doc('iv9tvYcUKGpaX1WxpFU9')
           .get();
-      if (documentSnapshot.exists && documentSnapshot.data() != null) {
-        return documentSnapshot.get('report');
-      }
-      return false;
+      bool isReportTrue = userSnapshot.get('report');
+      return isReportTrue;
     } catch (e) {
       print("Error fetching document: $e");
       return false;
+    }
+  }
+
+  Future<void> setBlockStatus(bool status) async {
+    try {
+      await _database
+          .collection("Report_Block")
+          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .update({'block': status});
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  Future<void> setReportStatus(bool status) async {
+    try {
+      await _database
+          .collection("Report_Block")
+          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .update({'report': status});
+    } catch (e) {
+      print("Error updating profile: $e");
     }
   }
 }

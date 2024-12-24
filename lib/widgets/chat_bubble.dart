@@ -1,6 +1,6 @@
 import 'package:chat_bubbles/bubbles/bubble_special_two.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/theme/theme_manager.dart';
+import 'package:photo_sharing_app/theme/theme_manager.dart';
 
 class ChatBubble extends StatelessWidget {
   const ChatBubble({

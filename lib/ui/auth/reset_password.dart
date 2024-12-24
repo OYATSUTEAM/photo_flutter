@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:testing/services/profile/profile_services.dart';
-import 'package:testing/ui/myProfile/myprofile_edit.dart';
-import 'package:testing/widgets/my_button.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
+import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/widgets/my_textfield.dart';
+import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({

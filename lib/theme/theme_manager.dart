@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/theme/dark_mode.dart';
-import 'package:testing/theme/light_mode.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/theme/dark_mode.dart';
+import 'package:photo_sharing_app/theme/light_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager {

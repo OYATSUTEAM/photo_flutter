@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/profile/profile_services.dart';
-import 'package:testing/theme/theme_manager.dart';
-import 'package:testing/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/theme/theme_manager.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/ui/other/other_profile_preview_screen.dart';
-import 'package:testing/ui/other/report_screen.dart';
-import 'package:testing/services/other/other_service.dart';
+import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
+import 'package:photo_sharing_app/ui/other/report_screen.dart';
+import 'package:photo_sharing_app/services/other/other_service.dart';
 
 enum Options { option1, option2, option3 }
 
@@ -36,6 +36,8 @@ class _OtherProfile extends State<OtherProfile> {
   String otherSecondProfileURL = profileServices.secondURL;
   String otherThirdProfileURL = profileServices.thirdURL;
   String otherForthProfileURL = profileServices.forthURL;
+  bool isReportTrue = true;
+  bool isBlockTrue = true;
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
@@ -65,6 +67,7 @@ class _OtherProfile extends State<OtherProfile> {
         await profileServices.getThirdProfileUrl(widget.otherUid);
     String fetchedUrl4 =
         await profileServices.getForthProfileUrl(widget.otherUid);
+    final fetchReport = await profileServices.isReportTrue();
     if (mounted) {
       setState(() {
         whichProfileShow = fetchedIsShowAll;
@@ -73,6 +76,7 @@ class _OtherProfile extends State<OtherProfile> {
         otherSecondProfileURL = fetchedUrl2;
         otherThirdProfileURL = fetchedUrl3;
         otherForthProfileURL = fetchedUrl4;
+        isReportTrue = fetchReport;
         isLoading = false;
       });
     }
@@ -81,9 +85,11 @@ class _OtherProfile extends State<OtherProfile> {
   Future<void> fetchUsername() async {
     try {
       var user = await _authServices.getDocument(widget.otherUid);
+      final fetchedBlock = await profileServices.isBlockTrue();
       if (user != null) {
         setState(() {
           username = user['username'];
+          isBlockTrue = fetchedBlock;
           name = user['name'];
         });
       }
@@ -341,16 +347,7 @@ class _OtherProfile extends State<OtherProfile> {
       ),
     );
   }
-// }
 
-// _OtherProfile _otherProfile = _OtherProfile();
-
-// class MyMenuButton extends StatefulWidget {
-//   @override
-//   _MyMenuButtonStatus createState() => _MyMenuButtonStatus();
-// }
-
-// class _MyMenuButtonStatus extends State<MyMenuButton> {
   TextEditingController spamController = TextEditingController();
   TextEditingController sexController = TextEditingController();
   TextEditingController otherHaressmentController = TextEditingController();
@@ -359,10 +356,6 @@ class _OtherProfile extends State<OtherProfile> {
   TextEditingController impersonationController = TextEditingController();
 
   Widget MyMenuButton() {
-    // return GestureDetector(
-
-    // @override
-    // Widget build(BuildContext context) {
     return SizedBox(
         width: 55,
         child: PopupMenuButton<String>(
@@ -377,10 +370,9 @@ class _OtherProfile extends State<OtherProfile> {
           ),
           constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
           onSelected: (value) async {
-            bool isReportTrue = await profileServices.isReportTrue();
-
-            if (isReportTrue) {
-              if (value == "report") {
+            if (value == "report") {
+              print('$isReportTrue!!!!!!!!!!!!!!!!!!this is report ');
+              if (isReportTrue) {
                 showModalBottomSheet(
                   context: context,
                   scrollControlDisabledMaxHeightRatio: 0.9,
@@ -390,7 +382,7 @@ class _OtherProfile extends State<OtherProfile> {
                 );
               }
             } else if (value == "block") {
-              bool isBlockTrue = await profileServices.isBlockTrue();
+              print('$isBlockTrue!!!!!!!!!!!!!!!!!!this is block ');
               if (isBlockTrue) {
                 await otherService.blockThisUser(widget.otherUid);
                 showDialog(

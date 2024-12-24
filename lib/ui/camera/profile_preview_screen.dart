@@ -1,16 +1,16 @@
 // import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:testing/services/other/other_service.dart';
-import 'package:testing/ui/camera/profile_camera_screen.dart';
+import 'package:photo_sharing_app/services/other/other_service.dart';
+import 'package:photo_sharing_app/ui/camera/profile_camera_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:testing/widgets/othertile.dart';
+import 'package:photo_sharing_app/widgets/othertile.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;

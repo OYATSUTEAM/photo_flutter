@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testing/ui/camera/add_camera_screen.dart';
-import 'package:testing/ui/camera/camera_screen.dart';
-import 'package:testing/ui/camera/preview_screen.dart';
-import 'package:testing/widgets/imagetile.dart';
+import 'package:photo_sharing_app/ui/camera/add_camera_screen.dart';
+import 'package:photo_sharing_app/ui/camera/camera_screen.dart';
+import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
+import 'package:photo_sharing_app/widgets/imagetile.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostPreviewScreen extends StatefulWidget {

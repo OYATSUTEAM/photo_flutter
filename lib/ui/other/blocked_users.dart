@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/services/profile/profile_services.dart';
-import 'package:testing/ui/other/other_profile_screen.dart';
-import 'package:testing/widgets/blocktile.dart';
-import 'package:testing/widgets/othertile.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/other/other_profile_screen.dart';
+import 'package:photo_sharing_app/widgets/blocktile.dart';
+import 'package:photo_sharing_app/widgets/othertile.dart';
 
 final ChatService chatService = locator.get();
 final AuthServices authServices = locator.get();

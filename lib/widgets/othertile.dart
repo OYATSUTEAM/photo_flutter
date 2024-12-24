@@ -2,10 +2,10 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/services/other/other_service.dart';
-import 'package:testing/services/profile/profile_services.dart';
-import 'package:testing/ui/other/other_profile_screen.dart';
-import 'package:testing/ui/screen/chat_screen.dart';
+import 'package:photo_sharing_app/services/other/other_service.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/other/other_profile_screen.dart';
+import 'package:photo_sharing_app/ui/screen/chat_screen.dart';
 
 OtherService otherService = OtherService();
 

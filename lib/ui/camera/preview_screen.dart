@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:http/http.dart';
-// import 'package:testing/ui/camera/captures_screen.dart';
+// import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 
 class PreviewScreen extends StatefulWidget {
   final File imageFile;

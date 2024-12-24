@@ -1,4 +1,4 @@
-import 'package:testing/data/model/user.dart';
+import 'package:photo_sharing_app/data/model/user.dart';
 
 class UserPreference {
   static const myUser = User(

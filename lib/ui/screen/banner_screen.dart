@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/ui/camera/camera_screen.dart';
-import 'package:testing/ui/screen/home_screen.dart';
-import 'package:testing/ui/myProfile/myProfile.dart';
-import 'package:testing/ui/screen/search_user_screen.dart';
-import 'package:testing/widgets/my_drawer.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/ui/camera/camera_screen.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
+import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
+import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
+import 'package:photo_sharing_app/widgets/my_drawer.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 final ChatService _chatService = locator.get();
 final AuthServices _authServices = locator.get();
 
-String? username;
 late String fromWhere;
 final Future<Map<String, dynamic>?> userDetail =
     AuthServices(locator.get(), locator.get()).getUserDetail(uid!);
-String? uid;
-String? email;
+String email = 'default@gmail.com',
+    name = 'ローディング...',
+    username = 'ローディング...',
+    uid = 'default';
 String? myProfileURL;
 String _myProfileURL =
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
@@ -55,8 +56,8 @@ class _BannerScreen extends State<BannerScreen> {
 
   Future<void> _setProfileInitiate() async {
     uid = _authServices.getCurrentuser()!.uid;
-    email = _authServices.getCurrentuser()!.email;
-    String? fetchedUrl = await getProfileUrl(uid!);
+    email = await _authServices.getCurrentuser()!.email!;
+    String? fetchedUrl = await getProfileUrl(uid);
 
     if (mounted) {
       setState(() {
@@ -90,7 +91,7 @@ class _BannerScreen extends State<BannerScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            drawer: MyDrawer(),
+            drawer: MyDrawer(email: email),
             backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
               backgroundColor: Colors.transparent,

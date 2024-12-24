@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/ui/other/blocked_me_users.dart';
-import 'package:testing/ui/other/blocked_users.dart';
-import 'package:testing/ui/screen/follow_follower_screen.dart';
-import 'package:testing/ui/other/etc_screen.dart';
-import 'package:testing/ui/screen/settings_screen.dart';
-import 'package:testing/widgets/my_button.dart';
-import 'package:testing/ui/other/other_users.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/ui/other/blocked_users.dart';
+import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
+import 'package:photo_sharing_app/ui/other/etc_screen.dart';
+import 'package:photo_sharing_app/ui/screen/report_block_screen.dart';
+import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
+import 'package:photo_sharing_app/widgets/my_button.dart';
+import 'package:photo_sharing_app/ui/other/other_users.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  final String email;
+  const MyDrawer({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +118,22 @@ class MyDrawer extends StatelessWidget {
                       );
                     },
                   ),
+                  if (email == 'topadminmanager123456@gmail.com')
+                    SizedBox(
+                      height: 15,
+                    ),
+                  if (email == 'topadminmanager123456@gmail.com')
+                    MyButton(
+                      text: "report_block",
+                      onTap: () async {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Report_Block(),
+                          ),
+                        );
+                      },
+                    ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.23,
                   ),

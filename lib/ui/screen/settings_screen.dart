@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/bloc/theme_bloc.dart';
-import 'package:testing/bloc/theme_event.dart';
-import 'package:testing/theme/theme_manager.dart';
+import 'package:photo_sharing_app/bloc/theme_bloc.dart';
+import 'package:photo_sharing_app/bloc/theme_event.dart';
+import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:testing/widgets/othertile.dart';
+import 'package:photo_sharing_app/widgets/othertile.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

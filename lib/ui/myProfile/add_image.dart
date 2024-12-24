@@ -1,5 +1,5 @@
 // import 'dart:io';
-// import 'package:testing/ui/camera/camera_screen.dart';
+// import 'package:photo_sharing_app/ui/camera/camera_screen.dart';
 
 // import 'alert.dart';
 // import 'package:flutter/material.dart';

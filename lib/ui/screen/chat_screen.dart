@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/services/chat/chat_services.dart';
-import 'package:testing/widgets/chat_bubble.dart';
-import 'package:testing/widgets/my_textfield.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/widgets/chat_bubble.dart';
+import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatServices = locator.get();
 final AuthServices _authServices = locator.get();

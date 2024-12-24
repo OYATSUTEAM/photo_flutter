@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:testing/DI/service_locator.dart';
-import 'package:testing/services/auth/auth_service.dart';
-import 'package:testing/ui/screen/settings_screen.dart';
+import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
 
 class PostScreen extends StatelessWidget {
   const PostScreen({super.key});

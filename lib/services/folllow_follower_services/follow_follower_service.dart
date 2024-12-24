@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:testing/data/model/message.dart';
+// import 'package:photo_sharing_app/data/model/message.dart';
 
 class FollowAndFollowerService {
   final FirebaseFirestore database;

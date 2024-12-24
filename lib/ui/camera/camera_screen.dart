@@ -5,7 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:testing/ui/camera/post_preview_screen.dart';
+import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import '../../main.dart';
 
 class CameraScreen extends StatefulWidget {
