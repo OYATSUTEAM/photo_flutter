@@ -9,11 +9,13 @@ import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
+import 'package:photo_sharing_app/ui/screen/banner_screen.dart';
 import 'package:photo_sharing_app/widgets/imagetile.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 final AuthServices _authServices = locator.get();
 UploadService uploadService = UploadService();
+BannerScreen bannerScreen = BannerScreen();
 
 class ProfileSetScreen extends StatefulWidget {
   final String whichProfile;
@@ -213,52 +215,50 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         backgroundColor: Colors.black,
         body:
             Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _buildImageTile(allFileListPath.first),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            IconButton(
-                onPressed: () async {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [_buildImageTile(allFileListPath.first)]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                  onPressed: () async {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        });
+                    await uploadService.uploadFile(
+                        uid, widget.whichProfile, _selectImage!.path);
+                    if (mounted) {
+                      await firestore.collection('Users').doc('$uid').update({
+                        'comments-${widget.whichProfile}': FieldValue.delete(),
                       });
-                  await uploadService.uploadFile(
-                      uid, widget.whichProfile, _selectImage!.path);
+                      await firestore.collection('Users').doc('$uid').update({
+                        'like-${widget.whichProfile}': FieldValue.delete(),
+                      });
+                      await firestore.collection('Users').doc('$uid').update({
+                        'dislike-${widget.whichProfile}': FieldValue.delete(),
+                      });
+                      await firestore.collection('Users').doc('$uid').update({
+                        'favourite-${widget.whichProfile}': FieldValue.delete(),
+                      });
 
-                  // await _uploadFile();
-                  if (mounted) {
-                    await firestore.collection('Users').doc('$uid').update({
-                      'comments-${widget.whichProfile}': FieldValue.delete(),
-                    });
-                    await firestore.collection('Users').doc('$uid').update({
-                      'like-${widget.whichProfile}': FieldValue.delete(),
-                    });
-                    await firestore.collection('Users').doc('$uid').update({
-                      'dislike-${widget.whichProfile}': FieldValue.delete(),
-                    });
-                    await firestore.collection('Users').doc('$uid').update({
-                      'favourite-${widget.whichProfile}': FieldValue.delete(),
-                    });
-
-                    deleteAllFileWithConfirmation(context);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => MyProfile(),
-                      ),
-                    );
-                  }
-                },
-                icon: Icon(
-                  Icons.check,
-                  size: 40,
-                ))
-          ])
+                      deleteAllFileWithConfirmation(context);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => MyProfile(),
+                        ),
+                      );
+                    }
+                  },
+                  icon: Icon(Icons.check, size: 40))
+            ],
+          )
         ]),
         // ],
         // ),

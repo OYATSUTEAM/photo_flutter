@@ -3,7 +3,7 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
-import 'package:photo_sharing_app/ui/camera/profile_preview_screen.dart';
+import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';

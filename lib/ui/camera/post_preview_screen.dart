@@ -151,8 +151,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
     return SafeArea(
         child: Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-          child: Column(
+      body: SingleChildScrollView(
+          child: Center(
+              child: Column(
         children: [
           const SizedBox(
             height: 15,
@@ -233,7 +234,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             ],
           ),
         ],
-      )),
+      ))),
     ));
   }
 

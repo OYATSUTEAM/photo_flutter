@@ -13,56 +13,47 @@ final ChatService _chatService = locator.get();
 final AuthServices _authServices = locator.get();
 
 late String fromWhere;
-final Future<Map<String, dynamic>?> userDetail =
-    AuthServices(locator.get(), locator.get()).getUserDetail(uid!);
+// final Future<Map<String, dynamic>?> userDetail =
+//     AuthServices(locator.get(), locator.get()).getUserDetail(uid);
 String email = 'default@gmail.com',
     name = 'ローディング...',
     username = 'ローディング...',
     uid = 'default';
-String? myProfileURL;
-String _myProfileURL =
+String myProfileURL =
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 
 class BannerScreen extends StatefulWidget {
   const BannerScreen({super.key});
 
   @override
-  // State<MyProfile> createState() => _BannerScreen();
   _BannerScreen createState() => _BannerScreen();
 }
 
 class _BannerScreen extends State<BannerScreen> {
-// String userDetailData = '';
-
   @override
   void initState() {
-    super.initState();
-    fetchUsername();
+    uid = _authServices.getCurrentuser()!.uid;
     _setProfileInitiate();
-  }
-
-  Future<String?> getProfileUrl(String userUid) async {
-    try {
-      final profileRef =
-          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
-      String profileUrl = await profileRef.getDownloadURL();
-
-      return profileUrl;
-    } catch (e) {
-      print('Error getting profile URL: $e');
-      return null; // Return null in case of error
-    }
+    fetchUsername();
+    super.initState();
   }
 
   Future<void> _setProfileInitiate() async {
-    uid = _authServices.getCurrentuser()!.uid;
-    email = await _authServices.getCurrentuser()!.email!;
-    String? fetchedUrl = await getProfileUrl(uid);
+    try {
+      email = await _authServices.getCurrentuser()!.email!;
+      final profileRef =
+          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
+      // await profileRef.getMetadata();
+      String fetchedUrl = await profileRef.getDownloadURL();
 
-    if (mounted) {
-      setState(() {
-        myProfileURL = fetchedUrl; // Update the state after fetching URL
-      });
+      if (mounted) {
+        setState(() {
+          myProfileURL = fetchedUrl; // Update the state after fetching URL
+        });
+      }
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
@@ -107,16 +98,11 @@ class _BannerScreen extends State<BannerScreen> {
                 right: 0,
                 child: Container(
                   child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        30.0,
-                        8.0,
-                        30.0,
-                        8.0,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(30.0, 8.0, 30.0, 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          ///  home button
+                          //========================================================  home button======================================
                           IconButton(
                             onPressed: () async {
                               Navigator.of(context).push(
@@ -132,7 +118,7 @@ class _BannerScreen extends State<BannerScreen> {
                               weight: 100,
                             ),
                           ),
-                          //// post button
+                          //===============================================================post button======================================
                           IconButton(
                             onPressed: () async {
                               showDialog(
@@ -155,7 +141,7 @@ class _BannerScreen extends State<BannerScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          /////////////////////////////////////////////////////////////////// //// search button /////////////////////////////////////////////////////////////
+                          //=================================================== search button ============================================================
                           IconButton(
                             onPressed: () async {
                               showDialog(
@@ -167,7 +153,7 @@ class _BannerScreen extends State<BannerScreen> {
                                   });
                               if (!mounted) return;
                               Navigator.pop(context);
-
+                              // setState(() {});
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => SearchUser(),
@@ -180,14 +166,12 @@ class _BannerScreen extends State<BannerScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          ////
+                          //=========================================== avatar button ======================================================
 
                           FloatingActionButton(
                             backgroundColor: Colors.transparent,
                             child: CircleAvatar(
-                              backgroundImage: NetworkImage(myProfileURL != null
-                                  ? myProfileURL!
-                                  : _myProfileURL),
+                              backgroundImage: NetworkImage(myProfileURL),
                               radius: 20,
                             ),
                             onPressed: () async {
@@ -198,9 +182,10 @@ class _BannerScreen extends State<BannerScreen> {
                                       child: CircularProgressIndicator(),
                                     );
                                   });
-                              Navigator.pop(context);
+                              _setProfileInitiate();
+                              // Navigator.pop(context);
 
-                              Navigator.of(context).push(
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: (context) {
                                     return MyProfile();

@@ -33,7 +33,7 @@ bool isMeBlocked = false;
 class OtherTileState extends State<OtherTile> {
   String? username;
   bool isLoading = true;
-  String? useremail;
+  String useremail = 'default';
   String? otherProfileURL;
   String _otherProfileURL = profileServices.mainURL;
   @override
@@ -224,14 +224,16 @@ class OtherTileState extends State<OtherTile> {
             if (!isUserBlocked)
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        receiverEmail: useremail!,
-                        receiverId: widget.otherUid,
+                  if (mounted) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          receiverEmail: useremail,
+                          receiverId: widget.otherUid,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(

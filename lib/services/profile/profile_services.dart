@@ -361,8 +361,8 @@ class ProfileServices {
   Future<bool> isBlockTrue() async {
     try {
       DocumentSnapshot userSnapshot = await _database
-          .collection("Report_Block")
-          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .collection("Status_Manage")
+          .doc('manage_status')
           .get();
       bool isBlockTrue = userSnapshot.get('block');
       return isBlockTrue;
@@ -375,8 +375,8 @@ class ProfileServices {
   Future<bool> isReportTrue() async {
     try {
       DocumentSnapshot userSnapshot = await _database
-          .collection("Report_Block")
-          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .collection("Status_Manage")
+          .doc('manage_status')
           .get();
       bool isReportTrue = userSnapshot.get('report');
       return isReportTrue;
@@ -386,12 +386,37 @@ class ProfileServices {
     }
   }
 
+  Future<bool> getCommentStatus() async {
+    try {
+      DocumentSnapshot userSnapshot = await _database
+          .collection("Status_Manage")
+          .doc('manage_status')
+          .get();
+      bool isCommentTrue = userSnapshot.get('comment');
+      return isCommentTrue;
+    } catch (e) {
+      print("Error fetching document: $e");
+      return false;
+    }
+  }
+
   Future<void> setBlockStatus(bool status) async {
     try {
       await _database
-          .collection("Report_Block")
-          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .collection("Status_Manage")
+          .doc('manage_status')
           .update({'block': status});
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  Future<void> setCommentStatus(bool status) async {
+    try {
+      await _database
+          .collection("Status_Manage")
+          .doc('manage_status')
+          .update({'comments': status});
     } catch (e) {
       print("Error updating profile: $e");
     }
@@ -400,8 +425,8 @@ class ProfileServices {
   Future<void> setReportStatus(bool status) async {
     try {
       await _database
-          .collection("Report_Block")
-          .doc('iv9tvYcUKGpaX1WxpFU9')
+          .collection("Status_Manage")
+          .doc('manage_status')
           .update({'report': status});
     } catch (e) {
       print("Error updating profile: $e");

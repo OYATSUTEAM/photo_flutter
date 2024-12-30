@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/other/blocked_users.dart';
+import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
 import 'package:photo_sharing_app/ui/other/etc_screen.dart';
+import 'package:photo_sharing_app/ui/screen/manager_screen.dart';
 import 'package:photo_sharing_app/ui/screen/report_block_screen.dart';
 import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
+import 'package:photo_sharing_app/ui/screen/terms_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:photo_sharing_app/ui/other/other_users.dart';
 
@@ -38,7 +41,14 @@ class MyDrawer extends StatelessWidget {
                   ),
                   MyButton(
                     text: "利用規約", //terms of service
-                    onTap: () async {},
+                    onTap: () async {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TermsOfUsePage(),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(
                     height: 15,
@@ -58,7 +68,14 @@ class MyDrawer extends StatelessWidget {
                   ),
                   MyButton(
                     text: "プライバシーポリシー", //privacy policy
-                    onTap: () async {},
+                    onTap: () async {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CookieScreen(),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(
                     height: 15,
@@ -124,12 +141,12 @@ class MyDrawer extends StatelessWidget {
                     ),
                   if (email == 'topadminmanager123456@gmail.com')
                     MyButton(
-                      text: "report_block",
+                      text: "ステータス管理",
                       onTap: () async {
                         Navigator.pop(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => Report_Block(),
+                            builder: (context) => ManagerScreen(),
                           ),
                         );
                       },
