@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextButton(
                                   child: Text(
                                     'おすすめ',
-                                    style: TextStyle(fontSize: 16),
+                                    style: TextStyle(fontSize: 16, color: Colors.white),
                                   ),
                                   onPressed: () {
                                     getCurrentUserUID();
@@ -231,10 +231,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                   child: Column(
                                 children: [
-                                  Text(
+                         
+                                      TextButton(
+                                  child: Text(
                                     'フォロー中',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
+                                    style: TextStyle(fontSize: 16, color: Colors.white),
+                                  )),
                                   Expanded(
                                     child: ListView.builder(
                                       itemCount: recommendedFollowUsers.length,
