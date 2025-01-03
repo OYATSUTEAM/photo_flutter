@@ -181,7 +181,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                         children: [
                           Container(
                               width: MediaQuery.of(context).size.width * 0.97,
-                              height: MediaQuery.of(context).size.height * 0.8,
+                              height: MediaQuery.of(context).size.height * 0.76,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30.0),
                                   color: Colors.grey,
