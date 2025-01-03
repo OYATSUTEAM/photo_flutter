@@ -232,11 +232,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Column(
                                 children: [
                          
-                                      TextButton(
+                               
+
+                                    TextButton(
                                   child: Text(
                                     'フォロー中',
                                     style: TextStyle(fontSize: 16, color: Colors.white),
-                                  )),
+                                  ),
+                                  onPressed: () {
+                                    getCurrentUserUID();
+                                    fetchRecentFiles();
+                                    _setUpHomeScreen();
+                                    _setProfileInitiate();
+                                    fetchUsername();
+                                  },
+                                ),
                                   Expanded(
                                     child: ListView.builder(
                                       itemCount: recommendedFollowUsers.length,
