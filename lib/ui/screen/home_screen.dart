@@ -142,16 +142,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.73,
                           width: MediaQuery.of(context).size.width,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Expanded(
                                   child: Column(children: [
-                                Text(
-                                  'おすすめ',
-                                  style: TextStyle(fontSize: 16),
+                                TextButton(
+                                  child: Text(
+                                    'おすすめ',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  onPressed: () {
+                                    getCurrentUserUID();
+                                    fetchRecentFiles();
+                                    _setUpHomeScreen();
+                                    _setProfileInitiate();
+                                    fetchUsername();
+                                  },
                                 ),
                                 Expanded(
                                     child: ListView.builder(
