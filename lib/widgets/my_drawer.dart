@@ -217,7 +217,7 @@ class _MyDrawer extends State<MyDrawer> {
                       },
                     ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.16,
+                    height: MediaQuery.of(context).size.height * 0.12,
                   ),
                   MyButton(
                       text: "ログアウト",
