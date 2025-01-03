@@ -1,22 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/other/blocked_users.dart';
 import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
 import 'package:photo_sharing_app/ui/other/etc_screen.dart';
 import 'package:photo_sharing_app/ui/screen/manager_screen.dart';
-import 'package:photo_sharing_app/ui/screen/report_block_screen.dart';
 import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
 import 'package:photo_sharing_app/ui/screen/terms_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:photo_sharing_app/ui/other/other_users.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class MyDrawer extends StatelessWidget {
-  final String email;
-  const MyDrawer({super.key, required this.email});
+ProfileServices profileServices = ProfileServices();
 
+class MyDrawer extends StatefulWidget {
+  final String email, uid;
+  const MyDrawer({super.key, required this.email, required this.uid});
   @override
+  _MyDrawer createState() => _MyDrawer();
+}
+
+class _MyDrawer extends State<MyDrawer> {
+  @override
+  Future<void> deleteFileWithConfirmation(
+    BuildContext context,
+  ) async {
+    bool isMounted = mounted;
+    User? user = FirebaseAuth.instance.currentUser;
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('削除確認'),
+          content: const Text('本当にこのアカウントを削除しますか？'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // User pressed Cancel
+              },
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // User pressed Delete
+              },
+              child: const Text(
+                '削除',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    print('$email!!!!!!!!!!!!!!this is email');
+    if (shouldDelete == true) {
+      try {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+        await profileServices.deleteAccount(uid);
+        if (user != null) {
+          await user.delete();
+          print("Account deleted successfully");
+        } else {
+          print("No user is currently signed in.");
+        }
+        await AuthServices(locator.get(), locator.get()).signOut();
+        if (mounted) Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete account: $e')),
+        );
+      }
+    }
+  }
+
   Widget build(BuildContext context) {
     return SafeArea(
         child: Drawer(
@@ -135,11 +200,11 @@ class MyDrawer extends StatelessWidget {
                       );
                     },
                   ),
-                  if (email == 'topadminmanager123456@gmail.com')
+                  if (widget.email == 'topadminmanager123456@gmail.com')
                     SizedBox(
                       height: 15,
                     ),
-                  if (email == 'topadminmanager123456@gmail.com')
+                  if (widget.email == 'topadminmanager123456@gmail.com')
                     MyButton(
                       text: "ステータス管理",
                       onTap: () async {
@@ -152,7 +217,7 @@ class MyDrawer extends StatelessWidget {
                       },
                     ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.23,
+                    height: MediaQuery.of(context).size.height * 0.2,
                   ),
                   MyButton(
                       text: "ログアウト",
@@ -169,7 +234,23 @@ class MyDrawer extends StatelessWidget {
                         await AuthServices(locator.get(), locator.get())
                             .signOut();
                         Navigator.pop(context);
+                        Navigator.pop(context);
                       }),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  MyButton(
+                    text: "アカウント削除",
+                    color: Colors.red,
+                    onTap: () async {
+                      deleteFileWithConfirmation(context);
+                    },
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('戻る'))
                 ],
               ),
             )));

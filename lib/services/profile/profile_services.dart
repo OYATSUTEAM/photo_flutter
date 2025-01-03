@@ -432,4 +432,13 @@ class ProfileServices {
       print("Error updating profile: $e");
     }
   }
+
+  Future<void> deleteAccount(String uid) async {
+    try {
+      await _database.collection("Users").doc(uid).delete();
+      print("Account deleted successfully");
+    } catch (e) {
+      print("Error deleting account: $e");
+    }
+  }
 }

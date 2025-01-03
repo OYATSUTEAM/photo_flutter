@@ -15,7 +15,7 @@ import 'package:photo_sharing_app/widgets/imagetile.dart';
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 final AuthServices _authServices = locator.get();
 UploadService uploadService = UploadService();
-BannerScreen bannerScreen = BannerScreen();
+// BannerScreen bannerScreen = BannerScreen();
 
 class ProfileSetScreen extends StatefulWidget {
   final String whichProfile;
@@ -283,8 +283,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.8,
+            width: MediaQuery.of(context).size.width * 0.99,
+            height: MediaQuery.of(context).size.height * 0.9,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black, width: 5),
             ),

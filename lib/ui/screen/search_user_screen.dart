@@ -48,6 +48,7 @@ class _SearchUserState extends State<SearchUser> {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0,
+        toolbarHeight: 55,
         centerTitle: true,
         title: Padding(
           padding: const EdgeInsets.only(right: 10),
