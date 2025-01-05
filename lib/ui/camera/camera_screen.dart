@@ -27,12 +27,18 @@ class _CameraScreenState extends State<CameraScreen>
   List<File> allFileList = [];
 
   final resolutionPresets = ResolutionPreset.high;
+  List<CameraDescription> cameras = [];
 
   ResolutionPreset currentResolutionPreset = ResolutionPreset.high;
 
   getPermissionStatus() async {
     await Permission.camera.request();
-    await refreshAlreadyCapturedImages();
+    List<CameraDescription> _cameras = await availableCameras();
+    if (_cameras.isNotEmpty) {
+      setState(() {
+        cameras = _cameras;
+      });
+    }
     var status = await Permission.camera.status;
 
     if (status.isGranted) {
@@ -41,8 +47,9 @@ class _CameraScreenState extends State<CameraScreen>
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
-      onNewCameraSelected(cameras[1]);
-      refreshAlreadyCapturedImages();
+      onNewCameraSelected(cameras.first);
+      // refreshAlreadyCapturedImages();
+      await refreshAlreadyCapturedImages();
     } else {
       log('Camera Permission: DENIED');
     }
