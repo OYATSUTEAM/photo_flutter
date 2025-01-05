@@ -284,7 +284,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         children: [
           Container(
             width: MediaQuery.of(context).size.width * 0.99,
-            height: MediaQuery.of(context).size.height * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black, width: 5),
             ),
