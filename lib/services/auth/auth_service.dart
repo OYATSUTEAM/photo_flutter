@@ -85,6 +85,8 @@ class AuthServices {
       print("Sign out initiated...");
       // Check if the user is already signed in
       await user.signOut();
+      // await FirebaseAuth.instance.signOut();
+
       print("Sign out successful.");
     } catch (e) {
       print("Error during sign out: $e");
@@ -94,6 +96,7 @@ class AuthServices {
   Future<UserCredential?> register(
       String email, String password, String name, String username) async {
     try {
+      // await FirebaseAuth.instance.signOut();
       final UserCredential userCredential =
           await user.createUserWithEmailAndPassword(
         email: email,

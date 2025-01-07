@@ -63,87 +63,92 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // var usernameController = TextEditingController();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SingleChildScrollView(
-        child: SafeArea(
-            child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 30,
-              ),
-              Text(
-                "メールアドレス",
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              MyTextField(
-                hint: "",
-                obsecure: false,
-                controller: emailController,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text(
-                "パスワード",
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              MyTextField(
-                hint: "",
-                obsecure: true,
-                controller: passwordController,
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.2,
-              ),
-              MyButton(
-                text: "ログイン",
-                onTap: () async {
-                  await signIn(
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
-                  );
-                },
-              ),
-              const SizedBox(height: 15),
-              Row(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context)
+                .unfocus(); // Hide keyboard when tapping outside
+          },
+          child: SingleChildScrollView(
+            child: SafeArea(
+                child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(
+                    height: 30,
+                  ),
                   Text(
-                    "会員でない？ ",
+                    "メールアドレス",
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 24,
+                      color: Colors.white,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: widget.callBack,
-                    child: Text(
-                      "今すぐ登録",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  MyTextField(
+                    hint: "",
+                    obsecure: false,
+                    controller: emailController,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "パスワード",
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
                     ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  MyTextField(
+                    hint: "",
+                    obsecure: true,
+                    controller: passwordController,
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.2,
+                  ),
+                  MyButton(
+                    text: "ログイン",
+                    onTap: () async {
+                      await signIn(
+                        emailController.text.trim(),
+                        passwordController.text.trim(),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "会員でない？ ",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: widget.callBack,
+                        child: Text(
+                          "今すぐ登録",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            )),
           ),
-        )),
-      ),
-    );
+        ));
   }
 }

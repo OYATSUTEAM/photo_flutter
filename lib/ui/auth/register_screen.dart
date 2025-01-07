@@ -86,126 +86,131 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SingleChildScrollView(
-          child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                "メールアドレス",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontFamily: 'NotoSansJP',
-                ),
-              ),
-              const SizedBox(height: 4),
-              MyTextField(
-                hint: "",
-                obsecure: false,
-                controller: emailController,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "名前",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              MyTextField(
-                hint: "",
-                obsecure: false,
-                controller: nameController,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "ユーザーネーム",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              MyTextField(
-                hint: "",
-                obsecure: false,
-                controller: userNameController,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "パスワード",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              MyTextField(
-                hint: "6文字以上のパスワードを入力して下さい。",
-                obsecure: true,
-                controller: passwordController,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "パスワードの確認",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              MyTextField(
-                hint: "パスワードの確認",
-                obsecure: true,
-                controller: pwConfirmController,
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-              MyButton(
-                text: "続ける",
-                onTap: () {
-                  signUp(
-                      emailController.text.trim(),
-                      nameController.text.trim(),
-                      userNameController.text.trim(),
-                      passwordController.text.trim(),
-                      pwConfirmController.text.trim());
-                },
-              ),
-              const SizedBox(height: 5),
-              Row(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context)
+                .unfocus(); // Hide keyboard when tapping outside
+          },
+          child: SingleChildScrollView(
+              child: SafeArea(
+            child: Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 40),
                   Text(
-                    "すでにアカウントをお持ちの方?    ",
+                    "メールアドレス",
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                      fontSize: 14,
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontFamily: 'NotoSansJP',
                     ),
                   ),
-                  GestureDetector(
-                    onTap: widget.callBack,
-                    child: Text(
-                      "今すぐログイン",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
+                  const SizedBox(height: 4),
+                  MyTextField(
+                    hint: "",
+                    obsecure: false,
+                    controller: emailController,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "名前",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  MyTextField(
+                    hint: "",
+                    obsecure: false,
+                    controller: nameController,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "ユーザーネーム",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  MyTextField(
+                    hint: "",
+                    obsecure: false,
+                    controller: userNameController,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "パスワード",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  MyTextField(
+                    hint: "6文字以上のパスワードを入力して下さい。",
+                    obsecure: true,
+                    controller: passwordController,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "パスワードの確認",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  MyTextField(
+                    hint: "パスワードの確認",
+                    obsecure: true,
+                    controller: pwConfirmController,
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                  MyButton(
+                    text: "続ける",
+                    onTap: () {
+                      signUp(
+                          emailController.text.trim(),
+                          nameController.text.trim(),
+                          userNameController.text.trim(),
+                          passwordController.text.trim(),
+                          pwConfirmController.text.trim());
+                    },
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "すでにアカウントをお持ちの方?    ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: widget.callBack,
+                        child: Text(
+                          "今すぐログイン",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      )),
-    );
+            ),
+          )),
+        ));
   }
 }

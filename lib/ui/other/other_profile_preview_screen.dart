@@ -33,7 +33,8 @@ String username = '未定', name = '未定';
 List<dynamic> like = [], dislike = [], favourite = [];
 bool isLikeClickable = true,
     isDislikeClickable = true,
-    isFavouriteClickable = true;
+    isFavouriteClickable = true,
+    commentsStatus = false;
 
 class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   ScrollController _scrollController = ScrollController();
@@ -44,7 +45,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
 
   @override
   void initState() {
-    _setUpProfilePreview();
+    _setUpInit();
     super.initState();
   }
 
@@ -58,8 +59,9 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
     }
   }
 
-  Future<void> _setUpProfilePreview() async {
+  Future<void> _setUpInit() async {
     final fetchedURL = await getWhichProfileUrl();
+    final fetchedCommentsStatus = await profileServices.getCommentStatus();
     var user = await _authServices.getDocument(widget.otherUid);
     List<Map<String, dynamic>> fetchedComments =
         await otherService.getAllComments(widget.otherUid, widget.whichProfile);
@@ -69,6 +71,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
       });
       if (user != null) {
         setState(() {
+          commentsStatus = fetchedCommentsStatus;
           username = user['username'];
           name = user['name'];
           final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
@@ -195,19 +198,21 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(width: 15),
-                          IconButton(
-                            onPressed: () async {
-                              Map<String, dynamic>? user =
-                                  await _authServices.getUserDetail(uid!);
-                              setState(() {
-                                _scrollToBottom();
-                                isCommenting = !isCommenting;
-                                username = user?['username'];
-                              });
-                            },
-                            icon: Icon(Icons.chat_bubble_outline),
-                          ),
-                          Text(comments.length.toString()),
+                          if (commentsStatus == true)
+                            IconButton(
+                              onPressed: () async {
+                                Map<String, dynamic>? user =
+                                    await _authServices.getUserDetail(uid!);
+                                setState(() {
+                                  _scrollToBottom();
+                                  isCommenting = !isCommenting;
+                                  username = user?['username'];
+                                });
+                              },
+                              icon: Icon(Icons.chat_bubble_outline),
+                            ),
+                          if (commentsStatus == true)
+                            Text(comments.length.toString()),
                           SizedBox(width: 30),
                           IconButton(
                             onPressed: () {
@@ -217,7 +222,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                                           widget.otherUid, widget.whichProfile);
                                       isLikeClickable = false;
                                       isDislikeClickable = true;
-                                      _setUpProfilePreview();
+                                      _setUpInit();
                                     })
                                   : setState(() {
                                       otherService.decreamentDislike(
@@ -228,31 +233,35 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                           ),
                           Text(like.length.toString()),
                           SizedBox(width: 30),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                otherService.increamentDislike(
-                                    widget.otherUid, widget.whichProfile);
-                                isDislikeClickable = false;
-                                isLikeClickable = true;
-                                _setUpProfilePreview();
-                              });
-                            },
-                            icon: Icon(Icons.thumb_down),
-                          ),
-                          Text(dislike.length.toString()),
+                          if (commentsStatus == true)
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  otherService.increamentDislike(
+                                      widget.otherUid, widget.whichProfile);
+                                  isDislikeClickable = false;
+                                  isLikeClickable = true;
+                                  _setUpInit();
+                                });
+                              },
+                              icon: Icon(Icons.thumb_down),
+                            ),
+                          if (commentsStatus == true)
+                            Text(dislike.length.toString()),
                           SizedBox(width: 30),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                otherService.increamentFavourite(
-                                    widget.otherUid, widget.whichProfile);
-                                _setUpProfilePreview();
-                              });
-                            },
-                            icon: Icon(Icons.favorite_outline),
-                          ),
-                          Text(favourite.length.toString()),
+                          if (commentsStatus == true)
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  otherService.increamentFavourite(
+                                      widget.otherUid, widget.whichProfile);
+                                  _setUpInit();
+                                });
+                              },
+                              icon: Icon(Icons.favorite_outline),
+                            ),
+                          if (commentsStatus == true)
+                            Text(favourite.length.toString()),
                         ],
                       ),
                       Row(
@@ -356,7 +365,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                               otherService.addComment(widget.otherUid,
                                   commentText, widget.whichProfile);
                               setState(() {
-                                _setUpProfilePreview();
+                                _setUpInit();
                                 _commentController
                                     .clear(); // Clear the text field
                               });

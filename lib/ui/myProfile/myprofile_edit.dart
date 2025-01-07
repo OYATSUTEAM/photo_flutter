@@ -99,24 +99,27 @@ class _MyProfileEdit extends State<MyProfileEdit> {
       });
       final downloadUrl = await sourceRef.getDownloadURL();
       print('Source download URL: $downloadUrl');
-
-      final http.Response response = await http.get(Uri.parse(downloadUrl));
-
-      if (response.statusCode == 200) {
-        final Uint8List imageData = response.bodyBytes;
-
-        final targetRef = FirebaseStorage.instance
-            .ref()
-            .child("images/$uid/mainProfileImage");
-
-        final uploadTask = targetRef.putData(imageData, metadata);
-        final snapshot = await uploadTask.whenComplete(() => null);
-        final newDownloadUrl = await snapshot.ref.getDownloadURL();
-
-        print('Re-upload complete. New download URL: $newDownloadUrl');
-      } else {
-        print('Failed to download image: ${response.statusCode}');
+      final Uint8List? imageData = await sourceRef.getData();
+      if (imageData == null) {
+        print("Error: File data is null.");
+        return;
       }
+      // final http.Response response = await http.get(Uri.parse(downloadUrl));
+
+      // if (response.statusCode == 200) {
+      //   final Uint8List imageData = response.bodyBytes;
+
+      final targetRef =
+          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
+
+      final uploadTask = targetRef.putData(imageData, metadata);
+      final snapshot = await uploadTask.whenComplete(() => null);
+      // final newDownloadUrl = await snapshot.ref.getDownloadURL();
+
+      // print('Re-upload complete. New download URL: $newDownloadUrl');
+      // } else {
+      // print('Failed to download image: }');
+      // }
     } catch (e) {
       print('Error sharing image: $e');
     }
@@ -187,10 +190,8 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Text(
-                          '名前', ////////////////////////////////////////////////////////////////////////        name
-                          style: TextStyle(fontSize: 20),
-                        ),
+                        child: Text('名前', style: TextStyle(fontSize: 20)),
+                        //========================================================= name  =========================================
                       ),
                       SizedBox(
                         width: 200,
@@ -219,10 +220,9 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          'ユーザーネーム', /////////////////////////////////////////////////////////////////// username
-                          style: TextStyle(fontSize: 20),
-                        ),
+                        child: Text('ユーザーネーム', style: TextStyle(fontSize: 20)
+                            // ========================================================= username =============================================================
+                            ),
                       ),
                       SizedBox(
                         width: 100,
@@ -317,18 +317,23 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                           password,
                         );
                       }
-                      if (!mounted) return;
                       if (mounted) {
-                        widget.whichProfile != 'myMainProfileURL'
-                            ? _uploadFile().then((_) {
-                                Navigator.pop(context);
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => MyProfile(),
-                                  ),
-                                );
-                              })
-                            : null;
+                        if (widget.whichProfile != 'myMainProfileURL') {
+                          _uploadFile();
+                          // Navigator.pop(context);
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => MyProfile(),
+                            ),
+                          );
+                        } else {
+                          Navigator.pop(context);
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => MyProfile(),
+                            ),
+                          );
+                        }
                       }
                     }
                     ;
@@ -336,10 +341,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 //==============================================================================  save   ======================================================================
                   child: const Text(
                     '保存',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),

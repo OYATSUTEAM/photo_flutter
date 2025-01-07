@@ -292,50 +292,50 @@ class OtherService {
     return commentsList;
   }
 
-  Future<List<Map<String, dynamic>>> getRecentOtherFiles(String uid) async {
-    List<String> otherUidList = [];
+  Future<List<Map<String, dynamic>>> getRecentFilesFromAllUsers(
+      String myUid) async {
     try {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('Users').doc(uid).get();
-
-      if (userDoc.exists) {
-        List<dynamic> otherData = userDoc.get('other') ?? [];
-
-        otherUidList = List<String>.from(otherData);
-      } else {
-        print('User document does not exist.');
-        return [];
-      }
-      print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
-
       final List<Map<String, dynamic>> recentFiles = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
-      for (final otherUid in otherUidList) {
-        DocumentSnapshot userSnapshot =
-            await database.collection("Users").doc(otherUid).get();
+      QuerySnapshot usersSnapshot =
+          await FirebaseFirestore.instance.collection('Users').get();
 
-        bool isPublic = userSnapshot.get('public');
+      for (QueryDocumentSnapshot<Object?> userDoc in usersSnapshot.docs) {
+        String userUid = userDoc.get('uid');
+        bool isPublic = userDoc.get('public');
+        if (userUid == myUid) continue;
+        if (isPublic) {
+          try {
+            final ListResult profileRef = await FirebaseStorage.instance
+                .ref()
+                .child("images/$userUid")
+                .listAll();
 
-        final ListResult profileRef = await FirebaseStorage.instance
-            .ref()
-            .child("images/$otherUid")
-            .listAll();
-        for (final fileRef in profileRef.items) {
-          final metadata = await fileRef.getMetadata();
-          final timestampString = metadata.customMetadata?['timestamp'];
+            for (final fileRef in profileRef.items) {
+              final metadata = await fileRef.getMetadata();
+              final timestampString = metadata.customMetadata?['timestamp'];
 
-          if (timestampString != null) {
-            final DateTime timestamp = DateTime.parse(timestampString);
-            if (timestamp.isAfter(threeDaysAgo)) {
-              if (isPublic)
-                recentFiles.add({"fileRef": fileRef, "uid": otherUid});
+              if (timestampString != null) {
+                try {
+                  final DateTime timestamp = DateTime.parse(timestampString);
+                  if (timestamp.isAfter(threeDaysAgo)) {
+                    recentFiles.add({"fileRef": fileRef, "uid": userUid});
+                  }
+                } catch (e) {
+                  print(
+                      'Error parsing timestamp for file: $fileRef, error: $e');
+                }
+              }
             }
+          } catch (e) {
+            print('Error listing files for user: $userUid, error: $e');
           }
         }
       }
 
       return recentFiles;
     } catch (e) {
+      print('Error fetching recent files: $e');
       return [];
     }
   }

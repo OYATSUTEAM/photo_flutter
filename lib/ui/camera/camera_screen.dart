@@ -47,7 +47,7 @@ class _CameraScreenState extends State<CameraScreen>
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
-      onNewCameraSelected(cameras.first);
+      onNewCameraSelected(cameras.last);
       // refreshAlreadyCapturedImages();
       await refreshAlreadyCapturedImages();
     } else {
@@ -288,7 +288,9 @@ class _CameraScreenState extends State<CameraScreen>
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  PostPreviewScreen()),
+                                                  PostPreviewScreen(
+                                                    isDelete: false,
+                                                  )),
                                         );
                                       });
 
@@ -322,7 +324,9 @@ class _CameraScreenState extends State<CameraScreen>
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                PostPreviewScreen()),
+                                                PostPreviewScreen(
+                                                  isDelete: false,
+                                                )),
                                       );
                                     }
                                   },

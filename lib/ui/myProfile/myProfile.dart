@@ -30,10 +30,10 @@ class MyProfile extends StatefulWidget {
 
 class _MyProfile extends State<MyProfile> {
   String myMainProfileURL = profileServices.mainURL;
-  String myFirstProfileURL = profileServices.firstURL;
-  String mySecondProfileURL = profileServices.secondURL;
-  String myThirdProfileURL = profileServices.thirdURL;
-  String myForthProfileURL = profileServices.forthURL;
+  String myFirstProfileURL = '';
+  String mySecondProfileURL = '';
+  String myThirdProfileURL = '';
+  String myForthProfileURL = '';
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
@@ -258,6 +258,7 @@ class _MyProfile extends State<MyProfile> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   InkWell(
+                    //=========================================================================================      main profile image      =====================================
                     onTap: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(

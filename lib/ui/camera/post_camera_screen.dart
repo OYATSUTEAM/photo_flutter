@@ -13,14 +13,14 @@ import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 
 import '../../main.dart';
 
-class AddCameraScreen extends StatefulWidget {
-  const AddCameraScreen({super.key});
+class PostCameraScreen extends StatefulWidget {
+  const PostCameraScreen({super.key});
 
   @override
-  _AddCameraScreenState createState() => _AddCameraScreenState();
+  _PostCameraScreenState createState() => _PostCameraScreenState();
 }
 
-class _AddCameraScreenState extends State<AddCameraScreen>
+class _PostCameraScreenState extends State<PostCameraScreen>
     with WidgetsBindingObserver {
   CameraController? controller;
   bool _isCameraInitialized = false;
@@ -211,12 +211,8 @@ class _AddCameraScreenState extends State<AddCameraScreen>
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          16.0,
-                          8.0,
-                          16.0,
-                          8.0,
-                        ),
+                        padding:
+                            const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -305,8 +301,9 @@ class _AddCameraScreenState extends State<AddCameraScreen>
                                     // setState(() {});
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            PostPreviewScreen(),
+                                        builder: (context) => PostPreviewScreen(
+                                          isDelete: false,
+                                        ),
                                       ),
                                     );
                                   },
@@ -347,7 +344,7 @@ class _AddCameraScreenState extends State<AddCameraScreen>
                                   ),
                                 ),
                               ],
-                            ),
+                            )
                           ],
                         ),
                       ),

@@ -1,23 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
-import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
-import 'package:photo_sharing_app/ui/camera/camera_screen.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
 import 'package:photo_sharing_app/widgets/my_drawer.dart';
 
-final ChatService _chatService = locator.get();
 final AuthServices _authServices = locator.get();
+ProfileServices profileServices = ProfileServices();
 late String fromWhere;
 
-String myProfileURL =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
+String myProfileURL = "";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,48 +29,75 @@ class HomeScreen extends StatefulWidget {
 
 OtherService otherService = OtherService();
 
-FirebaseAuth _auth = FirebaseAuth.instance;
-final User? user = _auth.currentUser;
-// final otherService = OtherService(locator.get(), locator.get());
-
-String email = 'default@gmail.com',
-    name = 'ローディング...',
-    username = 'ローディング...',
-    uid = 'default';
-List<Map<String, dynamic>> recommendedOtherUsers = [];
-List<Map<String, dynamic>> recommendedFollowUsers = [];
-
 class _HomeScreenState extends State<HomeScreen> {
+  bool isLoading = true;
+  String email = 'default@gmail.com',
+      name = 'ローディング...',
+      username = 'ローディング...',
+      uid = 'default';
+  List<Map<String, dynamic>> recommendedOtherUsers = [];
+  List<Map<String, dynamic>> recommendedFollowUsers = [];
+  final List<String> allFileListPath = [];
   @override
   void initState() {
-    uid = _authServices.getCurrentuser()!.uid;
-    email = _authServices.getCurrentuser()!.email!;
-    getCurrentUserUID();
-    fetchRecentFiles();
-    _setUpHomeScreen();
+    final currentUser = _authServices.getCurrentuser();
+    uid = currentUser!.uid;
+    email = currentUser.email!;
     _setProfileInitiate();
-    fetchUsername();
-
+    _setUpInit();
     super.initState();
   }
 
-  void getCurrentUserUID() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        uid = user.uid;
-        email = user.email!;
-      });
+  Future<void> _loadImages() async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    final fileList = directory.listSync();
+    allFileListPath
+      ..clear()
+      ..addAll(fileList
+          .where((file) => file.path.endsWith('.jpg'))
+          .map((e) => e.path)
+          .toList())
+      ..sort((a, b) => a.compareTo(b));
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _setUpInit() async {
+    try {
+      await _loadImages();
+      final fetchedOtherFiles =
+          await otherService.getRecentFilesFromAllUsers(uid);
+      final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
+      Map<String, dynamic>? userDetail = await _authServices.getUserDetail(uid);
+
+      if (mounted) if (userDetail != null) {
+        setState(() {
+          username = userDetail['username'];
+          name = userDetail['name'];
+          recommendedOtherUsers = fetchedOtherFiles;
+          recommendedFollowUsers = fetchedFollowFiles;
+        });
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
   Future<void> _setProfileInitiate() async {
     try {
-      email = await _authServices.getCurrentuser()!.email!;
+      myProfileURL = await profileServices.getMainProfileUrl(uid);
+
       final profileRef =
           FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
-      // await profileRef.getMetadata();
+      final otherFileRef =
+          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
+      // print(
+      //     '=============================current uid is $uid  ===========================');
       String fetchedUrl = await profileRef.getDownloadURL();
+      print(
+          '=============================current profile url is ${profileRef.getDownloadURL()}  ===========================');
 
       if (mounted) {
         setState(() {
@@ -77,45 +105,71 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print(e);
+      print('$e=======================  this is called');
+      if (mounted) {
+        setState(() {});
+      }
       return null;
     }
   }
 
-  Future<void> fetchUsername() async {
-    try {
-      final users = await _chatService.getuserStream().first;
+  Future<void> deleteAllFileWithConfirm(
+    BuildContext context,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('削除の確認'),
+          content: const Text('すでに撮影した画像を本当に削除しますか？'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // User pressed Cancel
+              },
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // User pressed Delete
+              },
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
 
-      final user = users.firstWhere(
-        (userData) => userData['email'] == email,
-        // orElse: () =>  userData['email'] != email,
-      );
-
-      setState(() {
-        username = user['username'];
-      });
-    } catch (e) {
-      // Handle any errors
-      setState(() {
-        username = "Error fetching username";
-      });
-      debugPrint("Error fetching username: $e");
+    if (shouldDelete == true) {
+      try {
+        setState(() {});
+        List<File> filesToRemove = [];
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+        for (final String filePath in allFileListPath) {
+          File file = File(filePath);
+          if (await file.exists()) {
+            await file.delete(); // Delete each file
+            filesToRemove.add(file); // Mark the file for removal
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('ファイルが存在しません。')),
+            );
+          }
+        }
+        setState(() {});
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
+        );
+      }
     }
-  }
-
-  void fetchRecentFiles() async {
-    final fetchedOtherFiles = await otherService.getRecentOtherFiles(uid);
-    final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
-    print('$fetchedOtherFiles!!!!!!!!!!!this is other users ');
-    if (mounted)
-      setState(() {
-        recommendedOtherUsers = fetchedOtherFiles;
-        recommendedFollowUsers = fetchedFollowFiles;
-      });
-  }
-
-  Future<void> _setUpHomeScreen() async {
-    setState(() {});
   }
 
   @override
@@ -152,14 +206,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextButton(
                                   child: Text(
                                     'おすすめ',
-                                    style: TextStyle(fontSize: 16, color: Colors.white),
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.white),
                                   ),
                                   onPressed: () {
-                                    getCurrentUserUID();
-                                    fetchRecentFiles();
-                                    _setUpHomeScreen();
                                     _setProfileInitiate();
-                                    fetchUsername();
                                   },
                                 ),
                                 Expanded(
@@ -231,22 +282,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                   child: Column(
                                 children: [
-                         
-                               
-
-                                    TextButton(
-                                  child: Text(
-                                    'フォロー中',
-                                    style: TextStyle(fontSize: 16, color: Colors.white),
+                                  TextButton(
+                                    child: Text(
+                                      'フォロー中',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.white),
+                                    ),
+                                    onPressed: () {
+                                      _setProfileInitiate();
+                                    },
                                   ),
-                                  onPressed: () {
-                                    getCurrentUserUID();
-                                    fetchRecentFiles();
-                                    _setUpHomeScreen();
-                                    _setProfileInitiate();
-                                    fetchUsername();
-                                  },
-                                ),
                                   Expanded(
                                     child: ListView.builder(
                                       itemCount: recommendedFollowUsers.length,
@@ -353,10 +398,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: CircularProgressIndicator(),
                                         );
                                       });
+
                                   Navigator.pop(context);
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                        builder: (context) => CameraScreen()),
+                                        builder: (context) =>
+                                            PostPreviewScreen(isDelete: true)),
                                   );
                                   if (!mounted) return;
                                 },

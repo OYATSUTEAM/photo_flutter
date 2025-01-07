@@ -8,13 +8,10 @@ class ProfileServices {
 
   String mainURL =
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
-  String secondURL = "https://en.pimg.jp/079/687/576/1/79687576.jpg";
-  String firstURL =
-      "https://us.123rf.com/450wm/apoev/apoev1806/apoev180600156/103284749-default-placeholder-businessman-half-length-portrait-photo-avatar-man-gray-color.jpg";
-  String thirdURL =
-      "https://img.freepik.com/premium-photo/default-avatar-profile-icon-gray-placeholder-man-woman-isolated-white-background_660230-21610.jpg";
-  String forthURL =
-      "https://img.freepik.com/premium-vector/grandparents-icon-vector-image-can-be-used-child-adoption_120816-381816.jpg?semt=ais_hybrid";
+  String secondURL = "";
+  String firstURL = "";
+  String thirdURL = "";
+  String forthURL = "";
 
   Future<void> updateProfile(String? uid, String? name, String? username,
       String? email, String? password) async {
@@ -392,7 +389,7 @@ class ProfileServices {
           .collection("Status_Manage")
           .doc('manage_status')
           .get();
-      bool isCommentTrue = userSnapshot.get('comment');
+      bool isCommentTrue = userSnapshot.get('comments');
       return isCommentTrue;
     } catch (e) {
       print("Error fetching document: $e");

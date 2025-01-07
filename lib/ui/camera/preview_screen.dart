@@ -5,11 +5,9 @@ import 'package:flutter/material.dart';
 
 class PreviewScreen extends StatefulWidget {
   final File imageFile;
-  // final List<File> fileList;
 
   const PreviewScreen({
     required this.imageFile,
-    // required this.fileList,
   });
 
   @override

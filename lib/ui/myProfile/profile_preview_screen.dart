@@ -31,13 +31,10 @@ ScrollController _scrollController = ScrollController();
 
 final AuthServices _authServices = locator.get();
 String? imageURL;
-String _firstURL =
-    "https://us.123rf.com/450wm/apoev/apoev1806/apoev180600156/103284749-default-placeholder-businessman-half-length-portrait-photo-avatar-man-gray-color.jpg";
-String _secondURL = "https://en.pimg.jp/079/687/576/1/79687576.jpg";
-String _thirdURL =
-    "https://img.freepik.com/premium-photo/default-avatar-profile-icon-gray-placeholder-man-woman-isolated-white-background_660230-21610.jpg";
-String _forthURL =
-    "https://img.freepik.com/premium-vector/grandparents-icon-vector-image-can-be-used-child-adoption_120816-381816.jpg?semt=ais_hybrid";
+String _firstURL = "";
+String _secondURL = "";
+String _thirdURL = "";
+String _forthURL = "";
 String mainURL =
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 bool isCommenting = false; // To track if comment input is visible
