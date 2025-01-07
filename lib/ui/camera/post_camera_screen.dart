@@ -197,6 +197,15 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                     children: [
                       SizedBox(
                         height: 15,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                      Positioned(
+                        top: 0,
+                        left: -100,
+                        child: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {},
+                        ),
                       ),
                       Container(
                         height: MediaQuery.of(context).size.height * 0.78,

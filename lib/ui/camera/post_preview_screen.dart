@@ -170,7 +170,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       // }
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => CameraScreen(),
+          builder: (context) => PostPreviewScreen(
+            isDelete: false,
+          ),
         ),
       );
     });

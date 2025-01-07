@@ -20,6 +20,8 @@ class RegisterScreen extends StatefulWidget {
 final authUser = AuthServices(locator.get(), locator.get());
 bool isLoading = true;
 
+bool isDialogShown = true;
+
 class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> signUp(
     String email,
@@ -28,8 +30,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password,
     String passwordConfirm,
   ) async {
-    // bool isDialogShown = false;
-
     if (password == passwordConfirm) {
       try {
         // Check if the email or username already exists
@@ -46,11 +46,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
           throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
 //=======================================================Username is already in use. \Please select a different user name.===========================================//
         }
-
-        final result = await authUser.register(email, password, name, username);
+        if (isLoading) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              });
+        }
+        final result =
+            await authUser.register(email, password, name, username).then((_) {
+          print('this is register later!');
+          isLoading = false;
+        });
+        if (!isLoading) Navigator.pop(context);
 
         if (mounted) {
-          print("$result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+          print(
+              "$result   this is register!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
           Navigator.pop(context);
         }
       } on Exception catch (ex) {

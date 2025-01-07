@@ -320,7 +320,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       if (mounted) {
                         if (widget.whichProfile != 'myMainProfileURL') {
                           _uploadFile();
-                          // Navigator.pop(context);
+                          Navigator.pop(context);
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (context) => MyProfile(),
