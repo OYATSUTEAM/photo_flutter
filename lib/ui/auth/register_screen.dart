@@ -1,12 +1,17 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatService = locator.get();
+final AuthServices authService = locator.get();
 final FirebaseFirestore _database = FirebaseFirestore.instance;
 
 class RegisterScreen extends StatefulWidget {
@@ -21,8 +26,10 @@ final authUser = AuthServices(locator.get(), locator.get());
 bool isLoading = true;
 
 bool isDialogShown = true;
+String uid = 'default@gmail.com';
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  User? user = FirebaseAuth.instance.currentUser;
   Future<void> signUp(
     String email,
     String name,
@@ -39,43 +46,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
             .collection("Users")
             .where('username', isEqualTo: username)
             .get();
-//=======================================================================user is already exist=====================================================================//
+//=======================================================================user is already exist=====================================================================
         if (isExist) {
           throw Exception('ユーザは既に存在します！');
-        } else if (existingUserQuery.docs.isNotEmpty) {
+        }
+//=======================================================Username is already in use. Please select a different user name.==========================================
+        else if (existingUserQuery.docs.isNotEmpty) {
           throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
-//=======================================================Username is already in use. \Please select a different user name.===========================================//
         }
-        if (isLoading) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              });
-        }
-        final result =
-            await authUser.register(email, password, name, username).then((_) {
-          print('this is register later!');
-          isLoading = false;
-        });
-        if (!isLoading) Navigator.pop(context);
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+        await authUser.register(email, password, name, username);
 
         if (mounted) {
-          print(
-              "$result   this is register!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
           Navigator.pop(context);
+          print('==========================');
         }
       } on Exception catch (ex) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
+        if (mounted) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
         }
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              content: Text(ex.toString()),
+              content: Text('${ex.toString()}!!!!!'),
             );
           },
         );
@@ -85,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            content: Text("Passwords dont' match"),
+            content: Text("パスワードが一致しない"),
           );
         },
       );

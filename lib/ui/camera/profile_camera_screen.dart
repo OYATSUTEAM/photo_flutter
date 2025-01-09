@@ -202,191 +202,203 @@ class _CameraScreenState extends State<ProfileCameraScreen>
         backgroundColor: Colors.black,
         body: _isCameraPermissionGranted
             ? _isCameraInitialized
-                ? Column(
-                    children: [
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.78,
-                        width: MediaQuery.of(context).size.width * 0.99,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(340.0),
-                          color: Colors.black,
+                ? Stack(children: [
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: 15,
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(38.0),
-                          child: CameraPreview(controller!),
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.78,
+                          width: MediaQuery.of(context).size.width * 0.99,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(340.0),
+                            color: Colors.black,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(38.0),
+                            child: CameraPreview(controller!),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          16.0,
-                          8.0,
-                          16.0,
-                          8.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<FlashMode>(
-                                    value: _currentFlashMode,
-                                    icon: const SizedBox.shrink(),
-                                    alignment: Alignment.topLeft,
-                                    dropdownColor:
-                                        const Color.fromARGB(99, 21, 22, 21),
-                                    onChanged: (FlashMode? newMode) {
-                                      if (newMode != null) {
-                                        _toggleFlashMode(newMode);
-                                      }
-                                    },
-                                    items: [
-                                      DropdownMenuItem<FlashMode>(
-                                        value: FlashMode.off,
-                                        child: Icon(
-                                          Icons.flash_off,
-                                          size: 30,
-                                          color:
-                                              _currentFlashMode == FlashMode.off
-                                                  ? Colors.yellow
-                                                  : Colors.white,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<FlashMode>(
-                                        value: FlashMode.auto,
-                                        child: Icon(
-                                          Icons.flash_auto,
-                                          size: 30,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.auto
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<FlashMode>(
-                                        value: FlashMode.always,
-                                        child: Icon(
-                                          size: 30,
-                                          Icons.flash_on,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.always
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                      DropdownMenuItem<FlashMode>(
-                                        value: FlashMode.torch,
-                                        child: Icon(
-                                          Icons.highlight,
-                                          size: 30,
-                                          color: _currentFlashMode ==
-                                                  FlashMode.torch
-                                              ? Colors.yellow
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () async {
-                                    XFile? rawImage = await takePicture();
-                                    File imageFile = File(rawImage!.path);
-
-                                    int currentUnix =
-                                        DateTime.now().millisecondsSinceEpoch;
-
-                                    final directory =
-                                        await getApplicationDocumentsDirectory();
-                                    String fileFormat =
-                                        imageFile.path.split('.').last;
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  DropdownButtonHideUnderline(
+                                    child: DropdownButton<FlashMode>(
+                                      value: _currentFlashMode,
+                                      icon: const SizedBox.shrink(),
+                                      alignment: Alignment.topLeft,
+                                      dropdownColor:
+                                          const Color.fromARGB(99, 21, 22, 21),
+                                      onChanged: (FlashMode? newMode) {
+                                        if (newMode != null) {
+                                          _toggleFlashMode(newMode);
+                                        }
                                       },
-                                    );
-                                    final storageRef =
-                                        FirebaseStorage.instance.ref();
-                                    final imageRef = storageRef
-                                        .child('images/$uid/editProfileImage');
+                                      items: [
+                                        DropdownMenuItem<FlashMode>(
+                                          value: FlashMode.off,
+                                          child: Icon(
+                                            Icons.flash_off,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.off
+                                                ? Colors.yellow
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                        DropdownMenuItem<FlashMode>(
+                                          value: FlashMode.auto,
+                                          child: Icon(
+                                            Icons.flash_auto,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.auto
+                                                ? Colors.yellow
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                        DropdownMenuItem<FlashMode>(
+                                          value: FlashMode.always,
+                                          child: Icon(
+                                            size: 30,
+                                            Icons.flash_on,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.always
+                                                ? Colors.yellow
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                        DropdownMenuItem<FlashMode>(
+                                          value: FlashMode.torch,
+                                          child: Icon(
+                                            Icons.highlight,
+                                            size: 30,
+                                            color: _currentFlashMode ==
+                                                    FlashMode.torch
+                                                ? Colors.yellow
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () async {
+                                      XFile? rawImage = await takePicture();
+                                      File imageFile = File(rawImage!.path);
 
-                                    await imageFile.copy(
-                                      '${directory.path}/$currentUnix.$fileFormat',
-                                    );
-                                    if (widget.whichProfile == 'editProfile') {
-                                      await imageRef.putFile(imageFile);
-                                      if (mounted) {
+                                      int currentUnix =
+                                          DateTime.now().millisecondsSinceEpoch;
+
+                                      final directory =
+                                          await getApplicationDocumentsDirectory();
+                                      String fileFormat =
+                                          imageFile.path.split('.').last;
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
+                                      );
+                                      final storageRef =
+                                          FirebaseStorage.instance.ref();
+                                      final imageRef = storageRef.child(
+                                          'images/$uid/editProfileImage');
+
+                                      await imageFile.copy(
+                                        '${directory.path}/$currentUnix.$fileFormat',
+                                      );
+                                      if (widget.whichProfile ==
+                                          'editProfile') {
+                                        await imageRef.putFile(imageFile);
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MyProfileEdit(
+                                                whichProfile: 'editProfile',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
                                         Navigator.pop(context);
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
-                                            builder: (context) => MyProfileEdit(
-                                              whichProfile: 'editProfile',
+                                            builder: (context) =>
+                                                ProfileSetScreen(
+                                              whichProfile: widget.whichProfile,
                                             ),
                                           ),
                                         );
                                       }
-                                    } else {
-                                      Navigator.pop(context);
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProfileSetScreen(
-                                            whichProfile: widget.whichProfile,
-                                          ),
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.radio_button_unchecked,
+                                          size: 60,
+                                          color: Colors.white,
                                         ),
-                                      );
-                                    }
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.radio_button_unchecked,
-                                        size: 60,
-                                        color: Colors.white,
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isCameraInitialized = false;
-                                    });
-                                    onNewCameraSelected(
-                                        cameras[_isRearCameraSelected ? 1 : 0]);
-                                    setState(() {
-                                      _isRearCameraSelected =
-                                          !_isRearCameraSelected;
-                                    });
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Icon(
-                                        _isRearCameraSelected
-                                            ? Icons.camera_front
-                                            : Icons.camera_rear,
-                                        color: Colors.white,
-                                        size: 30,
-                                      ),
-                                    ],
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isCameraInitialized = false;
+                                      });
+                                      onNewCameraSelected(cameras[
+                                          _isRearCameraSelected ? 1 : 0]);
+                                      setState(() {
+                                        _isRearCameraSelected =
+                                            !_isRearCameraSelected;
+                                      });
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Icon(
+                                          _isRearCameraSelected
+                                              ? Icons.camera_front
+                                              : Icons.camera_rear,
+                                          color: Colors.white,
+                                          size: 30,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
+                      ],
+                    ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: IconButton(
+                        icon: const Icon(Icons.close,
+                            color: Colors.red, size: 34),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                    ],
-                  )
+                    ),
+                  ])
                 : Center(
                     child: Text(
                       '読み込み中',

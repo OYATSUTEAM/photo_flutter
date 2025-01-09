@@ -15,7 +15,7 @@ ProfileServices profileServices = ProfileServices();
 class OtherTile extends StatefulWidget {
   final void Function()? onTap;
   final String otherUid;
-  final void Function()? onButtonPressed;
+  final VoidCallback onButtonPressed;
   const OtherTile({
     super.key,
     required this.onTap,
@@ -52,6 +52,7 @@ class OtherTileState extends State<OtherTile> {
 
   Future<void> _loadUsername() async {
     final uid = await getCurrentUserUID();
+    print('$isMeBlocked===================');
     try {
       String? fetchedUsername = await otherService.getUserName(widget.otherUid);
       String? fetchedUserEmail =
@@ -135,7 +136,7 @@ class OtherTileState extends State<OtherTile> {
               child: Text(
                 isLoading ? 'Loading...' : username!,
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -171,7 +172,7 @@ class OtherTileState extends State<OtherTile> {
                     _loadUsername();
                   });
                   await Future.delayed(Duration(milliseconds: 800));
-                  Navigator.pop(currentContext);
+                  if (mounted) Navigator.pop(currentContext);
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -196,11 +197,10 @@ class OtherTileState extends State<OtherTile> {
             if (!isUserBlocked)
               TextButton(
                 onPressed: () async {
-                  if (mounted) {
-                    widget.onButtonPressed!();
-                    await otherService.deleteOther(widget.otherUid);
-                    Navigator.pop(context);
-                  }
+                  // if (mounted) {
+                  widget.onButtonPressed();
+                  await otherService.deleteOther(widget.otherUid);
+                  // }
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -248,7 +248,7 @@ class OtherTileState extends State<OtherTile> {
                     'chat',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14, // Font size
+                      fontSize: 12, // Font size
                       fontWeight: FontWeight.bold, // Font weight (bold)
                     ),
                   ),
@@ -260,7 +260,7 @@ class OtherTileState extends State<OtherTile> {
                 'blocked',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14, // Font size
+                  fontSize: 12, // Font size
                   fontWeight: FontWeight.bold, // Font weight (bold)
                 ),
               ),

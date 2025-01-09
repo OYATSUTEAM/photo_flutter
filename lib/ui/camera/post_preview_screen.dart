@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
-import 'package:photo_sharing_app/ui/camera/camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -151,13 +150,14 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   }
 
   Future<void> shareImage() async {
-    List<XFile> xFiles = allFileListPath
-        .map((path) => XFile(path, mimeType: 'image/jpeg'))
-        .toList();
+    final box = context.findRenderObject() as RenderBox?;
+
+    List<XFile> xFiles = allFileListPath.map((path) => XFile(path)).toList();
 
     await Share.shareXFiles(
       xFiles,
       text: textController.text.trim(),
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ).then((_) async {
       // Iterate over the list in reverse to safely remove items while iterating
       // for (int i = allFileListPath.length - 1; i >= 0; i--) {

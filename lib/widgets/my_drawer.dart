@@ -73,7 +73,10 @@ class _MyDrawer extends State<MyDrawer> {
           print("No user is currently signed in.");
         }
         await AuthServices(locator.get(), locator.get()).signOut();
-        if (mounted) Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete account: $e')),

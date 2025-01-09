@@ -46,13 +46,12 @@ class AuthServices {
     }
   }
 
-  Future<UserCredential?> signIn(
-    String email,
-    password,
-  ) async {
+  Future<UserCredential?> signIn(String email, password) async {
     try {
       final UserCredential userCredential = await user
           .signInWithEmailAndPassword(email: email, password: password);
+      print('this is login func!===============');
+
       return userCredential;
     } on FirebaseAuthException catch (error) {
       String errorMessage = "";
@@ -72,7 +71,7 @@ class AuthServices {
         errorMessage = "ログイン中にエラーが発生しました"; // Generic error message
       }
       // Throw a new exception with the translated message
-      throw Exception(errorMessage);
+      throw Exception('$errorMessage!!!!!!!!!!!!!');
     } catch (e) {
       print("Error fetching document: $e");
       return null;
@@ -114,7 +113,8 @@ class AuthServices {
         'isShowAll': true,
         'public': true,
       });
-      return await signIn(email, password);
+      await signIn(email, password);
+      return userCredential;
     } on FirebaseAuthException {
       return null;
     } catch (e) {

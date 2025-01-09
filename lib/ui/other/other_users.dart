@@ -54,7 +54,7 @@ class _OtherUsersScreenState extends State<OtherUsers> {
                 String otherUid = OtherUsers[index];
                 return ListTile(
                     title: OtherTile(
-                  onButtonPressed: () => updateData,
+                  onButtonPressed: updateData,
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) =>

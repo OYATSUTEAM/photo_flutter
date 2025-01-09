@@ -1,6 +1,6 @@
 {
-    "name": "testing",
-    "short_name": "testing",
+    "name": "photo_sharing",
+    "short_name": "photo_sharing",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

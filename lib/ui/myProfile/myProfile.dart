@@ -201,7 +201,7 @@ class _MyProfile extends State<MyProfile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -378,7 +378,7 @@ class _MyProfile extends State<MyProfile> {
         print('sdfsdfsdf');
         print(
             '$whichProfile!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!which profile');
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ProfilePreviewScreen(
               whichProfile: whichProfile,
