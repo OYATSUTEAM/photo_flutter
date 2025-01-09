@@ -56,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
   reset_password() async {
     await FirebaseAuth.instance
         .sendPasswordResetEmail(email: emailController.text.trim());
+    // Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
 
