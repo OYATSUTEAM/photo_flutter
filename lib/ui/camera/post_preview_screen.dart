@@ -152,11 +152,12 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
 
   Future<void> shareImage() async {
     List<XFile> xFiles = allFileListPath
-        .map((path) => XFile(path, mimeType: 'image/jpeg'))
+        .map((path) => XFile(path, ))
         .toList();
 
     await Share.shareXFiles(
-      xFiles,
+      // xFiles,
+      [],
       text: textController.text.trim(),
     ).then((_) async {
       // Iterate over the list in reverse to safely remove items while iterating
@@ -186,34 +187,34 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       );
     }
 
-    if (allFileListPath.isEmpty) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "画像が見つかりません！",
-              style: TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 50),
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => PostCameraScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.add_circle_sharp,
-                  size: 50,
-                ))
-          ],
-        )),
-      );
-    }
+    // if (allFileListPath.isEmpty) {
+    //   return Scaffold(
+    //     backgroundColor: Colors.black,
+    //     body: Center(
+    //         child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         const Text(
+    //           "画像が見つかりません！",
+    //           style: TextStyle(color: Colors.white),
+    //         ),
+    //         const SizedBox(height: 50),
+    //         IconButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pushReplacement(
+    //                 MaterialPageRoute(
+    //                   builder: (context) => PostCameraScreen(),
+    //                 ),
+    //               );
+    //             },
+    //             icon: const Icon(
+    //               Icons.add_circle_sharp,
+    //               size: 50,
+    //             ))
+    //       ],
+    //     )),
+    //   );
+    // }
 
     return SafeArea(
         child: Scaffold(
