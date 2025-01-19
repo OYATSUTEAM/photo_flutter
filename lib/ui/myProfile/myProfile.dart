@@ -196,57 +196,63 @@ class _MyProfile extends State<MyProfile> {
       appBar: AppBar(
         toolbarHeight: 36,
         title: Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        username,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                  width: 50,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: -10, vertical: 2)),
-                    onPressed: () async {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
+          child: Stack(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  username,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                Positioned(
+                    child: SizedBox(
+                        width: 50,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: -10, vertical: 2)),
+                          onPressed: () async {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                });
+                            if (!mounted) return;
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => MyProfileEdit(
+                                  whichProfile: 'myMainProfileURL',
+                                ),
+                              ),
                             );
-                          });
-                      if (!mounted) return;
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MyProfileEdit(
-                            whichProfile: 'myMainProfileURL',
+                          },
+                          child: Text(
+                            '. . .',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      '. . .',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ))
-            ],
-          ),
+                        )))
+              ],
+            )
+          ]
+              //   SizedBox(
+              //       width: MediaQuery.of(context).size.width * 0.5,
+              //       child: Row(
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         children: [
+
+              //         ],
+              //       ))
+
+              ),
         ),
       ),
       body: SafeArea(
