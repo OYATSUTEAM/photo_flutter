@@ -246,7 +246,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   const SizedBox(height: 15),
 
                   MyButton(
-                      text: "ログイン",
+                      text: "パスワード変更",
                       onTap: () async {
                         Navigator.pop(context);
                         Navigator.of(context).push(

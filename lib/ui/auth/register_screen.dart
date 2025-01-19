@@ -54,13 +54,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         else if (existingUserQuery.docs.isNotEmpty) {
           throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
         }
-        showDialog(
-            context: context,
-            builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            });
+        // showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return const Center(
+        //         child: CircularProgressIndicator(),
+        //       );
+        //     });
         await authUser.register(email, password, name, username);
 
         if (mounted) {

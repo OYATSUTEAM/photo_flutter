@@ -83,8 +83,8 @@ class AuthServices {
     try {
       print("Sign out initiated...");
       // Check if the user is already signed in
-      await user.signOut();
-      // await FirebaseAuth.instance.signOut();
+      // await user.signOut();
+      await FirebaseAuth.instance.signOut();
 
       print("Sign out successful.");
     } catch (e) {
