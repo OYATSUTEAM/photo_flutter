@@ -11,7 +11,6 @@ import 'package:photo_sharing_app/theme/light_mode.dart';
 import 'package:photo_sharing_app/theme/dark_mode.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 
 final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
