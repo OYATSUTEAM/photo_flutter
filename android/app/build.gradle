@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.bluepine.camera"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = "25.1.8937393"
 
     compileOptions {
