@@ -9,7 +9,6 @@ import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/ui/screen/banner_screen.dart';
 import 'package:photo_sharing_app/widgets/imagetile.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;

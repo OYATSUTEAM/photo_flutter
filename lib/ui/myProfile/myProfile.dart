@@ -3,11 +3,13 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path_provider/path_provider.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
@@ -15,10 +17,7 @@ final User? user = _auth.currentUser;
 final AuthServices _authServices = locator.get();
 final ProfileServices profileServices = ProfileServices();
 bool isShowAll = true;
-bool firstImage = false,
-    secondImage = false,
-    thirdImage = false,
-    forthImage = false;
+bool firstImage = false;
 
 class MyProfile extends StatefulWidget {
   const MyProfile({
@@ -29,19 +28,19 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfile extends State<MyProfile> {
+  List<String> allFileListPath = [];
+  List<String> list = <String>['public', 'private'];
+  List<File> allFileList = [];
   String myMainProfileURL = profileServices.mainURL;
-  String myFirstProfileURL = '';
-  String mySecondProfileURL = '';
-  String myThirdProfileURL = '';
-  String myForthProfileURL = '';
+
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
       uid = 'default';
   final fetchedEmail = _authServices.getCurrentuser()!.email;
   final fetchedUid = _authServices.getCurrentuser()!.uid;
+  bool isToggled = false;
 
-  // File? _imageFile;
   File? myProfileImage;
   final currentUser = _authServices.getCurrentuser();
   bool switchResult = ThemeManager.readTheme();
@@ -66,24 +65,24 @@ class _MyProfile extends State<MyProfile> {
   }
 
   Future<void> _setProfileInitiate() async {
+    refreshAlreadyCapturedImages();
     if (mounted) {
       setState(() {});
     }
   }
 
+  Future<void> toggleIcon(BuildContext context) async {
+    setState(() {
+      isToggled = !isToggled;
+    });
+  }
+
   Future<void> fetchURLs() async {
     final fetchedUrl = await profileServices.getMainProfileUrl(uid);
-    final fetchedUrl1 = await profileServices.getFirstProfileUrl(uid);
-    final fetchedUrl2 = await profileServices.getSecondProfileUrl(uid);
-    final fetchedUrl3 = await profileServices.getThirdProfileUrl(uid);
-    final fetchedUrl4 = await profileServices.getForthProfileUrl(uid);
+
     if (mounted)
       setState(() {
         myMainProfileURL = fetchedUrl;
-        myFirstProfileURL = fetchedUrl1;
-        mySecondProfileURL = fetchedUrl2;
-        myThirdProfileURL = fetchedUrl3;
-        myForthProfileURL = fetchedUrl4;
       });
   }
 
@@ -108,36 +107,17 @@ class _MyProfile extends State<MyProfile> {
     }
   }
 
-  Future<void> deleteFileWithConfirmation(
-      BuildContext context, String whichProfile) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('削除確認'),
-        content: const Text('本当にこのファイルを削除しますか？'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('キャンセル')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('削除', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+  refreshAlreadyCapturedImages() async {
+    final directory = await getApplicationDocumentsDirectory();
 
-    if (shouldDelete == true) {
-      try {
-        await profileServices.deleteProfile(uid, whichProfile);
-      } catch (e) {
-        if (e.toString().contains('object-not-found')) {
-          print("File does not exist.");
-        } else {
-          print("An error occurred while deleting the file: $e");
-        }
-      }
-    }
+    final fileList = directory.listSync();
+    allFileListPath
+      ..clear()
+      ..addAll(fileList
+          .where((file) => file.path.endsWith('.jpg'))
+          .map((e) => e.path)
+          .toList())
+      ..sort((a, b) => a.compareTo(b));
   }
 
   Future<void> _setThisImage(String whichProfile) async {
@@ -145,24 +125,12 @@ class _MyProfile extends State<MyProfile> {
     setState(() {
       if (whichProfile == 'firstProfileImage') {
         firstImage = true;
-        secondImage = false;
-        thirdImage = false;
-        forthImage = false;
       } else if (whichProfile == 'secondProfileImage') {
         firstImage = false;
-        secondImage = true;
-        thirdImage = false;
-        forthImage = false;
       } else if (whichProfile == 'thirdProfileImage') {
         firstImage = false;
-        secondImage = false;
-        thirdImage = true;
-        forthImage = false;
       } else if (whichProfile == 'forthProfileImage') {
         firstImage = false;
-        secondImage = false;
-        thirdImage = false;
-        forthImage = true;
       }
     });
   }
@@ -189,8 +157,58 @@ class _MyProfile extends State<MyProfile> {
     }
   }
 
+  Future<void> deleteFileWithConfirmation(
+      BuildContext context, String filePath) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('削除確認'),
+        content: const Text('本当にこのファイルを削除しますか？'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('キャンセル')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('削除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      try {
+        if (await File(filePath).exists()) {
+          await File(filePath).delete();
+          setState(() {
+            // allFileListPath.remove(file.path);
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Text('ファイルは正常に削除されました！'),
+              duration: const Duration(milliseconds: 600),
+            ));
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    allFileListPath.sort((a, b) {
+      DateTime aCreationTime = File(a).lastModifiedSync();
+      DateTime bCreationTime = File(b).lastModifiedSync();
+      return aCreationTime.compareTo(bCreationTime);
+    });
+
+    int midIndex = allFileListPath.length ~/ 2;
+    List<String> oldestImages = allFileListPath.sublist(0, midIndex);
+    List<String> latestImages = allFileListPath.sublist(midIndex);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -203,20 +221,16 @@ class _MyProfile extends State<MyProfile> {
                     width: MediaQuery.of(context).size.width * 0.62,
                     height: 36,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    )),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(username,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ))
+                        ])),
                 Positioned(
-                    top: 0, // Adjusted to account for padding
+                    top: 0,
                     right: 0,
                     child: TextButton(
                       onPressed: () async {
@@ -228,215 +242,154 @@ class _MyProfile extends State<MyProfile> {
                               );
                             });
                         if (!mounted) return;
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => MyProfileEdit(
-                              whichProfile: 'myMainProfileURL',
-                            ),
-                          ),
-                        );
+                                whichProfile: 'myMainProfileURL')));
                       },
                       child: Text(
                         '. . .',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                        ),
+                        style:
+                            const TextStyle(fontSize: 24, color: Colors.white),
                       ),
                     ))
-              ]
-                  //   SizedBox(
-                  //       width: MediaQuery.of(context).size.width * 0.5,
-                  //       child: Row(
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         children: [
-
-                  //         ],
-                  //       ))
-
-                  )),
+              ])),
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+          child: SingleChildScrollView(
+        child: Column(children: [
+//=================================================     main profile image       =====================================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePreviewScreen(
+                          whichProfile: 'mainProfileImage', uid: uid),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(myMainProfileURL),
+                  radius: MediaQuery.of(context).size.width * 0.25,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(name, style: const TextStyle(fontSize: 26)),
+          const SizedBox(height: 10),
+//================================================          my images         ===============================================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
                 children: [
-                  InkWell(
-                    //=========================================================================================      main profile image      =====================================
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => ProfilePreviewScreen(
-                            whichProfile: 'mainProfileImage',
-                            uid: uid,
-                          ),
-                        ),
-                      );
-                    },
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(myMainProfileURL),
-                      radius: MediaQuery.of(context).size.width * 0.25,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10), // Spacing between image and name
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 26,
-                    ),
-                  ),
                   SizedBox(
-                    height: 10,
-                  ),
-                  SingleChildScrollView(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 6.5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (isShowAll || firstImage)
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        myFirstProfileURL,
-                                        'firstProfileImage',
-                                        () => setState(() {
-                                              fetchURLs();
-                                            })),
-                                  ),
-                                if (isShowAll || secondImage)
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        mySecondProfileURL,
-                                        'secondProfileImage',
-                                        () => setState(() {
-                                              fetchURLs();
-                                            })),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 6.5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (isShowAll || thirdImage)
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        myThirdProfileURL,
-                                        'thirdProfileImage',
-                                        () => setState(() {
-                                              fetchURLs();
-                                            })),
-                                  ),
-                                if (isShowAll || forthImage)
-                                  Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.43,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.35,
-                                      child: ProfileImageTile(
-                                          myForthProfileURL,
-                                          'forthProfileImage',
-                                          () => setState(() {
-                                                fetchURLs();
-                                              }))),
-                              ],
-                            ),
-                          ),
-                        ],
+                      width: MediaQuery.of(context).size.width * 0.5 - 10,
+                      height: MediaQuery.of(context).size.height -
+                          40 -
+                          MediaQuery.of(context).size.width * 0.5 -
+                          80,
+                      child: SingleChildScrollView(
+                        child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1, // Number of columns
+                                    crossAxisSpacing: 2.0,
+                                    mainAxisSpacing: 1.0, // Space between rows
+                                    childAspectRatio: 0.7),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: latestImages.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                  child: _buildImageTile(latestImages,
+                                      latestImages.length - index - 1, list));
+                            }),
                       ))
                 ],
               ),
-            )
-          ],
-        ),
-      ),
+              Column(
+                children: [
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5 - 10,
+                      height: MediaQuery.of(context).size.height -
+                          40 -
+                          MediaQuery.of(context).size.width * 0.5 -
+                          80,
+                      child: SingleChildScrollView(
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 1, // Number of columns
+                                  crossAxisSpacing: 1.0,
+                                  mainAxisSpacing: 1.0, // Space between rows
+                                  childAspectRatio: 0.7),
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: oldestImages.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              child: _buildImageTile(oldestImages, index, list),
+                            );
+                          },
+                        ),
+                      ))
+                ],
+              )
+            ],
+          ),
+        ]),
+      )),
     );
   }
 
-  Widget ProfileImageTile(
-      String imageURL, String whichProfile, VoidCallback delete) {
+  Widget _buildImageTile(List<String> filelist, int index, List<String> list) {
+    String dropdownValue = list.first;
+
     return GestureDetector(
-      onTap: () {
-        print('sdfsdfsdf');
-        print(
-            '$whichProfile!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!which profile');
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ProfilePreviewScreen(
-              whichProfile: whichProfile,
-              uid: uid,
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PreviewScreen(
+                imageFile: File(filelist[index]),
+              ),
             ),
-          ),
-        );
-      },
-      child: Stack(
-        children: [
+          );
+        },
+        child: Stack(children: [
           Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                color: Colors.grey,
-                image: DecorationImage(
-                  image: NetworkImage(imageURL),
-                  fit: BoxFit.cover,
-                )),
+              borderRadius: BorderRadius.circular(8.0),
+              image: DecorationImage(
+                image: FileImage(
+                    File(filelist[index])), // Displaying image from file
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           Positioned(
-            top: 0,
+              top: 0,
+              right: 0,
+              child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    deleteFileWithConfirmation(context, filelist[index]);
+                  })),
+          Positioned(
+            bottom: 0,
             right: 0,
             child: IconButton(
-              onPressed: () => isShowAll == false
-                  ? setIsShowAll(true, whichProfile)
-                  : _setThisImage(whichProfile),
-              icon: Icon(
-                Icons.content_copy,
-                color: Colors.black,
-                size: 25,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0, // Adjusted to account for padding
-            left: 0, // Adjusted to account for padding
-            child: IconButton(
+              icon: Icon(isToggled ? Icons.lock_open : Icons.lock),
+              color: Colors.green,
               onPressed: () {
-                deleteFileWithConfirmation(context, whichProfile);
-                delete();
+                toggleIcon(context);
               },
-              icon: Icon(
-                Icons.delete_forever,
-                color: Colors.black,
-                size: 25,
-              ),
             ),
           ),
-        ],
-      ),
-    );
+        ]));
   }
 }

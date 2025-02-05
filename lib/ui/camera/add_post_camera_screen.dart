@@ -13,14 +13,14 @@ import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 
 import '../../main.dart';
 
-class PostCameraScreen extends StatefulWidget {
-  final bool isDelete;
-  const PostCameraScreen({super.key, required this.isDelete});
+class AddPostCameraScreen extends StatefulWidget {
+  const AddPostCameraScreen({super.key});
+
   @override
-  _PostCameraScreenState createState() => _PostCameraScreenState();
+  _AddPostCameraScreenState createState() => _AddPostCameraScreenState();
 }
 
-class _PostCameraScreenState extends State<PostCameraScreen>
+class _AddPostCameraScreenState extends State<AddPostCameraScreen>
     with WidgetsBindingObserver {
   final List<String> allCacheFileListPath = [];
   CameraController? controller;
@@ -76,17 +76,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
         fileNames.add({0: int.parse(name), 1: file.path.split('/').last});
       }
     });
-    if (widget.isDelete) {
-      List<File> filesToRemove = [];
 
-      for (final String filePath in allCacheFileListPath) {
-        File file = File(filePath);
-        if (await file.exists()) {
-          await file.delete();
-          filesToRemove.add(file);
-        }
-      }
-    }
   }
 
   Future<XFile?> takePicture() async {

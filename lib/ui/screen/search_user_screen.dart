@@ -143,8 +143,7 @@ class BuildUserList extends StatelessWidget {
         final filteredUsers = query.isEmpty
             ? []
             : snapshot.data?.where((user) {
-                  final userName =
-                      (user['name'] as String?)?.toLowerCase() ?? '';
+                  final userName = (user['name'] as String?)?.toLowerCase() ?? '';
                   return userName.contains(query.toLowerCase());
                 }).toList() ??
                 [];
@@ -187,8 +186,7 @@ class BuilduserStreamList extends StatelessWidget {
     final currentUser = _authServices.getCurrentuser();
 
     if (currentUser == null) {
-      return const Center(
-          child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
+      return const Center(child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
     }
 
     final otherEmail = otherUserdata['email'] ?? ''; // Ensure non-null email
@@ -210,7 +208,6 @@ class BuilduserStreamList extends StatelessWidget {
       );
     }
 
-    return const SizedBox
-        .shrink(); // Return an empty widget if the condition fails
+    return const SizedBox.shrink(); // Return an empty widget if the condition fails
   }
 }

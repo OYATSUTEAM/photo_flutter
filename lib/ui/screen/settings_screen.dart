@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_event.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:photo_sharing_app/widgets/othertile.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,6 +13,8 @@ class SettingsScreen extends StatefulWidget {
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
+
+ProfileServices profileServices = ProfileServices();
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
@@ -34,10 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String email = 'default@gmail.com',
-      name = 'ローディング...',
-      username = 'ローディング...',
-      uid = 'default';
+  String email = 'default@gmail.com', name = 'ローディング...', username = 'ローディング...', uid = 'default';
   bool switchResult = ThemeManager.readTheme();
 
   @override

@@ -7,6 +7,7 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
@@ -38,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> recommendedOtherUsers = [];
   List<Map<String, dynamic>> recommendedFollowUsers = [];
   final List<String> allFileListPath = [];
+  final List<String> allCacheFileListPath = [];
   @override
   void initState() {
     final currentUser = _authServices.getCurrentuser();
@@ -50,8 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-
+    final subDir = Directory('${directory.path}/cache');
     final fileList = directory.listSync();
+    final cacheFileList = subDir.listSync();
     allFileListPath
       ..clear()
       ..addAll(fileList
@@ -59,6 +62,15 @@ class _HomeScreenState extends State<HomeScreen> {
           .map((e) => e.path)
           .toList())
       ..sort((a, b) => a.compareTo(b));
+
+    allCacheFileListPath
+      ..clear()
+      ..addAll(cacheFileList
+          .where((file) => file.path.endsWith('.jpg'))
+          .map((e) => e.path)
+          .toList())
+      ..sort((a, b) => a.compareTo(b));
+
     setState(() {
       isLoading = false;
     });
@@ -241,21 +253,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                               onTap: () {
                                                 Navigator.of(context).push(
                                                   MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        OtherProfilePreviewScreen(
-                                                            whichProfile:
-                                                                recommendedOtherUsers[
-                                                                            index]
-                                                                        [
-                                                                        'fileRef']
-                                                                    .fullPath
-                                                                    .split('/')
-                                                                    .last,
-                                                            otherUid:
-                                                                recommendedOtherUsers[
-                                                                        index]
-                                                                    ['uid']),
-                                                  ),
+                                                      builder: (context) =>
+                                                          OtherProfilePreviewScreen(
+                                                              whichProfile:
+                                                                  recommendedOtherUsers[
+                                                                              index]
+                                                                          [
+                                                                          'fileRef']
+                                                                      .fullPath
+                                                                      .split(
+                                                                          '/')
+                                                                      .last,
+                                                              otherUid:
+                                                                  recommendedOtherUsers[
+                                                                          index]
+                                                                      ['uid'])),
                                                 );
                                               },
                                               child: Container(
@@ -390,29 +402,43 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               //===============================================================post button======================================
                               IconButton(
-                                onPressed: () async {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      });
+                                  onPressed: () async {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        });
+                                    // if (allCacheFileListPath.length > 0) {
+                                    List<File> filesToRemove = [];
 
-                                  Navigator.pop(context);
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            PostPreviewScreen(isDelete: true)),
-                                  );
-                                  if (!mounted) return;
-                                },
-                                iconSize: 42,
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                ),
-                              ),
+                                    for (final String filePath
+                                        in allCacheFileListPath) {
+                                      File file = File(filePath);
+                                      if (await file.exists()) {
+                                        await file.delete();
+                                        filesToRemove.add(file);
+                                      }
+                                    }
+
+                                    print(
+                                        '---------${allCacheFileListPath.length}------------------------');
+                                    // }
+                                    // if(allCacheFileListPath.length ==0){
+
+                                    Navigator.pop(context);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PostCameraScreen(isDelete : true)),
+                                    );
+                                    // }
+                                    if (!mounted) return;
+                                  },
+                                  iconSize: 42,
+                                  icon: const Icon(Icons.add,
+                                      color: Colors.white)),
                               //=================================================== search button ============================================================
                               IconButton(
                                 onPressed: () async {

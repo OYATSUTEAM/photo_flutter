@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_sharing_app/ui/camera/add_post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:share_plus/share_plus.dart';
@@ -17,6 +18,8 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
   final List<String> allFileListPath = [];
+  final List<String> allCacheFileListPath = [];
+
   bool isLoading = true;
   bool sharing = true;
 
@@ -28,11 +31,19 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-
+    final subDir = Directory('${directory.path}/cache');
     final fileList = directory.listSync();
+    final cacheFileList = subDir.listSync();
     allFileListPath
       ..clear()
       ..addAll(fileList
+          .where((file) => file.path.endsWith('.jpg'))
+          .map((e) => e.path)
+          .toList())
+      ..sort((a, b) => a.compareTo(b));
+    allCacheFileListPath
+      ..clear()
+      ..addAll(cacheFileList
           .where((file) => file.path.endsWith('.jpg'))
           .map((e) => e.path)
           .toList())
@@ -41,11 +52,12 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
     setState(() {
       isLoading = false;
     });
-    if (widget.isDelete) {
-      if (allFileListPath.length > 0) {
-        await deleteAllFileWithConfirm(context);
-      }
-    }
+    // if (widget.isDelete) {
+    //   if (allFileListPath.length > 0) {
+    //     await deleteAllFileWithConfirm(context);
+    //   }
+    // }
+    print('------------${allCacheFileListPath.length}-------------');
   }
 
   Future<void> deleteAllFileWithConfirm(
@@ -204,7 +216,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => PostCameraScreen(),
+                      builder: (context) => AddPostCameraScreen(),
                     ),
                   );
                 },
@@ -240,14 +252,27 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                       mainAxisSpacing: 8.0, // Space between rows
                       childAspectRatio: 0.6, // Aspect ratio of each grid item
                     ),
-                    itemCount: allFileListPath.length,
+                    itemCount: allCacheFileListPath.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        child: _buildImageTile(index, allFileListPath.length),
+                        child: _buildImageTile(index, allCacheFileListPath.length),
                       );
                     },
                   ),
                 ),
+
+                //  IconButton(
+                // onPressed: () {
+                //   Navigator.of(context).pushReplacement(
+                //     MaterialPageRoute(
+                //       builder: (context) => PostCameraScreen(),
+                //     ),
+                //   );
+                // },
+                // icon: const Icon(
+                //   Icons.add_circle_sharp,
+                //   size: 50,
+                // )),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: TextField(
@@ -318,7 +343,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.0),
                       image: DecorationImage(
-                        image: FileImage(File(allFileListPath[
+                        image: FileImage(File(allCacheFileListPath[
                             index])), // Displaying image from file
                         fit: BoxFit.cover,
                       ),
@@ -332,7 +357,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
                         deleteFileWithConfirmation(
-                            context, File(allFileListPath[index]));
+                            context, File(allCacheFileListPath[index]));
                       },
                     ),
                   ),
@@ -346,7 +371,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => PostCameraScreen(),
+                              builder: (context) => AddPostCameraScreen(),
                             ),
                           );
                         },

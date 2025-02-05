@@ -17,10 +17,7 @@ class BlockedUsers extends StatefulWidget {
   _BlockedUsersScreenState createState() => _BlockedUsersScreenState();
 }
 
-String email = 'default@gmail.com',
-    name = 'ローディング...',
-    username = 'ローディング...',
-    uid = 'default';
+String email = 'default@gmail.com', name = 'ローディング...', username = 'ローディング...', uid = 'default';
 
 class _BlockedUsersScreenState extends State<BlockedUsers> {
   Future<List<dynamic>?>? _otherUidFuture;
@@ -45,8 +42,7 @@ class _BlockedUsersScreenState extends State<BlockedUsers> {
   Future<void> updateData() async {
     setState(() {
       data = "Updated Data";
-      _otherUidFuture =
-          profileServices.getBlockedUsers(uid); // Call the function
+      _otherUidFuture = profileServices.getBlockedUsers(uid); // Call the function
     });
   }
 
@@ -74,9 +70,7 @@ class _BlockedUsersScreenState extends State<BlockedUsers> {
                     title: Blocktile(
                   onButtonPressed: () => updateData,
                   onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            OtherProfile(otherUid: otherUid)));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => OtherProfile(otherUid: otherUid)));
                     if (!mounted) return;
                   },
                   otherUid: otherUid,
