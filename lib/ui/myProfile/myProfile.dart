@@ -61,11 +61,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     }
   }
 
-  Future<void> toggleIcon(BuildContext context) async {
-    setState(() {
-      isToggled = !isToggled;
-    });
-  }
 
   Future<void> fetchURLs() async {
     final fetchedUrl = await profileServices.getMainProfileUrl(uid);
@@ -90,20 +85,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     }
   }
 
-  Future<void> _setThisImage(String whichProfile) async {
-    setIsShowAll(false, whichProfile);
-    setState(() {
-      if (whichProfile == 'firstProfileImage') {
-        firstImage = true;
-      } else if (whichProfile == 'secondProfileImage') {
-        firstImage = false;
-      } else if (whichProfile == 'thirdProfileImage') {
-        firstImage = false;
-      } else if (whichProfile == 'forthProfileImage') {
-        firstImage = false;
-      }
-    });
-  }
 
   Future<void> setIsShowAll(bool value, String whichProfile) async {
     final user = FirebaseAuth.instance.currentUser;

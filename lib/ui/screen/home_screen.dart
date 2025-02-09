@@ -7,7 +7,6 @@ import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
 import 'package:photo_sharing_app/widgets/my_drawer.dart';
@@ -54,8 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       username = userDetail['username'];
       globalData.updateUser(email, uid, username, name);
       final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
-      final fetchedOtherFiles =
-          await otherService.getRecentOtherFilesAfter3days(uid);
+      final fetchedOtherFiles = await otherService.getOtherProfileURLs(uid);
 
       if (mounted && userDetail != null) {
         setState(() {
@@ -129,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('${recommendedOtherUsers}============================');
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
@@ -152,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             body: SingleChildScrollView(
               child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(4.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -341,30 +338,32 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              image: DecorationImage(
-                image: NetworkImage(imageFiles[index]),
-                fit: BoxFit.cover,
+      child: Padding(
+          padding: EdgeInsets.all(2),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  image: DecorationImage(
+                    image: NetworkImage(imageFiles[index]),
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ),
-          ),
-          // Positioned(
-          //   bottom: 0,
-          //   right: 0,
-          //   child: IconButton(
-          //     icon: Icon(Icons.lock), // Change the icon if needed
-          //     color: Colors.green,
-          //     onPressed: () async {
-          //       // Implement lock/unlock functionality
-          //     },
-          //   ),
-          // ),
-        ],
-      ),
+              // Positioned(
+              //   bottom: 0,
+              //   right: 0,
+              //   child: IconButton(
+              //     icon: Icon(Icons.lock), // Change the icon if needed
+              //     color: Colors.green,
+              //     onPressed: () async {
+              //       // Implement lock/unlock functionality
+              //     },
+              //   ),
+              // ),
+            ],
+          )),
     );
   }
 }
