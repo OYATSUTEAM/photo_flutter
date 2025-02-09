@@ -11,14 +11,13 @@ import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import '../../data/global.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
 
 class ProfilePreviewScreen extends StatefulWidget {
-  final String whichProfile;
-  final String uid;
-  const ProfilePreviewScreen({required this.whichProfile, required this.uid});
+  const ProfilePreviewScreen({super.key});
 
   @override
   _PreviewScreenState createState() => _PreviewScreenState();
@@ -30,12 +29,8 @@ OtherService otherService = OtherService();
 ScrollController _scrollController = ScrollController();
 ProfileServices profileServices = ProfileServices();
 
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 String? imageURL;
-String _firstURL = "";
-String _secondURL = "";
-String _thirdURL = "";
-String _forthURL = "";
 String mainURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 bool isCommenting = false; // To track if comment input is visible
 List<Map<String, dynamic>> comments = [];
@@ -64,23 +59,23 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
 
   Future<void> _setUpProfilePreview() async {
     final fetchedURL = await getWhichProfileUrl();
-    var user = await _authServices.getDocument(uid);
-    List<Map<String, dynamic>> fetchedComments = await otherService.getAllComments(uid, widget.whichProfile);
+    var user = await authServices.getDocument(uid);
+    // List<Map<String, dynamic>> fetchedComments = await otherService.getAllComments(uid, widget.whichProfile);
     if (mounted) {
       setState(() {
-        comments = fetchedComments;
+        // comments = fetchedComments;
         imageURL = fetchedURL;
       });
       if (user != null) {
         setState(() {
           username = user['username'];
           name = user['name'];
-          final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
-          final likeWhichProfile = 'like-${widget.whichProfile}';
-          final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
-          like = user[likeWhichProfile] ?? [];
-          dislike = user[disLikeWhichProfile] ?? [];
-          favourite = user[favouriteWhichProfile] ?? [];
+          // final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
+          // final likeWhichProfile = 'like-${widget.whichProfile}';
+          // final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
+          // like = user[likeWhichProfile] ?? [];
+          // dislike = user[disLikeWhichProfile] ?? [];
+          // favourite = user[favouriteWhichProfile] ?? [];
         });
         setState(() {
           imageURL = fetchedURL;
@@ -130,18 +125,19 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
 
   Future<String> getWhichProfileUrl() async {
     try {
-      final profileRef = FirebaseStorage.instance.ref().child("images/${widget.uid}/${widget.whichProfile}");
-      String profileUrl = await profileRef.getDownloadURL();
-      return profileUrl;
+      // final profileRef = FirebaseStorage.instance.ref().child("images/${widget.uid}/${widget.whichProfile}");
+      // String profileUrl = await profileRef.getDownloadURL();
+      // return profileUrl;
+      return mainURL;
     } catch (e) {
-      if (widget.whichProfile == 'mainProfileImage')
+      // if (widget.whichProfile == 'mainProfileImage')
         return mainURL;
-      else if (widget.whichProfile == 'firstProfileImage')
-        return _firstURL;
-      else if (widget.whichProfile == 'secondProfileImage')
-        return _secondURL;
-      else if (widget.whichProfile == 'thirdProfileImage') return _thirdURL;
-      return _forthURL;
+      // else if (widget.whichProfile == 'firstProfileImage')
+      //   return _firstURL;
+      // else if (widget.whichProfile == 'secondProfileImage')
+      //   return _secondURL;
+      // else if (widget.whichProfile == 'thirdProfileImage') return _thirdURL;
+      // return _forthURL;
     }
   }
 
@@ -202,7 +198,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                 // IconButton(
                                 //   onPressed: () async {
                                 //     Map<String, dynamic>? user =
-                                //         await _authServices.getUserDetail(uid);
+                                //         await authServices.getUserDetail(uid);
                                 //     if (mounted)
                                 //       setState(() {
                                 //         _scrollToBottom();
@@ -256,7 +252,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                         : 'No timestamp available';
 
                                     return FutureBuilder(
-                                      future: _authServices.getDocument(otherUid),
+                                      future: authServices.getDocument(otherUid),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState == ConnectionState.waiting) {
                                           return ListTile(
@@ -305,7 +301,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                     builder: (context) => ProfileCameraScreen(
-                                      whichProfile: widget.whichProfile,
+                                      
                                     ),
                                   ),
                                 );
@@ -349,13 +345,13 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
           ),
           onSelected: (value) async {
             if (value == "delete") {
-              await profileServices.deleteProfile(widget.uid, widget.whichProfile);
+              // await profileServices.deleteProfile(widget.uid, widget.whichProfile);
               setState(() {
                 delete();
               });
               print("Report selected");
             } else if (value == "share") {
-              await shareInternetImage(imageURL!, widget.whichProfile);
+              // await shareInternetImage(imageURL!, widget.whichProfile);
               Future.delayed(Duration(seconds: 1), () {
                 // Navigator.of(context).pop();
                 print('share image!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');

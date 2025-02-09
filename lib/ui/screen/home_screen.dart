@@ -1,21 +1,19 @@
+import 'dart:async';
 import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
-import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
 import 'package:photo_sharing_app/widgets/my_drawer.dart';
+import '../../data/global.dart';
 
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 ProfileServices profileServices = ProfileServices();
 late String fromWhere;
 
@@ -36,92 +34,37 @@ class _HomeScreenState extends State<HomeScreen> {
       name = 'ローディング...',
       username = 'ローディング...',
       uid = 'default';
-  List<Map<String, dynamic>> recommendedOtherUsers = [];
-  List<Map<String, dynamic>> recommendedFollowUsers = [];
+  List<String>? recommendedOtherUsers;
+  List<String>? recommendedFollowUsers;
   final List<String> allFileListPath = [];
   final List<String> allCacheFileListPath = [];
   @override
   void initState() {
-    final currentUser = _authServices.getCurrentuser();
-    uid = currentUser!.uid;
-    email = currentUser.email!;
-    _setProfileInitiate();
     _setUpInit();
     super.initState();
   }
 
-  Future<void> _loadImages() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final subDir = Directory('${directory.path}/cache');
-    final fileList = directory.listSync();
-    final cacheFileList = subDir.listSync();
-    allFileListPath
-      ..clear()
-      ..addAll(fileList
-          .where((file) => file.path.endsWith('.jpg'))
-          .map((e) => e.path)
-          .toList())
-      ..sort((a, b) => a.compareTo(b));
-
-    allCacheFileListPath
-      ..clear()
-      ..addAll(cacheFileList
-          .where((file) => file.path.endsWith('.jpg'))
-          .map((e) => e.path)
-          .toList())
-      ..sort((a, b) => a.compareTo(b));
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   Future<void> _setUpInit() async {
     try {
-      await _loadImages();
-      final fetchedOtherFiles =
-          await otherService.getRecentFilesFromAllUsers(uid);
+      final currentUser = await authServices.getCurrentuser();
+      uid = currentUser!.uid;
+      email = currentUser.email!;
+      Map<String, dynamic>? userDetail = await authServices.getUserDetail(uid);
+      name = userDetail!['name'];
+      username = userDetail['username'];
+      globalData.updateUser(email, uid, username, name);
       final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
-      Map<String, dynamic>? userDetail = await _authServices.getUserDetail(uid);
+      final fetchedOtherFiles =
+          await otherService.getRecentOtherFilesAfter3days(uid);
 
-      if (mounted) if (userDetail != null) {
+      if (mounted && userDetail != null) {
         setState(() {
-          username = userDetail['username'];
-          name = userDetail['name'];
           recommendedOtherUsers = fetchedOtherFiles;
           recommendedFollowUsers = fetchedFollowFiles;
         });
       }
     } catch (e) {
       print(e);
-    }
-  }
-
-  Future<void> _setProfileInitiate() async {
-    try {
-      myProfileURL = await profileServices.getMainProfileUrl(uid);
-
-      final profileRef =
-          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
-      final otherFileRef =
-          FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
-      // print(
-      //     '=============================current uid is $uid  ===========================');
-      String fetchedUrl = await profileRef.getDownloadURL();
-      print(
-          '=============================current profile url is ${profileRef.getDownloadURL()}  ===========================');
-
-      if (mounted) {
-        setState(() {
-          myProfileURL = fetchedUrl; // Update the state after fetching URL
-        });
-      }
-    } catch (e) {
-      print('$e=======================  this is called');
-      if (mounted) {
-        setState(() {});
-      }
-      return null;
     }
   }
 
@@ -186,16 +129,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('${recommendedOtherUsers}============================');
     return SafeArea(
         child: Scaffold(
-            // drawer: MyDrawer(email: email, uid: uid),
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.grey,
               elevation: 0,
-              title: const Text(
-                "ホーム",
-                style: TextStyle(fontSize: 20),
+              title: TextButton(
+                child: Text(
+                  "ホーム",
+                  style: TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _setUpInit();
+                  });
+                },
               ),
               centerTitle: true,
               toolbarHeight: 30,
@@ -211,304 +161,182 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: MediaQuery.of(context).size.height * 0.74,
                           width: MediaQuery.of(context).size.width,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
                                   child: Column(children: [
-                                TextButton(
-                                  child: Text(
-                                    'おすすめ',
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.white),
-                                  ),
-                                  onPressed: () {
-                                    _setProfileInitiate();
-                                  },
+                                    Expanded(
+                                      child: recommendedOtherUsers == null
+                                          ? Center(
+                                              child:
+                                                  CircularProgressIndicator()) // Show loader until data arrives
+                                          : GridView.builder(
+                                              gridDelegate:
+                                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 1,
+                                                crossAxisSpacing: 1.0,
+                                                mainAxisSpacing: 1.0,
+                                                childAspectRatio: 0.7,
+                                              ),
+                                              itemCount:
+                                                  recommendedOtherUsers!.length,
+                                              itemBuilder: (context, index) {
+                                                return _buildImageTile(
+                                                    recommendedOtherUsers!,
+                                                    index);
+                                              },
+                                            ),
+                                    ),
+                                  ]),
                                 ),
                                 Expanded(
-                                    child: ListView.builder(
-                                  itemCount: recommendedOtherUsers.length,
-                                  itemBuilder: (context, index) {
-                                    final profileRef = FirebaseStorage.instance
-                                        .ref()
-                                        .child(
-                                            "${recommendedOtherUsers[index]['fileRef'].fullPath}");
-
-                                    return FutureBuilder<String>(
-                                        future: profileRef.getDownloadURL(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          } else if (snapshot.hasError) {
-                                            return Text(
-                                                "Error: ${snapshot.error}");
-                                          } else if (!snapshot.hasData) {
-                                            return Text("No URL available");
-                                          }
-                                          final profileUrl = snapshot.data!;
-                                          return InkWell(
-                                              onTap: () {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          OtherProfilePreviewScreen(
-                                                              whichProfile:
-                                                                  recommendedOtherUsers[
-                                                                              index]
-                                                                          [
-                                                                          'fileRef']
-                                                                      .fullPath
-                                                                      .split(
-                                                                          '/')
-                                                                      .last,
-                                                              otherUid:
-                                                                  recommendedOtherUsers[
-                                                                          index]
-                                                                      ['uid'])),
-                                                );
-                                              },
-                                              child: Container(
-                                                width: 100,
-                                                height: 200,
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 5,
-                                                    horizontal: 10),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0), // Ensure the image fits within the rounded corners
-                                                  child: Image.network(
-                                                    profileUrl,
-                                                    fit: BoxFit
-                                                        .cover, // Optionally you can use fit to control how the image fills the container
-                                                  ),
-                                                ),
-                                              ));
-                                        });
-                                  },
-                                ))
-                              ])),
-                              Expanded(
                                   child: Column(
-                                children: [
-                                  TextButton(
-                                    child: Text(
-                                      'フォロー中',
-                                      style: TextStyle(
-                                          fontSize: 16, color: Colors.white),
-                                    ),
-                                    onPressed: () {
-                                      _setProfileInitiate();
-                                    },
-                                  ),
-                                  Expanded(
-                                    child: ListView.builder(
-                                      itemCount: recommendedFollowUsers.length,
-                                      itemBuilder: (context, index) {
-                                        final profileRef = FirebaseStorage
-                                            .instance
-                                            .ref()
-                                            .child(
-                                                "${recommendedFollowUsers[index]['fileRef'].fullPath}");
-
-                                        return FutureBuilder<String>(
-                                            future: profileRef.getDownloadURL(),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              } else if (snapshot.hasError) {
-                                                return Text(
-                                                    "Error: ${snapshot.error}");
-                                              } else if (!snapshot.hasData) {
-                                                return Text("No URL available");
-                                              }
-                                              final profileUrl = snapshot.data!;
-                                              return InkWell(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePreviewScreen(
-                                                                whichProfile:
-                                                                    recommendedFollowUsers[index]
-                                                                            [
-                                                                            'fileRef']
-                                                                        .fullPath
-                                                                        .split(
-                                                                            '/')
-                                                                        .last,
-                                                                uid: recommendedFollowUsers[
-                                                                        index]
-                                                                    ['uid']),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                    width: 100,
-                                                    height: 200,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 5,
-                                                            horizontal: 10),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20.0), // Ensure the image fits within the rounded corners
-                                                      child: Image.network(
-                                                        profileUrl,
-                                                        fit: BoxFit
-                                                            .cover, // Optionally you can use fit to control how the image fills the container
-                                                      ),
-                                                    ),
-                                                  ));
-                                            });
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              )),
-                            ],
-                          )),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.1,
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              //========================================================  home button======================================
-                              IconButton(
-                                onPressed: () async {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => MyDrawer(
-                                        email: email,
-                                        uid: uid,
+                                    children: [
+                                      Expanded(
+                                        child: recommendedFollowUsers == null
+                                            ? Center(
+                                                child:
+                                                    CircularProgressIndicator()) // Show loader until data arrives
+                                            : GridView.builder(
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 1,
+                                                  crossAxisSpacing: 1.0,
+                                                  mainAxisSpacing: 1.0,
+                                                  childAspectRatio: 0.7,
+                                                ),
+                                                itemCount:
+                                                    recommendedFollowUsers!
+                                                        .length,
+                                                itemBuilder: (context, index) {
+                                                  return _buildImageTile(
+                                                      recommendedFollowUsers!,
+                                                      index);
+                                                },
+                                              ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                iconSize: 38,
-                                icon: const Icon(
-                                  Icons.settings,
-                                  color: Colors.white,
-                                  weight: 90,
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              //===============================================================post button======================================
-                              IconButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        });
-                                    // if (allCacheFileListPath.length > 0) {
-                                    List<File> filesToRemove = [];
+                              ])),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+//===================================================                             home button======================================
+                          IconButton(
+                            onPressed: () async {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => MyDrawer(
+                                    email: email,
+                                    uid: uid,
+                                  ),
+                                ),
+                              );
+                            },
+                            iconSize: 38,
+                            icon: const Icon(
+                              Icons.settings,
+                              color: Colors.white,
+                              weight: 90,
+                            ),
+                          ),
+//===================================================                             post button======================================
+                          IconButton(
+                              onPressed: () async {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    });
+                                // if (allCacheFileListPath.length > 0) {
+                                List<File> filesToRemove = [];
 
-                                    for (final String filePath
-                                        in allCacheFileListPath) {
-                                      File file = File(filePath);
-                                      if (await file.exists()) {
-                                        await file.delete();
-                                        filesToRemove.add(file);
-                                      }
-                                    }
+                                for (final String filePath
+                                    in allCacheFileListPath) {
+                                  File file = File(filePath);
+                                  if (await file.exists()) {
+                                    await file.delete();
+                                    filesToRemove.add(file);
+                                  }
+                                }
 
-                                    print(
-                                        '---------${allCacheFileListPath.length}------------------------');
-                                    // }
-                                    // if(allCacheFileListPath.length ==0){
-
-                                    Navigator.pop(context);
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              PostCameraScreen(isDelete : true)),
+                                Navigator.pop(context);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        PostCameraScreen(isDelete: true)));
+                                if (!mounted) return;
+                              },
+                              iconSize: 42,
+                              icon: const Icon(Icons.add, color: Colors.white)),
+//===================================================                             search button ===================================
+                          IconButton(
+                            onPressed: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
                                     );
-                                    // }
-                                    if (!mounted) return;
+                                  });
+                              if (!mounted) return;
+                              Navigator.pop(context);
+                              // setState(() {});
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SearchUser(),
+                                ),
+                              );
+                            },
+                            iconSize: 40,
+                            icon: const Icon(
+                              Icons.search,
+                              color: Colors.white,
+                            ),
+                          ),
+//===================================================                             avatar button ===================================
+                          IconButton(
+                            icon: CircleAvatar(
+                              backgroundImage: AssetImage('assets/avatar.png'),
+                              // radius: 20,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.white,
+                            ),
+                            onPressed: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  });
+
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return MyProfileScreen();
                                   },
-                                  iconSize: 42,
-                                  icon: const Icon(Icons.add,
-                                      color: Colors.white)),
-                              //=================================================== search button ============================================================
-                              IconButton(
-                                onPressed: () async {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      });
-                                  if (!mounted) return;
-                                  Navigator.pop(context);
-                                  // setState(() {});
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => SearchUser(),
-                                    ),
-                                  );
-                                },
-                                iconSize: 40,
-                                icon: const Icon(
-                                  Icons.search,
-                                  color: Colors.white,
                                 ),
-                              ),
-                              //=========================================== avatar button ======================================================
-
-                              FloatingActionButton(
-                                backgroundColor: Colors.transparent,
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(myProfileURL),
-                                  radius: 20,
-                                ),
-                                onPressed: () async {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      });
-                                  _setProfileInitiate();
-                                  // Navigator.pop(context);
-
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return MyProfile();
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-
-                              ///   transfer button
-                            ],
-                          )),
+                              );
+                            },
+                          ),
+                        ],
+                        // )
+                      )
                     ],
                   )),
             )));
   }
 
-  Widget RecommendedUsersTile(String imageURL, String whichProfile) {
+  Widget _buildImageTile(List<String> imageFiles, int index) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => ProfilePreviewScreen(
-              whichProfile: whichProfile,
-              uid: uid,
+            builder: (context) => OtherProfilePreviewScreen(
+              imageURL: imageFiles[index],
             ),
           ),
         );
@@ -517,13 +345,24 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                color: Colors.grey,
-                image: DecorationImage(
-                  image: NetworkImage(imageURL),
-                  fit: BoxFit.cover,
-                )),
+              borderRadius: BorderRadius.circular(8.0),
+              image: DecorationImage(
+                image: NetworkImage(imageFiles[index]),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
+          // Positioned(
+          //   bottom: 0,
+          //   right: 0,
+          //   child: IconButton(
+          //     icon: Icon(Icons.lock), // Change the icon if needed
+          //     color: Colors.green,
+          //     onPressed: () async {
+          //       // Implement lock/unlock functionality
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );

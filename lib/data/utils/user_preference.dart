@@ -1,4 +1,7 @@
 import 'package:photo_sharing_app/data/model/user.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
+
+
 
 class UserPreference {
   static const myUser = User(
@@ -8,3 +11,9 @@ class UserPreference {
       about: "about",
       isDarkMode: true);
 }
+
+
+
+
+
+

@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_state.dart';
+import 'package:photo_sharing_app/data/model/drink.dart';
+import 'package:photo_sharing_app/redux/reducer.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/theme/light_mode.dart';
@@ -22,22 +24,17 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  // await FirebaseAppCheck.instance.activate(
-  //     appleProvider: AppleProvider.debug,
-  //     androidProvider: AndroidProvider.debug);
   await initSerivceLocator();
-  // String? token = await FirebaseAppCheck.instance.getToken();
-  // print("$token!!!!!!!!!!!this is token");
   runApp(
     BlocProvider(
       create: (context) => ThemeBloc(),
-      child: const MyApp(),
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

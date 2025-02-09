@@ -8,14 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
+import '../../data/global.dart';
 
 class OtherProfilePreviewScreen extends StatefulWidget {
-  final String whichProfile;
-  final String otherUid;
+  final String imageURL;
 
   const OtherProfilePreviewScreen({
-    required this.whichProfile,
-    required this.otherUid,
+    required this.imageURL,
   });
 
   @override
@@ -24,12 +23,11 @@ class OtherProfilePreviewScreen extends StatefulWidget {
 
 ProfileServices profileServices = ProfileServices();
 
-final AuthServices _authServices = locator.get();
-String? uid = _authServices.getCurrentuser()!.uid;
-String? email = _authServices.getCurrentuser()!.email;
-String? imageURL;
+final AuthServices authServices = locator.get();
+String? uid = authServices.getCurrentuser()!.uid;
+String? email = authServices.getCurrentuser()!.email;
 
-String username = '未定', name = '未定';
+String username = '', name = '';
 List<dynamic> like = [], dislike = [], favourite = [];
 bool isLikeClickable = true,
     isDislikeClickable = true,
@@ -60,31 +58,29 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   }
 
   Future<void> _setUpInit() async {
-    final fetchedURL = await getWhichProfileUrl();
-    final fetchedCommentsStatus = await profileServices.getCommentStatus();
-    var user = await _authServices.getDocument(widget.otherUid);
-    List<Map<String, dynamic>> fetchedComments =
-        await otherService.getAllComments(widget.otherUid, widget.whichProfile);
+    // final fetchedURL = await getWhichProfileUrl();
+
+    // final fetchedCommentsStatus = await profileServices.getCommentStatus();
+    // var user = await authServices.getDocument(widget.otherUid);
+    // List<Map<String, dynamic>> fetchedComments =
+    //     await otherService.getAllComments(widget.otherUid, widget.whichProfile);
+    print('${widget.imageURL}===============================');
     if (mounted) {
+    
+      // if (user != null) {
       setState(() {
-        comments = fetchedComments;
+        // commentsStatus = fetchedCommentsStatus;
+        // username = user['username'];
+        // name = user['name'];
+        // final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
+        // final likeWhichProfile = 'like-${widget.whichProfile}';
+        // final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
+        // like = user[likeWhichProfile] ?? [];
+        // dislike = user[disLikeWhichProfile] ?? [];
+        // favourite = user[favouriteWhichProfile] ?? [];
       });
-      if (user != null) {
-        setState(() {
-          commentsStatus = fetchedCommentsStatus;
-          username = user['username'];
-          name = user['name'];
-          final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
-          final likeWhichProfile = 'like-${widget.whichProfile}';
-          final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
-          like = user[likeWhichProfile] ?? [];
-          dislike = user[disLikeWhichProfile] ?? [];
-          favourite = user[favouriteWhichProfile] ?? [];
-        });
-        setState(() {
-          imageURL = fetchedURL;
-        });
-      }
+
+      // }
     }
   }
 
@@ -113,24 +109,24 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
     }
   }
 
-  Future<String> getWhichProfileUrl() async {
-    try {
-      final profileRef = FirebaseStorage.instance
-          .ref()
-          .child("images/${widget.otherUid}/${widget.whichProfile}");
-      String profileUrl = await profileRef.getDownloadURL();
-      return profileUrl;
-    } catch (e) {
-      print(e);
-      if (widget.whichProfile == 'firstProfileImage')
-        return profileServices.firstURL;
-      else if (widget.whichProfile == 'secondProfileImage')
-        return profileServices.secondURL;
-      else if (widget.whichProfile == 'thirdProfileImage')
-        return profileServices.thirdURL;
-      return profileServices.forthURL;
-    }
-  }
+  // Future<String> getWhichProfileUrl() async {
+  // try {
+  //   final profileRef = FirebaseStorage.instance
+  //       .ref()
+  //       .child("images/${widget.otherUid}/${widget.whichProfile}");
+  //   String profileUrl = await profileRef.getDownloadURL();
+  //   return profileUrl;
+  // } catch (e) {
+  //   print(e);
+  //   if (widget.whichProfile == 'firstProfileImage')
+  //     return profileServices.firstURL;
+  //   else if (widget.whichProfile == 'secondProfileImage')
+  //     return profileServices.secondURL;
+  //   else if (widget.whichProfile == 'thirdProfileImage')
+  //     return profileServices.thirdURL;
+  //   return profileServices.forthURL;
+  // }
+  // }
 
   @override
   void dispose() {
@@ -189,192 +185,193 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                                   borderRadius: BorderRadius.circular(30.0),
                                   color: Colors.grey,
                                   image: DecorationImage(
-                                    image: NetworkImage(imageURL!),
+                                    image: NetworkImage(widget.imageURL),
                                     fit: BoxFit.cover,
                                   ))),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(width: 15),
-                          if (commentsStatus == true)
-                            IconButton(
-                              onPressed: () async {
-                                Map<String, dynamic>? user =
-                                    await _authServices.getUserDetail(uid!);
-                                setState(() {
-                                  _scrollToBottom();
-                                  isCommenting = !isCommenting;
-                                  username = user?['username'];
-                                });
-                              },
-                              icon: Icon(Icons.chat_bubble_outline),
-                            ),
-                          if (commentsStatus == true)
-                            Text(comments.length.toString()),
-                          SizedBox(width: 30),
-                          IconButton(
-                            onPressed: () {
-                              isLikeClickable
-                                  ? setState(() {
-                                      otherService.increamentLike(
-                                          widget.otherUid, widget.whichProfile);
-                                      isLikeClickable = false;
-                                      isDislikeClickable = true;
-                                      _setUpInit();
-                                    })
-                                  : setState(() {
-                                      otherService.decreamentDislike(
-                                          widget.otherUid, widget.whichProfile);
-                                    });
-                            },
-                            icon: Icon(Icons.thumb_up),
-                          ),
-                          Text(like.length.toString()),
-                          SizedBox(width: 30),
-                          if (commentsStatus == true)
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  otherService.increamentDislike(
-                                      widget.otherUid, widget.whichProfile);
-                                  isDislikeClickable = false;
-                                  isLikeClickable = true;
-                                  _setUpInit();
-                                });
-                              },
-                              icon: Icon(Icons.thumb_down),
-                            ),
-                          if (commentsStatus == true)
-                            Text(dislike.length.toString()),
-                          SizedBox(width: 30),
-                          if (commentsStatus == true)
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  otherService.increamentFavourite(
-                                      widget.otherUid, widget.whichProfile);
-                                  _setUpInit();
-                                });
-                              },
-                              icon: Icon(Icons.favorite_outline),
-                            ),
-                          if (commentsStatus == true)
-                            Text(favourite.length.toString()),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [Text(username), Text(name)],
-                      ),
-                      isCommenting
-                          ? SizedBox(
-                              height: 0,
-                            )
-                          : SizedBox(
-                              height: 50,
-                            ),
-                      if (isCommenting) ...[
-                        Container(
-                          height: 300,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color:
-                                  Colors.white, // Set the border color to white
-                              width: 2.0, // Set the width of the border
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Optional: Add rounded corners
-                          ),
-                          child: ListView.builder(
-                            itemCount: comments.length,
-                            itemBuilder: (context, index) {
-                              var comment = comments[index];
-                              var timestamp = comment['timestamp'];
-                              var otherUid = comment['uid'];
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: [
+                      //     SizedBox(width: 15),
+                      //     if (commentsStatus == true)
+                      //       IconButton(
+                      //         onPressed: () async {
+                      //           Map<String, dynamic>? user =
+                      //               await authServices.getUserDetail(uid!);
+                      //           setState(() {
+                      //             _scrollToBottom();
+                      //             isCommenting = !isCommenting;
+                      //             username = user?['username'];
+                      //           });
+                      //         },
+                      //         icon: Icon(Icons.chat_bubble_outline),
+                      //       ),
+                      //     if (commentsStatus == true)
+                      //       Text(comments.length.toString()),
+                      //     SizedBox(width: 30),
+                      //     IconButton(
+                      //       onPressed: () {
+                      //         isLikeClickable
+                      //             ? setState(() {
+                      //                 otherService.increamentLike(
+                      //                     widget.otherUid, widget.whichProfile);
+                      //                 isLikeClickable = false;
+                      //                 isDislikeClickable = true;
+                      //                 _setUpInit();
+                      //               })
+                      //             : setState(() {
+                      //                 otherService.decreamentDislike(
+                      //                     widget.otherUid, widget.whichProfile);
+                      //               });
+                      //       },
+                      //       icon: Icon(Icons.thumb_up),
+                      //     ),
+                      //     Text(like.length.toString()),
+                      //     SizedBox(width: 30),
+                      //     if (commentsStatus == true)
+                      //       IconButton(
+                      //         onPressed: () {
+                      //           setState(() {
+                      //             otherService.increamentDislike(
+                      //                 widget.otherUid, widget.whichProfile);
+                      //             isDislikeClickable = false;
+                      //             isLikeClickable = true;
+                      //             _setUpInit();
+                      //           });
+                      //         },
+                      //         icon: Icon(Icons.thumb_down),
+                      //       ),
+                      //     if (commentsStatus == true)
+                      //       Text(dislike.length.toString()),
+                      //     SizedBox(width: 30),
+                      //     if (commentsStatus == true)
+                      //       IconButton(
+                      //         onPressed: () {
+                      //           setState(() {
+                      //             otherService.increamentFavourite(
+                      //                 widget.otherUid, widget.whichProfile);
+                      //             _setUpInit();
+                      //           });
+                      //         },
+                      //         icon: Icon(Icons.favorite_outline),
+                      //       ),
+                      //     if (commentsStatus == true)
+                      //       Text(favourite.length.toString()),
+                      //   ],
+                      // ),
 
-                              String formattedTimestamp = timestamp != null
-                                  ? timestamp
-                                      .toDate()
-                                      .toString() // Format the timestamp if not null
-                                  : 'No timestamp available';
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //   children: [Text(username), Text(name)],
+                      // ),
+                      // isCommenting
+                      //     ? SizedBox(
+                      //         height: 0,
+                      //       )
+                      //     : SizedBox(
+                      //         height: 50,
+                      //       ),
+                      // if (isCommenting) ...[
+                      //   Container(
+                      //     height: 300,
+                      //     decoration: BoxDecoration(
+                      //       border: Border.all(
+                      //         color:
+                      //             Colors.white, // Set the border color to white
+                      //         width: 2.0, // Set the width of the border
+                      //       ),
+                      //       borderRadius: BorderRadius.all(Radius.circular(
+                      //           8.0)), // Optional: Add rounded corners
+                      //     ),
+                      //     child: ListView.builder(
+                      //       itemCount: comments.length,
+                      //       itemBuilder: (context, index) {
+                      //         var comment = comments[index];
+                      //         var timestamp = comment['timestamp'];
+                      //         var otherUid = comment['uid'];
 
-                              return FutureBuilder(
-                                future: _authServices.getDocument(otherUid),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return ListTile(
-                                      title: Text(comment['comment']),
-                                      subtitle: Text(
-                                          'ユーザー: ローディング...'), ///////////////////loading
-                                      trailing: Text(formattedTimestamp),
-                                    );
-                                  }
-                                  if (snapshot.hasError) {
-                                    return ListTile(
-                                      title: Text(comment['comment']),
-                                      subtitle:
-                                          Text('ユーザー: Error loading user'),
-                                      trailing: Text(formattedTimestamp),
-                                    );
-                                  }
+                      //         String formattedTimestamp = timestamp != null
+                      //             ? timestamp
+                      //                 .toDate()
+                      //                 .toString() // Format the timestamp if not null
+                      //             : 'No timestamp available';
 
-                                  var otherUser = snapshot.data;
-                                  var otherUserName =
-                                      otherUser?['username'] ?? 'Unknown User';
+                      //         return FutureBuilder(
+                      //           future: authServices.getDocument(otherUid),
+                      //           builder: (context, snapshot) {
+                      //             if (snapshot.connectionState ==
+                      //                 ConnectionState.waiting) {
+                      //               return ListTile(
+                      //                 title: Text(comment['comment']),
+                      //                 subtitle: Text(
+                      //                     'ユーザー: ローディング...'), ///////////////////loading
+                      //                 trailing: Text(formattedTimestamp),
+                      //               );
+                      //             }
+                      //             if (snapshot.hasError) {
+                      //               return ListTile(
+                      //                 title: Text(comment['comment']),
+                      //                 subtitle:
+                      //                     Text('ユーザー: Error loading user'),
+                      //                 trailing: Text(formattedTimestamp),
+                      //               );
+                      //             }
 
-                                  return ListTile(
-                                    title: Text(comment['comment']),
-                                    subtitle: Text('ユーザー: $otherUserName'),
-                                    trailing: Text(formattedTimestamp),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextField(
-                            controller: _commentController,
-                            decoration: InputDecoration(
-                              labelText: 'コメントを入力',
-                              border: OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.cancel),
-                                onPressed: () {
-                                  setState(() {
-                                    isCommenting = false;
-                                    _commentController.clear();
-                                  });
-                                },
-                              ),
-                            ),
-                            onChanged: (text) {
-                              setState(() {
-                                commentText = text;
-                              });
-                            },
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (commentText.isNotEmpty) {
-                              otherService.addComment(widget.otherUid,
-                                  commentText, widget.whichProfile);
-                              setState(() {
-                                _setUpInit();
-                                _commentController
-                                    .clear(); // Clear the text field
-                              });
-                            }
-                          },
-                          child: Text(
-                              style: TextStyle(color: Colors.white), 'コメント投稿'),
-                        ),
-                      ]
+                      //             var otherUser = snapshot.data;
+                      //             var otherUserName =
+                      //                 otherUser?['username'] ?? 'Unknown User';
+
+                      //             return ListTile(
+                      //               title: Text(comment['comment']),
+                      //               subtitle: Text('ユーザー: $otherUserName'),
+                      //               trailing: Text(formattedTimestamp),
+                      //             );
+                      //           },
+                      //         );
+                      //       },
+                      //     ),
+                      //   ),
+                      //   // Padding(
+                      //   //   padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      //   //   child: TextField(
+                      //   //     controller: _commentController,
+                      //   //     decoration: InputDecoration(
+                      //   //       labelText: 'コメントを入力',
+                      //   //       border: OutlineInputBorder(),
+                      //   //       suffixIcon: IconButton(
+                      //   //         icon: Icon(Icons.cancel),
+                      //   //         onPressed: () {
+                      //   //           setState(() {
+                      //   //             isCommenting = false;
+                      //   //             _commentController.clear();
+                      //   //           });
+                      //   //         },
+                      //   //       ),
+                      //   //     ),
+                      //   //     onChanged: (text) {
+                      //   //       setState(() {
+                      //   //         commentText = text;
+                      //   //       });
+                      //   //     },
+                      //   //   ),
+                      //   // ),
+                      //   // ElevatedButton(
+                      //   //   onPressed: () {
+                      //   //     if (commentText.isNotEmpty) {
+                      //   //       otherService.addComment(widget.otherUid,
+                      //   //           commentText, widget.whichProfile);
+                      //   //       setState(() {
+                      //   //         _setUpInit();
+                      //   //         _commentController
+                      //   //             .clear(); // Clear the text field
+                      //   //       });
+                      //   //     }
+                      //   //   },
+                      //   //   child: Text(
+                      //   //       style: TextStyle(color: Colors.white), 'コメント投稿'),
+                      //   // ),
+                      // ]
                     ])),
                 Positioned(
                   bottom: 0,
@@ -424,7 +421,7 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
               setState(() {});
               print("Report selected");
             } else if (value == "share") {
-              await shareInternetImage(imageURL!, widget.whichProfile);
+              await shareInternetImage(widget.imageURL, 'widget.whichProfile');
               Future.delayed(Duration(seconds: 1), () {
                 Navigator.pop(context);
               });

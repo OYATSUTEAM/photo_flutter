@@ -54,6 +54,10 @@ dependencies:
   # image_field: ^0.0.10
   # flutter_plugin_android_lifecycle: ^2.0.23
   # gallery_picker: ^0.5.1
+  flutter_redux: ^0.10.0
+  path: ^1.9.0
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

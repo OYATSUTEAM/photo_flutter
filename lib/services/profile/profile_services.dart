@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/gestures.dart';
 
 class ProfileServices {
-  FirebaseFirestore _database = FirebaseFirestore.instance;
+  FirebaseFirestore database = FirebaseFirestore.instance;
   late final DocumentSnapshot documentSnapshot;
   final firestore = FirebaseStorage;
 
@@ -13,13 +14,17 @@ class ProfileServices {
   String thirdURL = "";
   String forthURL = "";
 
-  Future<void> updateProfile(String? uid, String? name, String? username,
-      String? email, String? password) async {
+  Future<void> updateProfile(
+    String? uid,
+    String? name,
+    String? username,
+    String? email,
+  ) async {
     try {
-      await _database
-          .collection("Users")
-          .doc(uid)
-          .update({'name': name, 'username': username, 'password': password});
+      await database.collection("Users").doc(uid).update({
+        'name': name,
+        'username': username,
+      });
     } catch (e) {
       print("Error updating profile: $e");
     }
@@ -27,7 +32,7 @@ class ProfileServices {
 
   Future<void> updatePassword(String uid, String password) async {
     try {
-      await _database
+      await database
           .collection("Users")
           .doc(uid)
           .update({'password': password});
@@ -39,7 +44,7 @@ class ProfileServices {
   Future<Map<String, dynamic>?> getUserDetail(String uid) async {
     // final FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      documentSnapshot = await database.collection("Users").doc(uid).get();
 
       if (documentSnapshot.exists) {
         return documentSnapshot.data() as Map<String, dynamic>?;
@@ -161,7 +166,7 @@ class ProfileServices {
 
   Future<void> publicAccount(String uid, bool isPublic) async {
     try {
-      await _database.collection("Users").doc(uid).update({'public': isPublic});
+      await database.collection("Users").doc(uid).update({'public': isPublic});
     } catch (e) {
       print("Error updating profile: $e");
     }
@@ -169,7 +174,7 @@ class ProfileServices {
 
   Future<bool> isPublicAccount(String uid) async {
     try {
-      final ref = await _database.collection('Users').doc(uid).get();
+      final ref = await database.collection('Users').doc(uid).get();
       return ref.get('public');
     } catch (e) {
       print(e);
@@ -179,7 +184,7 @@ class ProfileServices {
 
   Future<String> getUserPassword(String uid) async {
     try {
-      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      documentSnapshot = await database.collection("Users").doc(uid).get();
       if (documentSnapshot.exists && documentSnapshot.data() != null) {
         return documentSnapshot.get('password');
       }
@@ -192,7 +197,7 @@ class ProfileServices {
 
   Future<String> getUserName(String uid) async {
     try {
-      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      documentSnapshot = await database.collection("Users").doc(uid).get();
       if (documentSnapshot.exists && documentSnapshot.data() != null) {
         return documentSnapshot.get('name');
       }
@@ -205,7 +210,7 @@ class ProfileServices {
 
   Future<String> getUserUsername(String uid) async {
     try {
-      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      documentSnapshot = await database.collection("Users").doc(uid).get();
       if (documentSnapshot.exists && documentSnapshot.data() != null) {
         return documentSnapshot.get('username');
       }
@@ -218,7 +223,7 @@ class ProfileServices {
 
   Future<String> profileShowAll(String uid) async {
     try {
-      final ref = await _database.collection('Users').doc(uid).get();
+      final ref = await database.collection('Users').doc(uid).get();
       final isShowAll = ref.get('isShowAll');
       if (!isShowAll) {
         return ref.get('whichIsDisplayed');
@@ -256,7 +261,7 @@ class ProfileServices {
   Future<List<dynamic>?>? getBlockedUsers(String uid) async {
     try {
       DocumentReference documentReference =
-          _database.collection("Users").doc(uid);
+          database.collection("Users").doc(uid);
 
       DocumentSnapshot documentSnapshot = await documentReference.get();
 
@@ -282,7 +287,7 @@ class ProfileServices {
   Future<List<dynamic>?>? getBlockedMeUsers(String uid) async {
     try {
       DocumentReference documentReference =
-          _database.collection("Users").doc(uid);
+          database.collection("Users").doc(uid);
 
       DocumentSnapshot documentSnapshot = await documentReference.get();
 
@@ -357,10 +362,8 @@ class ProfileServices {
 
   Future<bool> isBlockTrue() async {
     try {
-      DocumentSnapshot userSnapshot = await _database
-          .collection("Status_Manage")
-          .doc('manage_status')
-          .get();
+      DocumentSnapshot userSnapshot =
+          await database.collection("Status_Manage").doc('manage_status').get();
       bool isBlockTrue = userSnapshot.get('block');
       return isBlockTrue;
     } catch (e) {
@@ -371,10 +374,8 @@ class ProfileServices {
 
   Future<bool> isReportTrue() async {
     try {
-      DocumentSnapshot userSnapshot = await _database
-          .collection("Status_Manage")
-          .doc('manage_status')
-          .get();
+      DocumentSnapshot userSnapshot =
+          await database.collection("Status_Manage").doc('manage_status').get();
       bool isReportTrue = userSnapshot.get('report');
       return isReportTrue;
     } catch (e) {
@@ -385,10 +386,8 @@ class ProfileServices {
 
   Future<bool> getCommentStatus() async {
     try {
-      DocumentSnapshot userSnapshot = await _database
-          .collection("Status_Manage")
-          .doc('manage_status')
-          .get();
+      DocumentSnapshot userSnapshot =
+          await database.collection("Status_Manage").doc('manage_status').get();
       bool isCommentTrue = userSnapshot.get('comments');
       return isCommentTrue;
     } catch (e) {
@@ -399,7 +398,7 @@ class ProfileServices {
 
   Future<void> setBlockStatus(bool status) async {
     try {
-      await _database
+      await database
           .collection("Status_Manage")
           .doc('manage_status')
           .update({'block': status});
@@ -410,7 +409,7 @@ class ProfileServices {
 
   Future<void> setCommentStatus(bool status) async {
     try {
-      await _database
+      await database
           .collection("Status_Manage")
           .doc('manage_status')
           .update({'comments': status});
@@ -421,7 +420,7 @@ class ProfileServices {
 
   Future<void> setReportStatus(bool status) async {
     try {
-      await _database
+      await database
           .collection("Status_Manage")
           .doc('manage_status')
           .update({'report': status});
@@ -432,10 +431,68 @@ class ProfileServices {
 
   Future<void> deleteAccount(String uid) async {
     try {
-      await _database.collection("Users").doc(uid).delete();
+      await database.collection("Users").doc(uid).delete();
       print("Account deleted successfully");
     } catch (e) {
       print("Error deleting account: $e");
+    }
+  }
+
+  Future<void> publicThisImage(String uid, String dirpath, bool status) async {
+    try {
+      final publicDoc =
+          FirebaseFirestore.instance.collection("PublicImages").doc(uid);
+
+      print('=========================');
+      print(dirpath);
+      print('=========================');
+      await publicDoc.set({dirpath: status}, SetOptions(merge: true));
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  Future<bool> getDirPathStatus(String uid, String dirpath) async {
+    try {
+      // Get the document snapshot
+      final ref = await database.collection('PublicImages').doc(uid).get();
+      print('${(dirpath)}===fsdfsd======');
+      if (ref.exists && ref.data() != null) {
+        return ref.data()!.containsKey(dirpath) ? ref.get(dirpath) : false;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error getting dirpath status: $e");
+      return false;
+    }
+  }
+
+  Future<void> deleteThisImage(String uid, String dirpath) async {
+    try {
+      final publicDoc =
+          FirebaseFirestore.instance.collection("PublicImages").doc(uid);
+      await publicDoc.update({
+        dirpath: FieldValue.delete(),
+      });
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  Future<String> getProfileImageUrl(String path) async {
+    final FirebaseStorage _storage = FirebaseStorage.instance;
+
+    try {
+      // Get the image reference from Firebase Storage
+      Reference ref = _storage.ref().child(path);
+
+      // Get the download URL
+      String imageUrl = await ref.getDownloadURL();
+      return imageUrl;
+    } catch (e) {
+      print("Error getting image URL: $e");
+      return ''; // Return empty if there's an error
     }
   }
 }

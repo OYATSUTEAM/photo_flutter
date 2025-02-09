@@ -17,7 +17,7 @@ class UploadService {
       "https://img.freepik.com/premium-vector/grandparents-icon-vector-image-can-be-used-child-adoption_120816-381816.jpg?semt=ais_hybrid";
 
   Future uploadFile(
-      String uid, String profileURL, String? imageFilePath) async {
+      String uid, String profileURL, String imageFilePath) async {
     DateTime now = DateTime.now();
     String timestamp = now.toIso8601String();
     SettableMetadata metadata = SettableMetadata(customMetadata: {
@@ -26,7 +26,7 @@ class UploadService {
 
     final ref = FirebaseStorage.instance.ref().child("images/$uid/$profileURL");
     try {
-      uploadTask = ref.putFile(File(imageFilePath!), metadata);
+      uploadTask = ref.putFile(File(imageFilePath), metadata);
       await uploadTask!.whenComplete(() => null);
       print(
           '$imageFilePath!!!!!!!!!!!this is called and downloadurl is !!!!!!!!!!!!!!!!');

@@ -1,5 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'dart:io';
@@ -9,10 +10,10 @@ import 'package:photo_sharing_app/ui/camera/profile_camera_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
-
 import 'package:photo_sharing_app/widgets/my_button.dart';
+import '../../data/global.dart';
 
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 final ProfileServices profileServices = ProfileServices();
 // File? _imageFile;
 File? _selectImage;
@@ -20,11 +21,8 @@ UploadTask? uploadTask;
 List<File> allFileList = [];
 
 class MyProfileEdit extends StatefulWidget {
-  const MyProfileEdit({
-    super.key,
-    required this.whichProfile,
-  });
-  final String whichProfile;
+  final String whichImage;
+  const MyProfileEdit({super.key, required this.whichImage});
   @override
   _MyProfileEdit createState() => _MyProfileEdit();
 }
@@ -34,12 +32,14 @@ class _MyProfileEdit extends State<MyProfileEdit> {
   TextEditingController usernameController = TextEditingController();
   String myMainProfileURL = profileServices.mainURL;
   String editProfileURL = profileServices.mainURL;
-  String email = 'default@gmail.com',
-      uid = 'default',
-      username = 'ローディング...',
-      name = 'ローディング...',
-      password = '``````';
-  final currentUser = _authServices.getCurrentuser();
+
+  String myProfileImage = '', editProfileImage = '';
+  String email = globalData.myEmail;
+  String uid = globalData.myUid;
+  String username = globalData.myUserName;
+  String name = globalData.myName;
+
+  final currentUser = authServices.getCurrentuser();
   final _formKey = GlobalKey<FormState>(); // Form key for validation
   bool isLoading = true;
   @override
@@ -51,11 +51,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
   Future<void> _setUpInitial() async {
     try {
-      final fetchedUid = _authServices.getCurrentuser()!.uid;
-      final fetchedEmail = _authServices.getCurrentuser()!.email;
+      final directory = await getApplicationDocumentsDirectory();
       setState(() {
-        uid = fetchedUid;
-        email = fetchedEmail!;
+        myProfileImage = '${directory.path}/$uid/myProfileImage';
+        editProfileImage = '${directory.path}/$uid/editProfileImage';
       });
     } catch (e) {
       print('$e this error occurred in my profile.');
@@ -66,14 +65,13 @@ class _MyProfileEdit extends State<MyProfileEdit> {
     try {
       final fetchedMainURL = await profileServices.getMainProfileUrl(uid);
       final fetchedEditURL = await profileServices.getEditProfileUrl(uid);
-      Map<String, dynamic>? user = await _authServices.getUserDetail(uid);
+      Map<String, dynamic>? user = await authServices.getUserDetail(uid);
       final currentPassword = await profileServices.getUserPassword(uid);
       setState(() {
         username = user?['username'];
         name = user?['name'];
         myMainProfileURL = fetchedMainURL;
         editProfileURL = fetchedEditURL;
-        password = currentPassword;
         nameController.text = name;
         usernameController.text = username;
         isLoading = false;
@@ -90,36 +88,29 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
   Future<void> _uploadFile() async {
     try {
-      final sourceRef =
-          FirebaseStorage.instance.ref().child('images/$uid/editProfileImage');
+      final directory = await getApplicationDocumentsDirectory();
+      File imageFile = File(editProfileImage);
+
+      await imageFile.copy('${directory.path}/$uid/myProfileImage.jpg');
+
       DateTime now = DateTime.now();
       String timestamp = now.toIso8601String();
       SettableMetadata metadata = SettableMetadata(customMetadata: {
         'timestamp': timestamp,
       });
-      final downloadUrl = await sourceRef.getDownloadURL();
-      print('Source download URL: $downloadUrl');
-      final Uint8List? imageData = await sourceRef.getData();
-      if (imageData == null) {
-        print("Error: File data is null.");
+      if (!await imageFile.exists()) {
+        print("The file does not exist.");
         return;
       }
-      // final http.Response response = await http.get(Uri.parse(downloadUrl));
-
-      // if (response.statusCode == 200) {
-      //   final Uint8List imageData = response.bodyBytes;
+      List<int> imageData = await imageFile.readAsBytes();
+      Uint8List uint8ImageData = Uint8List.fromList(imageData);
 
       final targetRef =
           FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
 
-      final uploadTask = targetRef.putData(imageData, metadata);
+      final uploadTask = targetRef.putData(uint8ImageData, metadata);
+      await uploadTask.whenComplete(() => null);
       final snapshot = await uploadTask.whenComplete(() => null);
-      // final newDownloadUrl = await snapshot.ref.getDownloadURL();
-
-      // print('Re-upload complete. New download URL: $newDownloadUrl');
-      // } else {
-      // print('Failed to download image: }');
-      // }
     } catch (e) {
       print('Error sharing image: $e');
     }
@@ -151,10 +142,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       children: [
                         Center(
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                widget.whichProfile == 'myMainProfileURL'
-                                    ? myMainProfileURL
-                                    : editProfileURL),
+                            backgroundImage:
+                                widget.whichImage == 'myProfileImage'
+                                    ? FileImage(File(myProfileImage))
+                                    : FileImage(File(editProfileImage)),
                             radius:
                                 MediaQuery.of(context).size.width * 0.5 * 0.5,
                           ),
@@ -167,8 +158,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                               Navigator.pop(context);
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
-                                  builder: (context) => ProfileCameraScreen(
-                                      whichProfile: 'editProfile'),
+                                  builder: (context) => ProfileCameraScreen(),
                                 ),
                               );
                             },
@@ -191,7 +181,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25.0),
                         child: Text('名前', style: TextStyle(fontSize: 20)),
-                        //========================================================= name  =========================================
+//=========================================================                           name  =========================================
                       ),
                       SizedBox(
                         width: 200,
@@ -221,7 +211,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text('ユーザーネーム', style: TextStyle(fontSize: 20)
-                            // ========================================================= username =============================================================
+// =========================================================                           username =============================================================
                             ),
                       ),
                       SizedBox(
@@ -244,55 +234,48 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     ],
                   ),
                   const SizedBox(height: 15),
-
+//=====================================================================                  reset password ==================================
                   MyButton(
                       text: "パスワード変更",
                       onTap: () async {
                         Navigator.pop(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => ResetPasswordScreen(
-                                  whichProfile: widget.whichProfile,
-                                  email: email,
-                                  uid: uid)),
+                              builder: (context) =>
+                                  ResetPasswordScreen(email: email, uid: uid)),
                         );
                       })
                 ],
               ),
-              // Cancel Button
+//=======================================================================                Cancel Button ==================================
               Positioned(
                 top: 0,
                 left: 8,
                 child: TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    Navigator.of(context).pushReplacement(
+                    Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => MyProfile(),
+                        builder: (context) => MyProfileScreen(),
                       ),
                     );
                   },
                   child: const Text(
                     'キャンセル',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
+//=======================================================================                 edit profile ===============================
               Positioned(
                 left: MediaQuery.of(context).size.width * 0.3,
                 top: 0,
                 child: Text(
                   'プロフィールを編集',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-              // Save Button
+//=======================================================================                 Save Button
               Positioned(
                 top: 0,
                 right: 8,
@@ -314,26 +297,16 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                           nameController.text.trim(),
                           usernameController.text.trim(),
                           email,
-                          password,
                         );
                       }
                       if (mounted) {
-                        if (widget.whichProfile != 'myMainProfileURL') {
-                          _uploadFile();
-                          Navigator.pop(context);
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => MyProfile(),
-                            ),
-                          );
-                        } else {
-                          Navigator.pop(context);
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => MyProfile(),
-                            ),
-                          );
-                        }
+                        _uploadFile();
+                        Navigator.pop(context);
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => MyProfileScreen(),
+                          ),
+                        );
                       }
                     }
                     ;

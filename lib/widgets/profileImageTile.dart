@@ -26,10 +26,10 @@ class ProfileImageTile extends StatefulWidget {
 }
 
 String? imageURL;
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 
 class _ProfileImageTileState extends State<ProfileImageTile> {
-  String? uid = _authServices.getCurrentuser()!.uid;
+  String? uid = authServices.getCurrentuser()!.uid;
   @override
   void initState() {
     _setUpProfilePreview();

@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthServices {
   final FirebaseAuth user;
-  final FirebaseFirestore _database;
+  final FirebaseFirestore database;
   late DocumentSnapshot documentSnapshot;
 
-  AuthServices(this._database, this.user);
+  AuthServices(this.database, this.user);
 
   User? getCurrentuser() {
     return FirebaseAuth.instance.currentUser;
@@ -36,7 +36,7 @@ class AuthServices {
   Future<Map<String, dynamic>?> getUserDetail(String uid) async {
     // final FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      documentSnapshot = await _database.collection("Users").doc(uid).get();
+      documentSnapshot = await database.collection("Users").doc(uid).get();
       if (documentSnapshot.exists && documentSnapshot.data() != null) {
         return documentSnapshot.data() as Map<String, dynamic>?;
       }
@@ -101,7 +101,7 @@ class AuthServices {
         email: email,
         password: password,
       );
-      await _database.collection("Users").doc(userCredential.user?.uid).set({
+      await database.collection("Users").doc(userCredential.user?.uid).set({
         "uid": userCredential.user?.uid,
         "email": email,
         "password": password,

@@ -9,25 +9,28 @@ import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:photo_sharing_app/widgets/imagetile.dart';
+import '../../data/global.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 UploadService uploadService = UploadService();
 // BannerScreen bannerScreen = BannerScreen();
 
 class ProfileSetScreen extends StatefulWidget {
-  final String whichProfile;
-
-  const ProfileSetScreen({required this.whichProfile, super.key});
+  const ProfileSetScreen({super.key});
   @override
   _ProfileSetScreenState createState() => _ProfileSetScreenState();
 }
 
 class _ProfileSetScreenState extends State<ProfileSetScreen> {
-  String uid = 'default';
-  String email = 'default@gmail.com';
+  String uid = 'default',
+      email = 'default@gmail.com',
+      username = 'default',
+      name = 'default';
   bool? shouldDelete = false;
+  String myProfileImage = '';
   XFile? _selectImage;
   UploadTask? uploadTask;
   final List<String> allFileListPath = [];
@@ -45,18 +48,18 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
   }
 
   Future<void> _setUpInitial() async {
-    final fetchedUid = _authServices.getCurrentuser()!.uid;
-    final fetchedEmail = _authServices.getCurrentuser()!.email;
     if (mounted)
       setState(() {
-        uid = fetchedUid;
-        email = fetchedEmail!;
+        email = globalData.myEmail;
+        uid = globalData.myUid;
+        username = globalData.myUserName;
+        name = globalData.myName;
       });
   }
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-
+    myProfileImage = '${directory.path}/$uid/myProfileImage';
     final fileList = directory.listSync();
     allFileListPath
       ..clear()
@@ -78,9 +81,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
     SettableMetadata metadata = SettableMetadata(customMetadata: {
       'timestamp': timestamp,
     });
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child("images/$uid/${widget.whichProfile}");
+    final ref = FirebaseStorage.instance.ref().child("images/$uid/main");
 
     uploadTask = ref.putFile(File(_selectImage!.path), metadata);
     final snapshot = await uploadTask!.whenComplete(() => null);
@@ -229,29 +230,25 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
                             child: CircularProgressIndicator(),
                           );
                         });
+                    final directory = await getApplicationDocumentsDirectory();
+                    myProfileImage =
+                        '${directory.path}/$uid/editProfileImage.jpg';
                     await uploadService.uploadFile(
-                        uid, widget.whichProfile, _selectImage!.path);
+                        uid, 'profileImage', myProfileImage);
+                    File imageFile = File(myProfileImage);
+                    await imageFile
+                        .copy('${directory.path}/${uid}/myProfileImage.jpg');
+
                     if (mounted) {
-                      await firestore.collection('Users').doc('$uid').update({
-                        'comments-${widget.whichProfile}': FieldValue.delete(),
-                      });
-                      await firestore.collection('Users').doc('$uid').update({
-                        'like-${widget.whichProfile}': FieldValue.delete(),
-                      });
-                      await firestore.collection('Users').doc('$uid').update({
-                        'dislike-${widget.whichProfile}': FieldValue.delete(),
-                      });
-                      await firestore.collection('Users').doc('$uid').update({
-                        'favourite-${widget.whichProfile}': FieldValue.delete(),
-                      });
+                      // await firestore.collection('Users').doc('$uid').update({
+                      //   'comments-${widget.whichProfile}': FieldValue.delete(),
+                      // });
 
                       deleteAllFileWithConfirmation(context);
                       Navigator.pop(context);
                       Navigator.pop(context);
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MyProfile(),
-                        ),
+                        MaterialPageRoute(builder: (context) => MyProfileScreen()),
                       );
                     }
                   },

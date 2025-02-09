@@ -10,7 +10,7 @@
 // import 'package:firebase_storage/firebase_storage.dart';
 
 // final ChatService _chatService = locator.get();
-// final AuthServices _authServices = locator.get();
+// final AuthServices authServices = locator.get();
 
 // late String fromWhere;
 // // final Future<Map<String, dynamic>?> userDetail =
@@ -32,7 +32,7 @@
 // class _BannerScreen extends State<BannerScreen> {
 //   @override
 //   void initState() {
-//     uid = _authServices.getCurrentuser()!.uid;
+//     uid = authServices.getCurrentuser()!.uid;
 //     _setProfileInitiate();
 //     fetchUsername();
 //     super.initState();
@@ -40,7 +40,7 @@
 
 //   Future<void> _setProfileInitiate() async {
 //     try {
-//       email = await _authServices.getCurrentuser()!.email!;
+//       email = await authServices.getCurrentuser()!.email!;
 //       final profileRef =
 //           FirebaseStorage.instance.ref().child("images/$uid/mainProfileImage");
 //       // await profileRef.getMetadata();
@@ -188,7 +188,7 @@
 //                               Navigator.of(context).pushReplacement(
 //                                 MaterialPageRoute(
 //                                   builder: (context) {
-//                                     return MyProfile();
+//                                     return MyProfileScreen();
 //                                   },
 //                                 ),
 //                               );

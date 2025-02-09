@@ -8,7 +8,7 @@ import 'package:photo_sharing_app/widgets/chat_bubble.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatServices = locator.get();
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
@@ -45,7 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _setUpInitiate() async {
-    var user = await _authServices.getDocument(widget.receiverId);
+    var user = await authServices.getDocument(widget.receiverId);
     setState(() {
       receiverUserName = user?['username'];
     });
@@ -138,7 +138,7 @@ class MessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String senderID = _authServices.getCurrentuser()!.uid;
+    String senderID = authServices.getCurrentuser()!.uid;
     return StreamBuilder(
       stream: chatServices.getMessage(receiverID, senderID),
       builder: (context, snapshot) {
@@ -186,7 +186,7 @@ class MessageList extends StatelessWidget {
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    bool isCurentUser = data['senderId'] == _authServices.getCurrentuser()!.uid;
+    bool isCurentUser = data['senderId'] == authServices.getCurrentuser()!.uid;
 
     return ChatBubble(
       isCurrentUser: isCurentUser,

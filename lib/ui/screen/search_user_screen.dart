@@ -6,7 +6,7 @@ import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/widgets/usertile.dart';
 
 final ChatService _chatService = locator.get();
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 
 class SearchUser extends StatefulWidget {
   const SearchUser({super.key});
@@ -59,31 +59,20 @@ class _SearchUserState extends State<SearchUser> {
               focusNode: searchFocusNode,
               decoration: InputDecoration(
                 hintText: "検索", // Search
-                hintStyle: const TextStyle(
-                  fontSize: 13.0,
-                  color: Colors.white,
-                ),
+                hintStyle: const TextStyle(fontSize: 13.0, color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Colors.transparent,
-                  ),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
+                    borderSide: const BorderSide(color: Colors.transparent),
+                    borderRadius: BorderRadius.circular(20.0)),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Colors.transparent,
-                  ),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
+                    borderSide: const BorderSide(color: Colors.transparent),
+                    borderRadius: BorderRadius.circular(20.0)),
                 filled: true,
                 fillColor: Colors.grey,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 18.0,
-                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 18.0),
               ),
               onChanged: (searchText) {
                 updateSearchQuery();
@@ -143,7 +132,8 @@ class BuildUserList extends StatelessWidget {
         final filteredUsers = query.isEmpty
             ? []
             : snapshot.data?.where((user) {
-                  final userName = (user['name'] as String?)?.toLowerCase() ?? '';
+                  final userName =
+                      (user['name'] as String?)?.toLowerCase() ?? '';
                   return userName.contains(query.toLowerCase());
                 }).toList() ??
                 [];
@@ -183,10 +173,11 @@ class BuilduserStreamList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = _authServices.getCurrentuser();
+    final currentUser = authServices.getCurrentuser();
 
     if (currentUser == null) {
-      return const Center(child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
+      return const Center(
+          child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
     }
 
     final otherEmail = otherUserdata['email'] ?? ''; // Ensure non-null email
@@ -208,6 +199,7 @@ class BuilduserStreamList extends StatelessWidget {
       );
     }
 
-    return const SizedBox.shrink(); // Return an empty widget if the condition fails
+    return const SizedBox
+        .shrink(); // Return an empty widget if the condition fails
   }
 }

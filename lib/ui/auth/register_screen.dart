@@ -11,7 +11,7 @@ import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatService = locator.get();
 final AuthServices authService = locator.get();
-final FirebaseFirestore _database = FirebaseFirestore.instance;
+final FirebaseFirestore database = FirebaseFirestore.instance;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, required this.callBack});
@@ -41,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Check if the email or username already exists
         final users = await chatService.getuserStream().first;
         final isExist = users.any((userData) => userData['email'] == email);
-        final existingUserQuery = await _database
+        final existingUserQuery = await database
             .collection("Users")
             .where('username', isEqualTo: username)
             .get();

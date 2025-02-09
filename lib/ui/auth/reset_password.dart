@@ -8,12 +8,10 @@ import 'package:photo_sharing_app/widgets/my_textfield.dart';
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({
     super.key,
-    required this.whichProfile,
     required this.email,
     required this.uid,
   });
   // final VoidCallback callBack;
-  final String whichProfile;
   final String email;
   final String uid;
   @override
@@ -62,7 +60,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => MyProfileEdit(
-                    whichProfile: widget.whichProfile,
+                    whichImage: '',
                   ),
                 ),
               );
@@ -162,7 +160,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => MyProfileEdit(
-                        whichProfile: widget.whichProfile,
+                        whichImage: '',
                       ),
                     ),
                   );

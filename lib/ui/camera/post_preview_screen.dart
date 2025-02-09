@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_sharing_app/ui/auth/register_screen.dart';
 import 'package:photo_sharing_app/ui/camera/add_post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostPreviewScreen extends StatefulWidget {
-  final bool isDelete;
-  const PostPreviewScreen({super.key, required this.isDelete});
+  const PostPreviewScreen({super.key});
 
   @override
   _PostPreviewScreenState createState() => _PostPreviewScreenState();
@@ -17,8 +17,7 @@ class PostPreviewScreen extends StatefulWidget {
 class _PostPreviewScreenState extends State<PostPreviewScreen> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
-  final List<String> allFileListPath = [];
-  final List<String> allCacheFileListPath = [];
+  final List<String> allPostFileList = [];
 
   bool isLoading = true;
   bool sharing = true;
@@ -29,35 +28,44 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
     _loadImages();
   }
 
+  void deleteAllFiles() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final subDir = Directory('${directory.path}/$uid/postImages');
+    if (await subDir.exists()) {
+      try {
+        for (final file in subDir.listSync()) {
+          if (file is File) {
+            await file.delete();
+          }
+        }
+        print("All files deleted successfully.");
+      } catch (e) {
+        print("Error deleting files: $e");
+      }
+    } else {
+      print("Directory does not exist: ${subDir.path}");
+    }
+  }
+
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-    final subDir = Directory('${directory.path}/cache');
-    final fileList = directory.listSync();
-    final cacheFileList = subDir.listSync();
-    allFileListPath
-      ..clear()
-      ..addAll(fileList
-          .where((file) => file.path.endsWith('.jpg'))
-          .map((e) => e.path)
-          .toList())
-      ..sort((a, b) => a.compareTo(b));
-    allCacheFileListPath
-      ..clear()
-      ..addAll(cacheFileList
-          .where((file) => file.path.endsWith('.jpg'))
-          .map((e) => e.path)
-          .toList())
-      ..sort((a, b) => a.compareTo(b));
+    final subDir = Directory('${directory.path}/$uid/postImages');
 
-    setState(() {
-      isLoading = false;
-    });
-    // if (widget.isDelete) {
-    //   if (allFileListPath.length > 0) {
-    //     await deleteAllFileWithConfirm(context);
-    //   }
-    // }
-    print('------------${allCacheFileListPath.length}-------------');
+    if (await subDir.exists()) {
+      final fileList = subDir
+          .listSync()
+          .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
+          .map((file) => file.path)
+          .toList()
+        ..sort(); // Sort the list alphabetically
+      print('${fileList.length}========================');
+      setState(() {
+        allPostFileList
+          ..clear()
+          ..addAll(fileList);
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> deleteAllFileWithConfirm(
@@ -97,7 +105,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                 child: CircularProgressIndicator(),
               );
             });
-        for (final String filePath in allFileListPath) {
+        for (final String filePath in allPostFileList) {
           File file = File(filePath);
           if (await file.exists()) {
             await file.delete(); // Delete each file
@@ -144,7 +152,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
         if (await file.exists()) {
           await file.delete();
           setState(() {
-            allFileListPath.remove(file.path);
+            allPostFileList.remove(file.path);
           });
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -161,35 +169,26 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
     }
   }
 
-  Future<void> shareImage() async {
+  Future<String> shareImage() async {
     final box = context.findRenderObject() as RenderBox?;
 
-    List<XFile> xFiles = allFileListPath.map((path) => XFile(path)).toList();
+    List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
 
     await Share.shareXFiles(
       xFiles,
       text: textController.text.trim(),
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-    ).then((_) async {
-      // Iterate over the list in reverse to safely remove items while iterating
-      // for (int i = allFileListPath.length - 1; i >= 0; i--) {
-      //   final path = allFileListPath[i];
-      //   final file = File(path);
-      //   if (await file.exists()) {
-      //     await file.delete(); // Delete the file
-      //     allFileListPath.removeAt(i); // Remove the path from the list
-      //   }
-      // }
+    ).then((result) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => PostPreviewScreen(
-            isDelete: false,
-          ),
+          builder: (context) => PostPreviewScreen(),
         ),
       );
+      print('$result  , =====================================================');
+      return result;
     });
 
-    setState(() {});
+    return 'failure';
   }
 
   @override
@@ -200,7 +199,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       );
     }
 
-    if (allFileListPath.isEmpty) {
+    if (allPostFileList.isEmpty) {
       return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
@@ -216,7 +215,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => AddPostCameraScreen(),
+                      builder: (context) => PostCameraScreen(
+                        isDelete: false,
+                      ),
                     ),
                   );
                 },
@@ -250,29 +251,16 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                       crossAxisCount: 2, // Number of columns
                       crossAxisSpacing: 8.0, // Space between columns
                       mainAxisSpacing: 8.0, // Space between rows
-                      childAspectRatio: 0.6, // Aspect ratio of each grid item
+                      childAspectRatio: 0.7, // Aspect ratio of each grid item
                     ),
-                    itemCount: allCacheFileListPath.length,
+                    itemCount: allPostFileList.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        child: _buildImageTile(index, allCacheFileListPath.length),
+                        child: _buildImageTile(index, allPostFileList.length),
                       );
                     },
                   ),
                 ),
-
-                //  IconButton(
-                // onPressed: () {
-                //   Navigator.of(context).pushReplacement(
-                //     MaterialPageRoute(
-                //       builder: (context) => PostCameraScreen(),
-                //     ),
-                //   );
-                // },
-                // icon: const Icon(
-                //   Icons.add_circle_sharp,
-                //   size: 50,
-                // )),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: TextField(
@@ -293,22 +281,20 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+// ==========================================================        post file   =====================================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                      child: TextButton(
-                        onPressed: () async {
-                          // // Add post logic here
-                          await shareImage().then((_) {});
-                        },
-                        child: const Text(
-                          '投稿',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ),
-                    ),
+                        padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                        child: TextButton(
+                            onPressed: () async {
+                              await shareImage()
+                                  .then((result) {deleteAllFiles();});
+                            },
+                            child: const Text('投稿',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16)))),
                   ],
                 )
               ]))),
@@ -332,7 +318,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => PreviewScreen(
-                        imageFile: File(allFileListPath[index]),
+                        imageFile: File(allPostFileList[index]),
                       ),
                     ),
                   );
@@ -343,7 +329,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.0),
                       image: DecorationImage(
-                        image: FileImage(File(allCacheFileListPath[
+                        image: FileImage(File(allPostFileList[
                             index])), // Displaying image from file
                         fit: BoxFit.cover,
                       ),
@@ -357,7 +343,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
                         deleteFileWithConfirmation(
-                            context, File(allCacheFileListPath[index]));
+                            context, File(allPostFileList[index]));
                       },
                     ),
                   ),
@@ -371,7 +357,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => AddPostCameraScreen(),
+                              builder: (context) => PostCameraScreen(
+                                isDelete: false,
+                              ),
                             ),
                           );
                         },

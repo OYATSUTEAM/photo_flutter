@@ -8,7 +8,7 @@ String? _selectedOption;
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
-final AuthServices _authServices = locator.get();
+final AuthServices authServices = locator.get();
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key, required this.otherUid});
@@ -43,7 +43,7 @@ class _ReportScreen extends State<ReportScreen> {
   Future<void> fetchOtherUsername() async {
     try {
       Map<String, dynamic>? user =
-          await _authServices.getUserDetail(widget.otherUid);
+          await authServices.getUserDetail(widget.otherUid);
 
       setState(() {
         otherUsername = user?['username'];

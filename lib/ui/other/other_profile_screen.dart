@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/report_screen.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
+import '../../data/global.dart';
 
 enum Options { option1, option2, option3 }
 
@@ -23,19 +25,12 @@ class OtherProfile extends StatefulWidget {
 OtherService otherService = OtherService();
 
 FirebaseAuth _auth = FirebaseAuth.instance;
-final AuthServices _authServices = locator.get();
-// final otherService = OtherService(locator.get(), locator.get());
+final AuthServices authServices = locator.get();
 ProfileServices profileServices = ProfileServices();
 
 class _OtherProfile extends State<OtherProfile> {
   bool isLoading = true;
   final User? user = _auth.currentUser;
-  String whichProfileShow = 'showAll';
-  String otherMainProfileURL = profileServices.mainURL;
-  String otherFirstProfileURL = profileServices.firstURL;
-  String otherSecondProfileURL = profileServices.secondURL;
-  String otherThirdProfileURL = profileServices.thirdURL;
-  String otherForthProfileURL = profileServices.forthURL;
   bool isReportTrue = true;
   bool isBlockTrue = true;
   String email = 'default@gmail.com',
@@ -44,9 +39,10 @@ class _OtherProfile extends State<OtherProfile> {
       uid = 'default';
   // File? _imageFile;
   File? otherProfileImage;
-  final currentUser = _authServices.getCurrentuser();
+  final currentUser = authServices.getCurrentuser();
   bool switchResult = ThemeManager.readTheme();
-
+  List<String> otherProfileImagesURL = [];
+  String otherMainProfileURL = globalData.profileURL;
   @override
   void initState() {
     super.initState();
@@ -55,28 +51,15 @@ class _OtherProfile extends State<OtherProfile> {
   }
 
   Future<void> _setProfileInitiate() async {
-    final fetchedIsShowAll =
-        await profileServices.profileShowAll(widget.otherUid);
-    String fetchedUrl =
-        await profileServices.getMainProfileUrl(widget.otherUid);
-    String fetchedUrl1 =
-        await profileServices.getFirstProfileUrl(widget.otherUid);
-    String fetchedUrl2 =
-        await profileServices.getSecondProfileUrl(widget.otherUid);
-    String fetchedUrl3 =
-        await profileServices.getThirdProfileUrl(widget.otherUid);
-    String fetchedUrl4 =
-        await profileServices.getForthProfileUrl(widget.otherUid);
-    final fetchReport = await profileServices.isReportTrue();
+    final fetchedOtheProfileImagesURL =
+        await otherService.getOtherProfileURLs(widget.otherUid);
+    final fetchedOtherMainProfileURL =
+        await otherService.getOtherMainProfileURL(widget.otherUid);
+
     if (mounted) {
       setState(() {
-        whichProfileShow = fetchedIsShowAll;
-        otherMainProfileURL = fetchedUrl;
-        otherFirstProfileURL = fetchedUrl1;
-        otherSecondProfileURL = fetchedUrl2;
-        otherThirdProfileURL = fetchedUrl3;
-        otherForthProfileURL = fetchedUrl4;
-        isReportTrue = fetchReport;
+        otherProfileImagesURL = fetchedOtheProfileImagesURL;
+        otherMainProfileURL = fetchedOtherMainProfileURL;
         isLoading = false;
       });
     }
@@ -84,7 +67,7 @@ class _OtherProfile extends State<OtherProfile> {
 
   Future<void> fetchUsername() async {
     try {
-      var user = await _authServices.getDocument(widget.otherUid);
+      var user = await authServices.getDocument(widget.otherUid);
       final fetchedBlock = await profileServices.isBlockTrue();
       if (user != null) {
         setState(() {
@@ -149,188 +132,178 @@ class _OtherProfile extends State<OtherProfile> {
         child: CircularProgressIndicator(),
       );
     }
+    int midIndex = (otherProfileImagesURL.length / 2).floor();
 
+    List<String> latestImages = otherProfileImagesURL.sublist(0, midIndex);
+    List<String> oldestImages = otherProfileImagesURL.sublist(midIndex);
     return Scaffold(
-      // drawer: ReportScreen(),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 36,
-        title: SizedBox(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.576,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        username,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
+        // drawer: ReportScreen(),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          toolbarHeight: 36,
+          title: SizedBox(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.576,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          username,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
-                  )),
-              MyMenuButton()
-            ],
+                      ],
+                    )),
+                MyMenuButton()
+              ],
+            ),
           ),
         ),
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => OtherProfilePreviewScreen(
-                            whichProfile: 'mainProfileImage',
-                            otherUid: widget.otherUid,
+        body: SafeArea(
+            child: Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Stack(children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            // Navigator.of(context).pushReplacement(
+                            //   MaterialPageRoute(
+                            //     builder: (context) => OtherProfilePreviewScreen(
+                            //       whichProfile: 'mainProfileImage',
+                            //       otherUid: widget.otherUid,
+                            //     ),
+                            //   ),
+                            // );
+                          },
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(otherMainProfileURL),
+                            radius: MediaQuery.of(context).size.width * 0.25,
                           ),
                         ),
-                      );
-                    },
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(otherMainProfileURL),
-                      radius: MediaQuery.of(context).size.width * 0.25,
-                    ),
-                  ),
 
-                  const SizedBox(height: 5), // Spacing between image and name
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 26,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 60)),
-                        onPressed: () {
-                          otherService.followOther(widget.otherUid).then((_) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('お客様は「${otherUsername}」をフォローしました。')),
-                            );
-                          });
-                        },
-                        child: Text(
-                          "フォロー", // follow
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
+                        const SizedBox(
+                            height: 1), // Spacing between image and name
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 26,
                           ),
-                        )),
-                  ),
-                  SingleChildScrollView(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 6.5),
+                        ),
+                        SizedBox(height: 1),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: TextButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 60)),
+                              onPressed: () {
+                                otherService
+                                    .followOther(widget.otherUid)
+                                    .then((_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'お客様は「${otherUsername}」をフォローしました。')),
+                                  );
+                                });
+                              },
+                              child: Text(
+                                "フォロー", // follow
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                ),
+                              )),
+                        ),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.47,
+                            width: MediaQuery.of(context).size.width,
+                            // backgroundColor:Colors.white,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (whichProfileShow == 'firstProfileImage' ||
-                                    whichProfileShow == 'showAll')
-                                  Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.43,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.35,
-                                      child: ProfileImageTile(
-                                          otherFirstProfileURL,
-                                          'firstProfileImage')),
-                                if (whichProfileShow == 'secondProfileImage' ||
-                                    whichProfileShow == 'showAll')
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        otherSecondProfileURL,
-                                        'secondProfileImage'),
-                                  )
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(
-                              height: 10), // Spacing between image and name
-
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 6.5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (whichProfileShow == 'thirdProfileImage' ||
-                                    whichProfileShow == 'showAll')
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        otherThirdProfileURL,
-                                        'thirdProfileImage'),
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Expanded(
+                                    child: Column(children: [
+                                      Expanded(
+                                        child: latestImages.isEmpty
+                                            ? Center(
+                                                child: Text(
+                                                    '画像はありません。')) // Show loader until data arrives
+                                            : GridView.builder(
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 1,
+                                                  crossAxisSpacing: 2.0,
+                                                  mainAxisSpacing: 2.0,
+                                                  childAspectRatio: 0.7,
+                                                ),
+                                                itemCount: latestImages.length,
+                                                itemBuilder: (context, index) {
+                                                  return _buildImageTile(
+                                                      latestImages, index);
+                                                },
+                                              ),
+                                      ),
+                                    ]),
                                   ),
-                                if (whichProfileShow == 'forthProfileImage' ||
-                                    whichProfileShow == 'showAll')
-                                  Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.43,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    child: ProfileImageTile(
-                                        otherForthProfileURL,
-                                        'forthProfileImage'),
-                                  )
-                              ],
-                            ),
-                          ),
-                        ],
-                      )),
-                ],
-              ),
-            )
-            // Username at the top-center
-          ],
-        ),
-      ),
-    );
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: oldestImages.isEmpty
+                                              ? Center(
+                                                  child: Text(
+                                                      '画像はありません。')) // Show loader until data arrives
+                                              : GridView.builder(
+                                                  gridDelegate:
+                                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 1,
+                                                    crossAxisSpacing: 1.0,
+                                                    mainAxisSpacing: 1.0,
+                                                    childAspectRatio: 0.7,
+                                                  ),
+                                                  itemCount:
+                                                      oldestImages.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return _buildImageTile(
+                                                        oldestImages, index);
+                                                  },
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ])),
+                      ],
+                    ),
+                  ),
+                ]))));
   }
 
   Widget ProfileImageTile(String imageURL, String whichProfile) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => OtherProfilePreviewScreen(
-              whichProfile: whichProfile,
-              otherUid: widget.otherUid,
-            ),
-          ),
-        );
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) => OtherProfilePreviewScreen(
+        //       whichProfile: whichProfile,
+        //       otherUid: widget.otherUid,
+        //     ),
+        //   ),
+        // );
       },
       child: Stack(
         children: [
@@ -429,5 +402,55 @@ class _OtherProfile extends State<OtherProfile> {
             ];
           },
         ));
+  }
+
+  Widget _buildImageTile(List<String> filelist, int index) {
+    return GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => OtherProfilePreviewScreen(
+                imageURL: filelist[index],
+              ),
+            ),
+          );
+        },
+        child: Padding(
+            padding: EdgeInsets.all(2),
+            child: Stack(children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        filelist[index]), // Replace with your image URL
+                    fit: BoxFit.cover, // Ensures the image covers the container
+                  ),
+                ),
+              ),
+              // Positioned(
+              //     top: 0,
+              //     right: 0,
+              //     child: IconButton(
+              //         icon: const Icon(Icons.delete, color: Colors.red),
+              //         onPressed: () {
+              //           deleteFileWithConfirmation(context, filelist[index]);
+              //         })),
+              // Positioned(
+              //     bottom: 0,
+              //     right: 0,
+              //     child: IconButton(
+              //         icon: Icon(status ? Icons.lock_open : Icons.lock),
+              //         color: Colors.green,
+              //         onPressed: () async {
+              //           await profileServices.publicThisImage(
+              //               uid,
+              //               path.basenameWithoutExtension(filelist[index]),
+              //               !status);
+              //           setState(() {
+              //             _setProfileInitiate();
+              //           });
+              //         }))
+            ])));
   }
 }

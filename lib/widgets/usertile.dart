@@ -10,7 +10,11 @@ OtherService otherService = OtherService();
 
 // final OtherService otherService;
 class UserTile extends StatefulWidget {
-  const UserTile({super.key, required this.text, required this.onTap, required this.otherUid});
+  const UserTile(
+      {super.key,
+      required this.text,
+      required this.onTap,
+      required this.otherUid});
   final String text;
   final void Function()? onTap;
   final String otherUid;
@@ -20,7 +24,10 @@ class UserTile extends StatefulWidget {
 
 bool isMeBlocked = false;
 
-String email = 'default@gmail.com', name = 'ローディング...', username = 'ローディング...', uid = 'default';
+String email = 'default@gmail.com',
+    name = 'ローディング...',
+    username = 'ローディング...',
+    uid = 'default';
 bool isUserBlocked = false;
 bool I_am_blocked = false;
 
@@ -46,9 +53,12 @@ class _UserTileState extends State<UserTile> {
   }
 
   Future<void> _setUpUserTile() async {
-    String fetchedURL = await profileServices.getMainProfileUrl(widget.otherUid);
-    final fetchedIsUserBlocked = await profileServices.isUserBlocked(uid, widget.otherUid);
-    final fetchedIsMeBlocked = await profileServices.isMeBlocked(uid, widget.otherUid);
+    String fetchedURL =
+        await profileServices.getMainProfileUrl(widget.otherUid);
+    final fetchedIsUserBlocked =
+        await profileServices.isUserBlocked(uid, widget.otherUid);
+    final fetchedIsMeBlocked =
+        await profileServices.isMeBlocked(uid, widget.otherUid);
     if (mounted)
       setState(() {
         otherProfileURL = fetchedURL;
@@ -70,15 +80,18 @@ class _UserTileState extends State<UserTile> {
             color: const Color.fromARGB(255, 17, 17, 17)),
         padding: const EdgeInsets.all(10.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround, // Align elements at both ends
+          mainAxisAlignment:
+              MainAxisAlignment.spaceAround, // Align elements at both ends
           children: [
             // const SizedBox(width: 1),
-            InkWell(
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(otherProfileURL != null ? otherProfileURL! : _otherProfileURL),
+            IconButton(
+              icon: CircleAvatar(
+                backgroundImage: NetworkImage(otherProfileURL != null
+                    ? otherProfileURL!
+                    : _otherProfileURL),
                 radius: 20,
               ),
-              onTap: () {
+              onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => OtherProfile(
@@ -119,7 +132,8 @@ class _UserTileState extends State<UserTile> {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            content: Text("このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
+                            content: Text(
+                                "このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
                           );
                         },
                       );
@@ -133,40 +147,34 @@ class _UserTileState extends State<UserTile> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.secondary,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(12),
-                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(12)),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                      child: Text(
-                        'unblock',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14, // Font size
-                          fontWeight: FontWeight.bold, // Font weight (bold)
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 5.0),
+                      child: Text('unblock',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14, // Font size
+                              fontWeight: FontWeight.bold // Font weight (bold)
+                              )),
                     ),
                   )
                 : TextButton(
                     onPressed: () async {
                       showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                      );
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          });
                       await otherService.addUser(widget.otherUid);
                       Navigator.pop(context);
-
+//==============================================================                 it is added
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
-                            content: Text("追加された"), //////////////////////////it is added ///////////////////
-                          );
+                          return AlertDialog(content: Text("追加された"));
                         },
                       );
                       final currentContext = context;
@@ -183,7 +191,8 @@ class _UserTileState extends State<UserTile> {
                           Radius.circular(12),
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 5.0),
                       child: Text(
                         'add',
                         style: TextStyle(

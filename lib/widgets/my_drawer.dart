@@ -152,11 +152,11 @@ class _MyDrawer extends State<MyDrawer> {
                     text: "その他", //others
                     onTap: () async {
                       // Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => EtcScreen(),
-                        ),
-                      );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) => EtcScreen(),
+                      //   ),
+                      // );
                     },
                   ),
                   SizedBox(

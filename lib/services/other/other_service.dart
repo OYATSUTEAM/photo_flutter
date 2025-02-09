@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:photo_sharing_app/data/global.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -340,27 +341,56 @@ class OtherService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getRecentFollowFiles(String uid) async {
+  Future<List<String>> getRecentFollowFiles(String uid) async {
     List<String> otherUidList = [];
     try {
       DocumentSnapshot userDoc =
           await FirebaseFirestore.instance.collection('Users').doc(uid).get();
 
       if (userDoc.exists) {
-        List<dynamic> otherData = userDoc.get('follow') ?? [];
-
-        otherUidList = List<String>.from(otherData);
+        List<String> otherUidList = userDoc.get('follow') ?? [''];
       } else {
         print('User document does not exist.');
         return [];
       }
-      print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
-      final List<Map<String, dynamic>> recentFiles = [];
+      // final List<Map<String, dynamic>> recentFiles = [];
+      List<String> recentFiles = [];
       final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
       for (final otherUid in otherUidList) {
         final ListResult profileRef = await FirebaseStorage.instance
             .ref()
             .child("images/$otherUid")
+            .listAll();
+        for (final fileRef in profileRef.items) {
+          final metadata = await fileRef.getMetadata();
+          final timestampString = metadata.customMetadata?['timestamp'];
+
+          if (timestampString != null) {
+            final DateTime timestamp = DateTime.parse(timestampString);
+            // recentFiles.add({"fileRef": fileRef, "uid": otherUid});
+            recentFiles.add(await fileRef.getDownloadURL());
+          }
+        }
+      }
+      return [''];
+      // return recentFiles;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<String>> getRecentOtherFilesAfter3days(String uid) async {
+    List<String> otherUidList = [];
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('Users').get();
+      List<String> otherUserList = snapshot.docs.map((doc) => doc.id).toList();
+      List<String> recentFiles = [];
+      final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+      for (final otherUid in otherUserList) {
+        final ListResult profileRef = await FirebaseStorage.instance
+            .ref()
+            .child("images/$otherUid/profileImages")
             .listAll();
         for (final fileRef in profileRef.items) {
           final metadata = await fileRef.getMetadata();
@@ -369,62 +399,20 @@ class OtherService {
           if (timestampString != null) {
             final DateTime timestamp = DateTime.parse(timestampString);
             if (timestamp.isAfter(threeDaysAgo)) {
-              recentFiles.add({"fileRef": fileRef, "uid": otherUid});
+              // recentFiles.add({"fileRef": fileRef, "uid": otherUid});
+              recentFiles.add(await fileRef.getDownloadURL());
             }
           }
         }
       }
-
+      print(recentFiles);
       return recentFiles;
     } catch (e) {
       return [];
     }
   }
 
-  Future<List<Map<String, dynamic>>> getRecentOtherFilesAfter3days(
-      String uid) async {
-    List<String> otherUidList = [];
-    try {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('Users').doc(uid).get();
-
-      if (userDoc.exists) {
-        List<dynamic> otherData = userDoc.get('other') ?? [];
-
-        otherUidList = List<String>.from(otherData);
-      } else {
-        print('User document does not exist.');
-        return [];
-      }
-      print('$otherUidList!!!!!!!!!!!!!!!!!!!! this is other uid list!!!!!!!!');
-      final List<Map<String, dynamic>> recentFiles = [];
-      final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
-      for (final otherUid in otherUidList) {
-        final ListResult profileRef = await FirebaseStorage.instance
-            .ref()
-            .child("images/$otherUid")
-            .listAll();
-        for (final fileRef in profileRef.items) {
-          final metadata = await fileRef.getMetadata();
-          final timestampString = metadata.customMetadata?['timestamp'];
-
-          if (timestampString != null) {
-            final DateTime timestamp = DateTime.parse(timestampString);
-            if (timestamp.isBefore(threeDaysAgo)) {
-              recentFiles.add({"fileRef": fileRef, "uid": otherUid});
-            }
-          }
-        }
-      }
-
-      return recentFiles;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> getRecentFollowFilesAfter3days(
-      String uid) async {
+  Future<List<String>> getRecentFollowFilesAfter3days(String uid) async {
     List<String> otherUidList = [];
     try {
       DocumentSnapshot userDoc =
@@ -458,10 +446,110 @@ class OtherService {
           }
         }
       }
-
-      return recentFiles;
+      return [''];
+      // return recentFiles;
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<List<String>> getOtherProfileURLs(String otherUid) async {
+    try {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child("images/$otherUid/profileImages/");
+      final firestoreRef =
+          FirebaseFirestore.instance.collection("PublicImages").doc(otherUid);
+
+      final DocumentSnapshot docSnapshot = await firestoreRef.get();
+
+      if (!docSnapshot.exists || docSnapshot.data() == null) {
+        print("No public images found for $otherUid.");
+        return [];
+      }
+
+      final Map<String, dynamic> imageData =
+          docSnapshot.data() as Map<String, dynamic>;
+
+      List<String> publicImageNames = [];
+      imageData.forEach((imageName, isPublic) {
+        if (isPublic == true) {
+          publicImageNames.add(imageName);
+        }
+      });
+
+      if (publicImageNames.isEmpty) {
+        print("No public images available for $otherUid.");
+        return [];
+      }
+
+      List<Map<String, dynamic>> imagesWithMetadata = [];
+
+      for (final imageName in publicImageNames) {
+        try {
+          final fileRef = storageRef.child(imageName);
+          final metadata = await fileRef.getMetadata();
+
+          // Convert created time to a comparable format
+          final createdTime = metadata.timeCreated != null
+              ? DateTime.parse(metadata.timeCreated!.toIso8601String())
+                  .millisecondsSinceEpoch
+              : 0; // Default to epoch if null
+
+          imagesWithMetadata.add({
+            "name": imageName,
+            "createdAt": createdTime,
+          });
+        } catch (e) {
+          print("Error fetching metadata for $imageName: $e");
+        }
+      }
+
+      // Step 3: Sort images by created time (newest first)
+      imagesWithMetadata
+          .sort((a, b) => b["createdAt"].compareTo(a["createdAt"]));
+
+      // Step 4: Extract sorted image names
+      List<String> sortedImageNames =
+          imagesWithMetadata.map((img) => img["name"] as String).toList();
+      print('${sortedImageNames}===this is =============================');
+
+      List<String> imageUrls = [];
+
+      for (String imageName in sortedImageNames) {
+        try {
+          String imageUrl = await FirebaseStorage.instance
+              .ref("images/$otherUid/profileImages/$imageName")
+              .getDownloadURL();
+          imageUrls.add(imageUrl);
+        } catch (e) {
+          print("Error fetching URL for $imageName: $e");
+          return [];
+        }
+      }
+
+      return imageUrls;
+    } catch (e) {
+      print("Error fetching profile URLs for $otherUid: $e");
+      return [];
+    }
+    return [];
+  }
+
+  Future<String> getOtherMainProfileURL(String otherUid) async {
+    try {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child("images/$otherUid/mainProfile.jpg");
+
+      // Step 1: Try to get the URL for the main profile image
+      final imageUrl = await storageRef.getDownloadURL();
+
+      return imageUrl; // Return the URL if the image exists
+    } catch (e) {
+      // If the image does not exist or there's an error, return null
+      print("Error fetching main profile image for $otherUid: $e");
+      return globalData.profileURL;
     }
   }
 }

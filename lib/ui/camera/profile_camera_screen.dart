@@ -1,32 +1,27 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_sharing_app/ui/myProfile/profile_set_screen.dart';
-import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
-
+import '../../data/global.dart';
 import '../../main.dart';
 
 class ProfileCameraScreen extends StatefulWidget {
-  const ProfileCameraScreen({super.key, required this.whichProfile});
-  final String whichProfile;
+  const ProfileCameraScreen({super.key});
   @override
   _CameraScreenState createState() => _CameraScreenState();
 }
 
 class _CameraScreenState extends State<ProfileCameraScreen>
     with WidgetsBindingObserver {
-  final AuthServices _authServices = locator.get();
+  final AuthServices authServices = locator.get();
   String? email, uid, username, name;
-
   CameraController? controller;
-
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
   bool _isRearCameraSelected = true;
@@ -42,7 +37,7 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     await Permission.camera.request();
     await refreshAlreadyCapturedImages();
     var status = await Permission.camera.status;
-    final fetchedUid = _authServices.getCurrentuser()!.uid;
+    final fetchedUid = authServices.getCurrentuser()!.uid;
 
     if (status.isGranted) {
       log('Camera Permission: GRANTED');
@@ -72,6 +67,13 @@ class _CameraScreenState extends State<ProfileCameraScreen>
         String name = file.path.split('/').last.split('.').first;
         fileNames.add({0: int.parse(name), 1: file.path.split('/').last});
       }
+    });
+
+    setState(() {
+      email = globalData.myEmail;
+      uid = globalData.myUid;
+      username = globalData.myUserName;
+      name = globalData.myName;
     });
   }
 
@@ -300,6 +302,11 @@ class _CameraScreenState extends State<ProfileCameraScreen>
 
                                       final directory =
                                           await getApplicationDocumentsDirectory();
+                                      final subDir =
+                                          Directory('${directory.path}/${uid}');
+                                      if (!(await subDir.exists())) {
+                                        await subDir.create(recursive: true);
+                                      }
                                       String fileFormat =
                                           imageFile.path.split('.').last;
                                       showDialog(
@@ -316,42 +323,21 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                           'images/$uid/editProfileImage');
 
                                       await imageFile.copy(
-                                        '${directory.path}/$currentUnix.$fileFormat',
+                                        '${directory.path}/${uid}/editProfileImage.$fileFormat',
                                       );
-                                      if (widget.whichProfile ==
-                                          'editProfile') {
-                                        await imageRef.putFile(imageFile);
-                                        if (mounted) {
-                                          Navigator.pop(context);
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MyProfileEdit(
-                                                whichProfile: 'editProfile',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        Navigator.pop(context);
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
+
+                                      Navigator.pop(context);
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
                                             builder: (context) =>
-                                                ProfileSetScreen(
-                                              whichProfile: widget.whichProfile,
-                                            ),
-                                          ),
-                                        );
-                                      }
+                                                ProfileSetScreen()),
+                                      );
                                     },
                                     child: Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                        const Icon(
-                                          Icons.radio_button_unchecked,
-                                          size: 60,
-                                          color: Colors.white,
-                                        ),
+                                        const Icon(Icons.radio_button_unchecked,
+                                            size: 60, color: Colors.white)
                                       ],
                                     ),
                                   ),
