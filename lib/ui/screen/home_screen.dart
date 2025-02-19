@@ -53,7 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
       username = userDetail['username'];
       globalData.updateUser(email, uid, username, name);
       final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
-      final fetchedOtherFiles = await otherService.getOtherProfileURLs(uid);
+      // final fetchedOtherFiles = await otherService.getOtherProfileURLs(uid);
+      final fetchedOtherFiles = await otherService.getRecentImageUrls();
 
       if (mounted && userDetail != null) {
         setState(() {
@@ -87,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(dialogContext).pop(true); // User pressed Delete
               },
               child: const Text('削除', style: TextStyle(color: Colors.red)),
-            ),
+            )
           ],
         );
       },
@@ -134,14 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
               foregroundColor: Colors.grey,
               elevation: 0,
               title: TextButton(
-                child: Text(
-                  "ホーム",
-                  style: TextStyle(fontSize: 20),
-                ),
+                child: Text("ホーム", style: TextStyle(fontSize: 20)),
                 onPressed: () {
-                  setState(() {
-                    _setUpInit();
-                  });
+                  setState(() => _setUpInit());
                 },
               ),
               centerTitle: true,
@@ -166,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: recommendedOtherUsers == null
                                           ? Center(
                                               child:
-                                                  CircularProgressIndicator()) // Show loader until data arrives
+                                                  CircularProgressIndicator())
                                           : GridView.builder(
                                               gridDelegate:
                                                   const SliverGridDelegateWithFixedCrossAxisCount(
@@ -220,6 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
 //===================================================                             home button======================================
+
                           IconButton(
                             onPressed: () async {
                               Navigator.of(context).push(
@@ -238,7 +235,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               weight: 90,
                             ),
                           ),
+
 //===================================================                             post button======================================
+
                           IconButton(
                               onPressed: () async {
                                 showDialog(
@@ -268,7 +267,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               iconSize: 42,
                               icon: const Icon(Icons.add, color: Colors.white)),
+
 //===================================================                             search button ===================================
+
                           IconButton(
                             onPressed: () async {
                               showDialog(
@@ -351,6 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              Text('')
               // Positioned(
               //   bottom: 0,
               //   right: 0,

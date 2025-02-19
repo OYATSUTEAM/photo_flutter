@@ -151,7 +151,6 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
         name = globalData.myName;
         username = globalData.myUserName;
       });
-      print("All files deleted successfully.");
     } catch (e) {
       print("Error deleting files: $e");
     }
@@ -321,7 +320,7 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                         await imageFile.copy(
                                           '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat',
                                         );
-                                         uploadService.uploadFile(
+                                        uploadService.uploadFile(
                                             uid,
                                             'profileImages/$currentUnix',
                                             '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat');
@@ -337,7 +336,7 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                           const Icon(
                                               Icons.radio_button_unchecked,
                                               size: 60,
-                                              color: Colors.white),
+                                              color: Colors.white)
                                         ],
                                       ),
                                     ),

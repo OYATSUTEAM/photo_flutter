@@ -76,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              content: Text('${ex.toString()}!!!!!'),
+              content: Text('${ex.toString()}'),
             );
           },
         );

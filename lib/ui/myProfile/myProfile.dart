@@ -61,7 +61,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     }
   }
 
-
   Future<void> fetchURLs() async {
     final fetchedUrl = await profileServices.getMainProfileUrl(uid);
     if (mounted)
@@ -84,7 +83,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
         ..sort((a, b) => a.compareTo(b));
     }
   }
-
 
   Future<void> setIsShowAll(bool value, String whichProfile) async {
     final user = FirebaseAuth.instance.currentUser;

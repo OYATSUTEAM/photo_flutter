@@ -10,16 +10,14 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-
-
-
-
-
 android {
     namespace = "com.bluepine.camera"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
-
+    dependencies {
+           implementation platform('com.google.firebase:firebase-bom:33.9.0') // Latest BOM
+           implementation 'com.google.firebase:firebase-database'
+    }
     compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_11
                 targetCompatibility = JavaVersion.VERSION_11
@@ -32,10 +30,6 @@ android {
     kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_11.toString()
             }
-
-
-
-
             defaultConfig {
                         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
                         applicationId = "com.bluepine.camera"
@@ -62,3 +56,22 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
 }
 
+dependencies {
+    implementation 'com.google.firebase:firebase-bom:33.9.0' // Latest BOM
+
+    // Firebase dependencies
+    implementation 'com.google.firebase:firebase-database' // Firebase Realtime Database
+    implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics (optional)
+    implementation 'com.google.firebase:firebase-auth' // Firebase Authentication (if needed)
+
+    // AndroidX and Material components
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Testing dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

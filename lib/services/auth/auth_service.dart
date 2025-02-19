@@ -71,7 +71,7 @@ class AuthServices {
         errorMessage = "ログイン中にエラーが発生しました"; // Generic error message
       }
       // Throw a new exception with the translated message
-      throw Exception('$errorMessage!!!!!!!!!!!!!');
+      throw Exception('$errorMessage');
     } catch (e) {
       print("Error fetching document: $e");
       return null;

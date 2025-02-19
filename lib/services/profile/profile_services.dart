@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
+// import 'package:firebase_database/firebase_database.dart';
 
 class ProfileServices {
   FirebaseFirestore database = FirebaseFirestore.instance;
@@ -164,11 +165,37 @@ class ProfileServices {
     }
   }
 
-  Future<void> publicAccount(String uid, bool isPublic) async {
+  publicAccount(String uid, bool isPublic) async {
+    // Step 1: Try to get the URL for the main profile image
+
     try {
       await database.collection("Users").doc(uid).update({'public': isPublic});
+      // Get the document snapshot
+      final ref = await database.collection('PublicImages').doc(uid).get();
+      if (ref.exists && ref.data() != null) {
+        List<String> publicImageNames = [];
+        final Map<String, dynamic> imageData =
+            ref.data() as Map<String, dynamic>;
+
+        imageData.forEach((image, _isPublic) async {
+          if (_isPublic) {
+            final storageRef = FirebaseStorage.instance
+                .ref()
+                .child("images/$uid/profileImages/$image");
+            final imageUrl = await storageRef.getDownloadURL();
+            if (isPublic) {
+              addImageUrl(imageUrl);
+            } else {
+              removeImageUrl(imageUrl);
+            }
+          }
+        });
+      } else {
+        return false;
+      }
     } catch (e) {
-      print("Error updating profile: $e");
+      print("Error getting dirpath status: $e");
+      return false;
     }
   }
 
@@ -441,12 +468,20 @@ class ProfileServices {
   Future<void> publicThisImage(String uid, String dirpath, bool status) async {
     try {
       final publicDoc =
-          FirebaseFirestore.instance.collection("PublicImages").doc(uid);
+          await FirebaseFirestore.instance.collection("PublicImages").doc(uid);
+      publicDoc.set({dirpath: status}, SetOptions(merge: true));
 
-      print('=========================');
-      print(dirpath);
-      print('=========================');
-      await publicDoc.set({dirpath: status}, SetOptions(merge: true));
+      final storageRef = await FirebaseStorage.instance
+          .ref()
+          .child("images/$uid/profileImages/$dirpath");
+
+      // Step 1: Try to get the URL for the main profile image
+      final imageUrl = await storageRef.getDownloadURL();
+      if (status) {
+        await addImageUrl(imageUrl);
+      } else {
+        await removeImageUrl(imageUrl);
+      }
     } catch (e) {
       print("Error updating profile: $e");
     }
@@ -456,7 +491,6 @@ class ProfileServices {
     try {
       // Get the document snapshot
       final ref = await database.collection('PublicImages').doc(uid).get();
-      print('${(dirpath)}===fsdfsd======');
       if (ref.exists && ref.data() != null) {
         return ref.data()!.containsKey(dirpath) ? ref.get(dirpath) : false;
       } else {
@@ -495,4 +529,96 @@ class ProfileServices {
       return ''; // Return empty if there's an error
     }
   }
+
+  Future<void> addImageUrl(String imageUrl) async {
+    try {
+      CollectionReference images =
+          FirebaseFirestore.instance.collection('PublicImageList');
+
+      // Create an image object with URL and timestamp
+      Map<String, dynamic> imageObject = {
+        'url': imageUrl,
+        'timestamp': FieldValue.serverTimestamp(), // Firestore server timestamp
+      };
+
+      // Add the new image object to an array
+      DocumentSnapshot docSnapshot = await images.doc('imagesDoc').get();
+
+      if (docSnapshot.exists) {
+        await images.doc('imagesDoc').update({
+          'imageUrls': FieldValue.arrayUnion([imageObject])
+        });
+      } else {
+        await images.doc('imagesDoc').set({
+          'imageUrls': [imageObject]
+        });
+      }
+
+      print("Image URL added successfully!");
+    } catch (e) {
+      print("Error adding image URL: $e");
+    }
+  }
+
+  Future<void> removeImageUrl(String imageUrl) async {
+    await FirebaseFirestore.instance
+        .collection('PublicImageList')
+        .doc('imagesDoc')
+        .update({
+      'imageUrls': FieldValue.arrayRemove([imageUrl]) // Remove specific URL
+    });
+  }
+
+  // Future<void> addImageUrl(String imageUrl) async {
+  //   try {
+  //     DatabaseReference ref =
+  //         FirebaseDatabase.instance.ref("PublicImageList/images");
+
+  //     // Create an image object with URL and timestamp
+  //     Map<String, dynamic> imageObject = {
+  //       'url': imageUrl,
+  //       'timestamp':
+  //           ServerValue.timestamp, // Realtime Database server timestamp
+  //     };
+
+  //     // Push new image to the list
+  //     await ref.push().set(imageObject);
+
+  //     print("Image URL added successfully!");
+  //   } catch (e) {
+  //     print("Error adding image URL: $e");
+  //   }
+  // }
+
+  // Future<void> removeImageUrl(String imageUrl) async {
+  //   try {
+  //     DatabaseReference ref =
+  //         FirebaseDatabase.instance.ref("PublicImageList/images");
+
+  //     // Get all images
+  //     DataSnapshot snapshot = await ref.get();
+
+  //     if (snapshot.exists) {
+  //       Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+
+  //       // Find the key of the image with the given URL
+  //       String? keyToDelete;
+  //       values.forEach((key, value) {
+  //         if (value['url'] == imageUrl) {
+  //           keyToDelete = key;
+  //         }
+  //       });
+
+  //       // If key is found, delete the image
+  //       if (keyToDelete != null) {
+  //         await ref.child(keyToDelete!).remove();
+  //         print("Image URL removed successfully!");
+  //       } else {
+  //         print("Image URL not found!");
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print("Error removing image URL: $e");
+  //   }
+  // }
 }

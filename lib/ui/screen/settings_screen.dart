@@ -36,7 +36,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String email = 'default@gmail.com', name = 'ローディング...', username = 'ローディング...', uid = 'default';
+  String email = 'default@gmail.com',
+      name = 'ローディング...',
+      username = 'ローディング...',
+      uid = 'default';
   bool switchResult = ThemeManager.readTheme();
 
   @override

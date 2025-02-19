@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_state.dart';
-import 'package:photo_sharing_app/data/model/drink.dart';
-import 'package:photo_sharing_app/redux/reducer.dart';
+// import 'package:photo_sharing_app/data/model/drink.dart';
+// import 'package:photo_sharing_app/redux/reducer.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/theme/light_mode.dart';
@@ -18,12 +18,14 @@ final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Important: Initialize Firebase
+
   cameras = await availableCameras();
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
+  // if (Firebase.apps.isEmpty) {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //   );
+  // }
   await initSerivceLocator();
   runApp(
     BlocProvider(

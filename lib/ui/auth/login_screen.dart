@@ -15,7 +15,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // final FirebaseAuth user = locator.get();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -29,28 +28,20 @@ class _LoginScreenState extends State<LoginScreen> {
         showDialog(
             context: context,
             builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             });
       }
-      await authUser.signIn(
-        email,
-        password,
-      );
+      await authUser.signIn(email, password);
       if (mounted) {
         Navigator.pop(context);
       }
     } on Exception catch (ex) {
-         if (mounted) {
-        Navigator.pop(context);
-      }
+      if (mounted) Navigator.pop(context);
+
       showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            content: Text(ex.toString()),
-          );
+          return AlertDialog(content: Text(ex.toString()));
         },
       );
     }
@@ -59,19 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
   reset_password() async {
     await FirebaseAuth.instance
         .sendPasswordResetEmail(email: emailController.text.trim());
-    // Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    // var usernameController = TextEditingController();
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: GestureDetector(
           onTap: () {
-            FocusScope.of(context)
-                .unfocus(); // Hide keyboard when tapping outside
+            FocusScope.of(context).unfocus();
           },
           child: SingleChildScrollView(
             child: SafeArea(
@@ -79,42 +67,22 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
-                    height: 30,
-                  ),
+                  const SizedBox(height: 30),
                   Text(
                     "メールアドレス",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 24, color: Colors.white),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   MyTextField(
-                    hint: "",
-                    obsecure: false,
-                    controller: emailController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                      hint: "", obsecure: false, controller: emailController),
+                  const SizedBox(height: 10),
                   Text(
                     "パスワード",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 24, color: Colors.white),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   MyTextField(
-                    hint: "",
-                    obsecure: true,
-                    controller: passwordController,
-                  ),
+                      hint: "", obsecure: true, controller: passwordController),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.2,
                   ),
@@ -128,16 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "会員でない？ ",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Text(
+                      "会員でない？ ",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                      GestureDetector(
+                    ),
+                    GestureDetector(
                         onTap: widget.callBack,
                         child: Text(
                           "今すぐ登録",
@@ -145,10 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        ))
+                  ])
                 ],
               ),
             )),
