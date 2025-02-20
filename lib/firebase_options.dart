@@ -65,7 +65,8 @@ class DefaultFirebaseOptions {
     projectId: 'unprocessedsns',
     databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
     storageBucket: 'unprocessedsns.firebasestorage.app',
-    iosClientId: '700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com',
+    iosClientId:
+        '700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com',
     iosBundleId: 'com.bluepine.camera',
   );
 }

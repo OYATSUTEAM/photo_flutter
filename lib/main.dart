@@ -18,11 +18,18 @@ final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  print(
+      "Firebase apps count: ${Firebase.apps.length}==============================="); // Debugging line
+  Firebase.initializeApp();
   cameras = await availableCameras();
-
+  // if (Firebase.apps.isEmpty) {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //   );
+  // }
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   await initSerivceLocator();
   runApp(
     BlocProvider(
