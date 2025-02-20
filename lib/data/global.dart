@@ -17,11 +17,17 @@ class GlobalData {
   String profileURL =
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 
+  bool isAccountPublic = false;
+
   void updateUser(String email, String uid, String username, String name) {
     myEmail = email;
     myUid = uid;
     myUserName = username;
     myName = name;
+  }
+
+  void updataPublic(bool _isAccountPublic) {
+    isAccountPublic = _isAccountPublic;
   }
 }
 

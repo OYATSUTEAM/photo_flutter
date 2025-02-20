@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs',
-    appId: '1:700244737798:android:3883706d40f03ba38e6887',
+    appId: '1:700244737798:android:bb1d77c05ca160728e6887',
     messagingSenderId: '700244737798',
     projectId: 'unprocessedsns',
     databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
@@ -60,13 +60,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCB8lQfG60E_MPDKnVrgKZFwiYBYaOJ_VA',
-    appId: '1:700244737798:ios:164a2bffe4e638218e6887',
+    appId: '1:700244737798:ios:a688f093ec167a458e6887',
     messagingSenderId: '700244737798',
     projectId: 'unprocessedsns',
     databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
     storageBucket: 'unprocessedsns.firebasestorage.app',
-    iosClientId:
-        '700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com',
+    iosClientId: '700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com',
     iosBundleId: 'com.bluepine.camera',
   );
 }

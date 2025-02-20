@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_event.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
@@ -62,9 +63,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (switchResult) {
             ThemeManager.saveTheme(true);
             profileServices.publicAccount(uid, true);
+            globalData.updataPublic(true);
           } else {
             ThemeManager.saveTheme(false);
             profileServices.publicAccount(uid, false);
+            globalData.updataPublic(false);
           }
           context.read<ThemeBloc>().add(ThemeDarkedMode());
         },

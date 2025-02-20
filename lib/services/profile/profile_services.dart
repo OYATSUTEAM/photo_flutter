@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
+import 'package:photo_sharing_app/data/global.dart';
 // import 'package:firebase_database/firebase_database.dart';
 
 class ProfileServices {
@@ -182,11 +183,12 @@ class ProfileServices {
             final storageRef = FirebaseStorage.instance
                 .ref()
                 .child("images/$uid/profileImages/$image");
+            final metadata = await storageRef.getMetadata();
             final imageUrl = await storageRef.getDownloadURL();
             if (isPublic) {
-              addImageUrl(imageUrl);
+              addImageUrl(imageUrl, metadata);
             } else {
-              removeImageUrl(imageUrl);
+              removeImageUrl(imageUrl, metadata);
             }
           }
         });
@@ -474,13 +476,15 @@ class ProfileServices {
       final storageRef = await FirebaseStorage.instance
           .ref()
           .child("images/$uid/profileImages/$dirpath");
+      final metadata = await storageRef.getMetadata();
 
+      print("Image Created At: ${metadata.timeCreated}");
       // Step 1: Try to get the URL for the main profile image
       final imageUrl = await storageRef.getDownloadURL();
       if (status) {
-        await addImageUrl(imageUrl);
+        await addImageUrl(imageUrl, metadata);
       } else {
-        await removeImageUrl(imageUrl);
+        await removeImageUrl(imageUrl, metadata);
       }
     } catch (e) {
       print("Error updating profile: $e");
@@ -530,43 +534,59 @@ class ProfileServices {
     }
   }
 
-  Future<void> addImageUrl(String imageUrl) async {
+  Future<void> addImageUrl(String imageUrl, FullMetadata metadata) async {
     try {
-      CollectionReference images =
-          FirebaseFirestore.instance.collection('PublicImageList');
+      print(globalData.isAccountPublic);
+      if (globalData.isAccountPublic) {
+        CollectionReference images =
+            FirebaseFirestore.instance.collection('PublicImageList');
 
-      // Create an image object with URL and timestamp
-      Map<String, dynamic> imageObject = {
-        'url': imageUrl,
-        'timestamp': FieldValue.serverTimestamp(), // Firestore server timestamp
-      };
+        // Create an image object with URL and timestamp
+        Map<String, dynamic> imageObject = {
+          'url': imageUrl,
+          'timestamp': metadata.timeCreated, // Firestore server timestamp
+        };
 
-      // Add the new image object to an array
-      DocumentSnapshot docSnapshot = await images.doc('imagesDoc').get();
+        // Add the new image object to an array
+        DocumentSnapshot docSnapshot = await images.doc('imagesDoc').get();
 
-      if (docSnapshot.exists) {
-        await images.doc('imagesDoc').update({
-          'imageUrls': FieldValue.arrayUnion([imageObject])
-        });
-      } else {
-        await images.doc('imagesDoc').set({
-          'imageUrls': [imageObject]
-        });
+        if (docSnapshot.exists) {
+          await images.doc('imagesDoc').update(
+            {
+              'imageUrls': FieldValue.arrayUnion([imageObject])
+            },
+          );
+        } else {
+          await images.doc('imagesDoc').set({
+            'imageUrls': [imageObject]
+          }, SetOptions(merge: true));
+        }
+
+        print("Image URL added successfully!");
       }
-
-      print("Image URL added successfully!");
     } catch (e) {
       print("Error adding image URL: $e");
     }
   }
 
-  Future<void> removeImageUrl(String imageUrl) async {
-    await FirebaseFirestore.instance
+  Future<void> removeImageUrl(String imageUrl, FullMetadata metadata) async {
+    DocumentReference docRef = FirebaseFirestore.instance
         .collection('PublicImageList')
-        .doc('imagesDoc')
-        .update({
-      'imageUrls': FieldValue.arrayRemove([imageUrl]) // Remove specific URL
-    });
+        .doc('imagesDoc');
+
+    DocumentSnapshot docSnapshot = await docRef.get();
+    Map<String, dynamic> imageObject = {
+      'url': imageUrl,
+      'timestamp': metadata.timeCreated, // Firestore server timestamp
+    };
+
+    if (docSnapshot.exists) {
+      await docRef.update({
+        'imageUrls': FieldValue.arrayRemove([imageObject])
+      });
+    } else {
+      print("Document does not exist.");
+    }
   }
 
   // Future<void> addImageUrl(String imageUrl) async {

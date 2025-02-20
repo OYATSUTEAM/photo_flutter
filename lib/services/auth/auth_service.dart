@@ -50,7 +50,6 @@ class AuthServices {
     try {
       final UserCredential userCredential = await user
           .signInWithEmailAndPassword(email: email, password: password);
-      print('this is login func!===============');
 
       return userCredential;
     } on FirebaseAuthException catch (error) {

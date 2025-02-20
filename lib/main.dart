@@ -20,13 +20,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   print(
       "Firebase apps count: ${Firebase.apps.length}==============================="); // Debugging line
-  Firebase.initializeApp();
+  // Firebase.initializeApp();
   cameras = await availableCameras();
   // if (Firebase.apps.isEmpty) {
-  //   await Firebase.initializeApp(
-  //     options: DefaultFirebaseOptions.currentPlatform,
-  //   );
-  // }
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      name: "unprocessedsns",
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );

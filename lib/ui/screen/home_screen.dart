@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       name = 'ローディング...',
       username = 'ローディング...',
       uid = 'default';
+  bool isAccountPublic = false;
   List<String>? recommendedOtherUsers;
   List<String>? recommendedFollowUsers;
   final List<String> allFileListPath = [];
@@ -51,9 +52,10 @@ class _HomeScreenState extends State<HomeScreen> {
       Map<String, dynamic>? userDetail = await authServices.getUserDetail(uid);
       name = userDetail!['name'];
       username = userDetail['username'];
+      isAccountPublic = userDetail['public'];
       globalData.updateUser(email, uid, username, name);
+      globalData.updataPublic(isAccountPublic);
       final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
-      // final fetchedOtherFiles = await otherService.getOtherProfileURLs(uid);
       final fetchedOtherFiles = await otherService.getRecentImageUrls();
 
       if (mounted && userDetail != null) {
@@ -137,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
               title: TextButton(
                 child: Text("ホーム", style: TextStyle(fontSize: 20)),
                 onPressed: () {
-                  setState(() => _setUpInit());
+                  setState(() {
+                    _setUpInit();
+                  });
                 },
               ),
               centerTitle: true,
@@ -295,6 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
 //===================================================                             avatar button ===================================
+
                           IconButton(
                             icon: CircleAvatar(
                               backgroundImage: AssetImage('assets/avatar.png'),
