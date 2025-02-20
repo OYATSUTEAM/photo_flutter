@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "700244737798",
+    "firebase_url": "https://unprocessedsns-default-rtdb.firebaseio.com",
     "project_id": "unprocessedsns",
     "storage_bucket": "unprocessedsns.firebasestorage.app"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.bluepine.camera"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
@@ -20,7 +26,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bluepine.camera"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700244737798:android:7daf5978000178ad8e6887",
+        "android_client_info": {
+          "package_name": "com.example.flutter_ebook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bluepine.camera"
+              }
+            }
+          ]
         }
       }
     }
