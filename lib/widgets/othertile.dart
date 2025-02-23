@@ -55,10 +55,13 @@ class OtherTileState extends State<OtherTile> {
     print('$isMeBlocked===================');
     try {
       String? fetchedUsername = await otherService.getUserName(widget.otherUid);
-      String? fetchedUserEmail = await otherService.getUserEmail(widget.otherUid);
-      String fetchedURL = await profileServices.getMainProfileUrl(widget.otherUid);
-      final fetchedIsUserBlocked = await profileServices.isUserBlocked(uid, widget.otherUid);
-      final fetchedIsMeBlocked = await profileServices.isMeBlocked(uid, widget.otherUid);
+      String? fetchedUserEmail =
+          await otherService.getUserEmail(widget.otherUid);
+      String fetchedURL = await getMainProfileUrl(widget.otherUid);
+      final fetchedIsUserBlocked =
+          await profileServices.isUserBlocked(uid, widget.otherUid);
+      final fetchedIsMeBlocked =
+          await profileServices.isMeBlocked(uid, widget.otherUid);
       if (mounted) {
         setState(() {
           otherProfileURL = fetchedURL;
@@ -100,7 +103,9 @@ class OtherTileState extends State<OtherTile> {
                 child: InkWell(
                   // backgroundColor: Colors.transparent,
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(otherProfileURL != null ? otherProfileURL! : _otherProfileURL),
+                    backgroundImage: NetworkImage(otherProfileURL != null
+                        ? otherProfileURL!
+                        : _otherProfileURL),
                     radius: 20,
                   ),
                   onTap: () async {
@@ -111,7 +116,8 @@ class OtherTileState extends State<OtherTile> {
                             child: CircularProgressIndicator(),
                           );
                         });
-                    await Future.delayed(Duration(seconds: 1)); // Simulating a delay
+                    await Future.delayed(
+                        Duration(seconds: 1)); // Simulating a delay
                     if (mounted) Navigator.pop(context);
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -155,7 +161,8 @@ class OtherTileState extends State<OtherTile> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        content: Text("このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
+                        content: Text(
+                            "このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
                       );
                     },
                   );
@@ -173,7 +180,8 @@ class OtherTileState extends State<OtherTile> {
                       Radius.circular(12),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 5.0),
                   child: Text(
                     'unblock',
                     style: TextStyle(
@@ -200,7 +208,8 @@ class OtherTileState extends State<OtherTile> {
                       Radius.circular(12),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0, vertical: 5.0),
                   child: Text(
                     'delete',
                     style: TextStyle(
@@ -232,7 +241,8 @@ class OtherTileState extends State<OtherTile> {
                       Radius.circular(12),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0, vertical: 5.0),
                   child: Text(
                     'chat',
                     style: TextStyle(

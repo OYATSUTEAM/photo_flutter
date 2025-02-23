@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/widgets/othertile.dart';
 
 String? _selectedOption;
@@ -151,9 +152,7 @@ class _ReportScreen extends State<ReportScreen> {
                 SizedBox(height: 20),
                 ElevatedButton(
                     onPressed: () {
-                      profileServices
-                          .reportThisUser(
-                              uid, widget.otherUid, _selectedOption!)
+                      reportThisUser(uid, widget.otherUid, _selectedOption!)
                           .then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

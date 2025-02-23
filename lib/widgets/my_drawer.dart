@@ -6,6 +6,7 @@ import 'package:photo_sharing_app/ui/other/blocked_users.dart';
 import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
 import 'package:photo_sharing_app/ui/other/etc_screen.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:photo_sharing_app/ui/screen/manager_screen.dart';
 import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
 import 'package:photo_sharing_app/ui/screen/terms_screen.dart';
@@ -65,7 +66,7 @@ class _MyDrawer extends State<MyDrawer> {
                 child: CircularProgressIndicator(),
               );
             });
-        await profileServices.deleteAccount(uid);
+        await deleteAccount(uid);
         if (user != null) {
           await user.delete();
           print("Account deleted successfully");
@@ -234,7 +235,8 @@ class _MyDrawer extends State<MyDrawer> {
                                 child: CircularProgressIndicator(),
                               );
                             });
-                        await AuthServices(locator.get(), locator.get()).signOut();
+                        await AuthServices(locator.get(), locator.get())
+                            .signOut();
                         Navigator.pop(context);
                         Navigator.pop(context);
                       }),
@@ -250,7 +252,11 @@ class _MyDrawer extends State<MyDrawer> {
                   ),
                   TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
                       },
                       child: Text('戻る'))
                 ],

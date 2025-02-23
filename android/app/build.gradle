@@ -10,12 +10,15 @@ plugins {
 }
 
 android {
-    namespace = "com.bluepine.camera"
-    compileSdk = 35
-    ndkVersion = "27.0.12077973"
+    namespace  "com.bluepine.camera"
+    compileSdk  35
+    ndkVersion  "27.0.12077973"
 
-
+ sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
     compileOptions {
+                coreLibraryDesugaringEnabled  true
                 sourceCompatibility = JavaVersion.VERSION_11
                 targetCompatibility = JavaVersion.VERSION_11
             }
@@ -26,23 +29,25 @@ android {
 
     kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_11.toString()
-            }
-            defaultConfig {
+    }
+defaultConfig {
                         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-                        applicationId = "com.bluepine.camera"
+                        applicationId  "com.bluepine.camera"
                         // You can update the following values to match your application needs.
                         // For more information, see: https://flutter.dev/to/review-gradle-config.
-                        minSdk = 23
-                        targetSdk = flutter.targetSdkVersion
-                        versionCode = flutter.versionCode
-                        versionName = flutter.versionName
-                        multiDexEnabled = true
+                        minSdk  23
+                        targetSdk  flutter.targetSdkVersion
+                        versionCode  flutter.versionCode
+                        versionName  flutter.versionName
+                        multiDexEnabled  true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
                     }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig  signingConfigs.debug
         }
     }
 }
@@ -55,21 +60,36 @@ tasks.withType(JavaCompile) {
 }
 
 // dependencies {
-//     implementation 'com.google.firebase:firebase-bom:33.9.0' // Latest BOM
+    // implementation 'com.google.firebase:firebase-bom:33.9.0' // Latest BOM
 
-//     // Firebase dependencies
-//     implementation 'com.google.firebase:firebase-database' // Firebase Realtime Database
-//     implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics (optional)
-//     implementation 'com.google.firebase:firebase-auth' // Firebase Authentication (if needed)
+    // // Firebase dependencies
+    // implementation 'com.google.firebase:firebase-database' // Firebase Realtime Database
+    // implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics (optional)
+    // implementation 'com.google.firebase:firebase-auth' // Firebase Authentication (if needed)
 
-//     // AndroidX and Material components
-//     implementation 'androidx.core:core-ktx:1.12.0'
-//     implementation 'androidx.appcompat:appcompat:1.6.1'
-//     implementation 'com.google.android.material:material:1.9.0'
-//     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // // AndroidX and Material components
+    // implementation 'androidx.core:core-ktx:1.12.0'
+    // implementation 'androidx.appcompat:appcompat:1.6.1'
+    // implementation 'com.google.android.material:material:1.9.0'
+    // implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-//     // Testing dependencies
-//     testImplementation 'junit:junit:4.13.2'
-//     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-//     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    // // Testing dependencies
+    // testImplementation 'junit:junit:4.13.2'
+    // androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    // androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+//     implementation 'androidx.window:window:1.0.0'
+//     implementation 'androidx.window:window-java:1.0.0'
 // }
+
+
+dependencies {
+    implementation 'androidx.window:window:1.0.0'
+    implementation 'androidx.window:window-java:1.0.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+

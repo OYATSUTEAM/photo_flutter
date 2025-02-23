@@ -1,8 +1,12 @@
+import 'dart:js_interop';
+
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 
 import 'package:flutter/material.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/auth/reset_password.dart';
 // import 'package:photo_sharing_app/widgets/othertile.dart';
 
@@ -25,11 +29,11 @@ class ProfileImageTile extends StatefulWidget {
   _ProfileImageTileState createState() => _ProfileImageTileState();
 }
 
-String? imageURL;
 final AuthServices authServices = locator.get();
 
 class _ProfileImageTileState extends State<ProfileImageTile> {
-  String? uid = authServices.getCurrentuser()!.uid;
+  String? imageURL;
+  String uid = globalData.myUid;
   @override
   void initState() {
     _setUpProfilePreview();
@@ -37,28 +41,11 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
   }
 
   Future<void> _setUpProfilePreview() async {
-    final fetchedURL = await getWhichProfileUrl();
+    final fetchedURL = await getMainProfileUrl(uid);
     if (mounted) {
       setState(() {
         imageURL = fetchedURL;
       });
-    }
-  }
-
-  Future<String> getWhichProfileUrl() async {
-    try {
-      final profileRef = FirebaseStorage.instance.ref().child("images/${uid!}/${widget.whichProfile}");
-      String profileUrl = await profileRef.getDownloadURL();
-      _setUpProfilePreview();
-      return profileUrl;
-    } catch (e) {
-      print(e);
-      if (widget.whichProfile == 'firstProfileImage')
-        return profileServices.firstURL;
-      else if (widget.whichProfile == 'secondProfileImage')
-        return profileServices.secondURL;
-      else if (widget.whichProfile == 'thirdProfileImage') return profileServices.thirdURL;
-      return profileServices.forthURL;
     }
   }
 
@@ -74,7 +61,8 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
                 borderRadius: BorderRadius.circular(20.0),
                 color: Colors.grey,
                 image: DecorationImage(
-                  image: NetworkImage(imageURL != null ? imageURL! : profileServices.mainURL),
+                  image: NetworkImage(
+                      imageURL != null ? imageURL! : profileServices.mainURL),
                   fit: BoxFit.cover,
                 )),
           ),
@@ -86,7 +74,9 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
               onPressed: widget.onSetPressed,
               icon: Icon(
                 Icons.content_copy,
-                color: widget.isShowAll ? Color.fromARGB(255, 5, 1, 1) : Colors.black,
+                color: widget.isShowAll
+                    ? Color.fromARGB(255, 5, 1, 1)
+                    : Colors.black,
                 size: 25,
               ),
             ),
@@ -98,7 +88,9 @@ class _ProfileImageTileState extends State<ProfileImageTile> {
               onPressed: widget.onDeletePressed,
               icon: Icon(
                 Icons.delete_forever,
-                color: widget.isShowAll ? Color.fromARGB(255, 0, 0, 0) : Colors.black,
+                color: widget.isShowAll
+                    ? Color.fromARGB(255, 0, 0, 0)
+                    : Colors.black,
                 size: 25,
               ),
             ),

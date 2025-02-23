@@ -60,13 +60,12 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   Future<void> _setUpInit() async {
     // final fetchedURL = await getWhichProfileUrl();
 
-    // final fetchedCommentsStatus = await profileServices.getCommentStatus();
+    // final fetchedCommentsStatus = await getCommentStatus();
     // var user = await authServices.getDocument(widget.otherUid);
     // List<Map<String, dynamic>> fetchedComments =
     //     await otherService.getAllComments(widget.otherUid, widget.whichProfile);
     print('${widget.imageURL}===============================');
     if (mounted) {
-    
       // if (user != null) {
       setState(() {
         // commentsStatus = fetchedCommentsStatus;
@@ -119,12 +118,12 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   // } catch (e) {
   //   print(e);
   //   if (widget.whichProfile == 'firstProfileImage')
-  //     return profileServices.firstURL;
+  //     return firstURL;
   //   else if (widget.whichProfile == 'secondProfileImage')
-  //     return profileServices.secondURL;
+  //     return secondURL;
   //   else if (widget.whichProfile == 'thirdProfileImage')
-  //     return profileServices.thirdURL;
-  //   return profileServices.forthURL;
+  //     return thirdURL;
+  //   return forthURL;
   // }
   // }
 

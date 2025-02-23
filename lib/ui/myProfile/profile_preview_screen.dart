@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../data/global.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
@@ -27,60 +28,37 @@ OtherService otherService = OtherService();
 
 // final otherService = OtherService(locator.get(), locator.get());
 ScrollController _scrollController = ScrollController();
-ProfileServices profileServices = ProfileServices();
+// ProfileServices profileServices = ProfileServices();
 
 final AuthServices authServices = locator.get();
 String? imageURL;
-String mainURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
+String mainURL = globalData.profileURL;
 bool isCommenting = false; // To track if comment input is visible
 List<Map<String, dynamic>> comments = [];
 List<dynamic> like = [], dislike = [], favourite = [];
-String email = 'default@gmail.com', name = 'ローディング...', username = 'ローディング...', uid = 'default';
+String email = 'default@gmail.com',
+    name = 'ローディング...',
+    username = 'ローディング...',
+    uid = 'default';
 var otherUser, otherUserName;
 
 class _PreviewScreenState extends State<ProfilePreviewScreen> {
   @override
   void initState() {
-    getCurrentUserUID();
     _setUpProfilePreview();
     super.initState();
   }
 
-  void getCurrentUserUID() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        uid = user.uid;
-        email = user.email!;
-        isCommenting = false;
-      });
-    }
-  }
-
   Future<void> _setUpProfilePreview() async {
-    final fetchedURL = await getWhichProfileUrl();
-    var user = await authServices.getDocument(uid);
-    // List<Map<String, dynamic>> fetchedComments = await otherService.getAllComments(uid, widget.whichProfile);
+    final fetchedURL = await getMainProfileUrl(uid);
     if (mounted) {
       setState(() {
-        // comments = fetchedComments;
+        uid = globalData.myUid;
+        email = globalData.myEmail;
+        name = globalData.myName;
+        username = globalData.myUserName;
         imageURL = fetchedURL;
       });
-      if (user != null) {
-        setState(() {
-          username = user['username'];
-          name = user['name'];
-          // final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
-          // final likeWhichProfile = 'like-${widget.whichProfile}';
-          // final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
-          // like = user[likeWhichProfile] ?? [];
-          // dislike = user[disLikeWhichProfile] ?? [];
-          // favourite = user[favouriteWhichProfile] ?? [];
-        });
-        setState(() {
-          imageURL = fetchedURL;
-        });
-      }
     }
   }
 
@@ -100,7 +78,8 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
 
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes).then((_) async {
-          await Share.shareXFiles([XFile(filePath)], text: 'Check out this image!');
+          await Share.shareXFiles([XFile(filePath)],
+              text: 'Check out this image!');
         });
 
         // await
@@ -131,7 +110,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
       return mainURL;
     } catch (e) {
       // if (widget.whichProfile == 'mainProfileImage')
-        return mainURL;
+      return mainURL;
       // else if (widget.whichProfile == 'firstProfileImage')
       //   return _firstURL;
       // else if (widget.whichProfile == 'secondProfileImage')
@@ -180,10 +159,13 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
-                                    width: MediaQuery.of(context).size.width * 0.97,
-                                    height: MediaQuery.of(context).size.height * 0.8,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.97,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.8,
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30.0),
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
                                         color: Colors.grey,
                                         image: DecorationImage(
                                           image: NetworkImage(imageURL!),
@@ -235,10 +217,12 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                 height: 300,
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: Colors.white, // Set the border color to white
+                                    color: Colors
+                                        .white, // Set the border color to white
                                     width: 2.0, // Set the width of the border
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)), // Optional: Add rounded corners
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      8.0)), // Optional: Add rounded corners
                                 ),
                                 child: ListView.builder(
                                   itemCount: comments.length,
@@ -247,34 +231,44 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                     var timestamp = comment['timestamp'];
                                     var otherUid = comment['uid'];
 
-                                    String formattedTimestamp = timestamp != null
-                                        ? timestamp.toDate().toString() // Format the timestamp if not null
+                                    String formattedTimestamp = timestamp !=
+                                            null
+                                        ? timestamp
+                                            .toDate()
+                                            .toString() // Format the timestamp if not null
                                         : 'No timestamp available';
 
                                     return FutureBuilder(
-                                      future: authServices.getDocument(otherUid),
+                                      future:
+                                          authServices.getDocument(otherUid),
                                       builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
                                           return ListTile(
                                             title: Text(comment['comment']),
-                                            subtitle: Text('ユーザー: ローディング...'), ///////////////////loading
+                                            subtitle: Text(
+                                                'ユーザー: ローディング...'), ///////////////////loading
                                             trailing: Text(formattedTimestamp),
                                           );
                                         }
                                         if (snapshot.hasError) {
                                           return ListTile(
                                             title: Text(comment['comment']),
-                                            subtitle: Text('ユーザー: Error loading user'),
+                                            subtitle: Text(
+                                                'ユーザー: Error loading user'),
                                             trailing: Text(formattedTimestamp),
                                           );
                                         }
 
                                         var otherUser = snapshot.data;
-                                        var otherUserName = otherUser?['username'] ?? 'Unknown User';
+                                        var otherUserName =
+                                            otherUser?['username'] ??
+                                                'Unknown User';
 
                                         return ListTile(
                                           title: Text(comment['comment']),
-                                          subtitle: Text('ユーザー: $otherUserName'),
+                                          subtitle:
+                                              Text('ユーザー: $otherUserName'),
                                           trailing: Text(formattedTimestamp),
                                         );
                                       },
@@ -298,13 +292,11 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                           right: 0, // Adjusted to account for padding
                           child: IconButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfileCameraScreen(
-                                      
-                                    ),
-                                  ),
-                                );
+                                Navigator.of(context).pop(
+                                    // MaterialPageRoute(
+                                    //   builder: (context) => ProfileCameraScreen(),
+                                    // ),
+                                    );
                               },
                               icon: Icon(Icons.camera_alt))),
                     ],
@@ -345,7 +337,7 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
           ),
           onSelected: (value) async {
             if (value == "delete") {
-              // await profileServices.deleteProfile(widget.uid, widget.whichProfile);
+              // await deleteProfile(widget.uid, widget.whichProfile);
               setState(() {
                 delete();
               });
@@ -385,9 +377,11 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                 child: Container(
                   alignment: Alignment.center,
                   width: 100, // Set width here
-                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0), // Add padding
+                  padding: EdgeInsets.symmetric(
+                      vertical: 6, horizontal: 0), // Add padding
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(149, 5, 4, 4), // Background color
+                    color:
+                        const Color.fromARGB(149, 5, 4, 4), // Background color
 
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),

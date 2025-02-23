@@ -30,8 +30,8 @@ class MyProfileEdit extends StatefulWidget {
 class _MyProfileEdit extends State<MyProfileEdit> {
   TextEditingController nameController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
-  String myMainProfileURL = profileServices.mainURL;
-  String editProfileURL = profileServices.mainURL;
+  String myMainProfileURL = globalData.profileURL;
+  String editProfileURL = globalData.profileURL;
 
   String myProfileImage = '', editProfileImage = '';
   String email = globalData.myEmail;
@@ -53,8 +53,8 @@ class _MyProfileEdit extends State<MyProfileEdit> {
     try {
       final directory = await getApplicationDocumentsDirectory();
       setState(() {
-        myProfileImage = '${directory.path}/$uid/myProfileImage';
-        editProfileImage = '${directory.path}/$uid/editProfileImage';
+        myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
+        editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
       });
     } catch (e) {
       print('$e this error occurred in my profile.');
@@ -63,10 +63,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
   Future<void> fetchUsername() async {
     try {
-      final fetchedMainURL = await profileServices.getMainProfileUrl(uid);
-      final fetchedEditURL = await profileServices.getEditProfileUrl(uid);
+      final fetchedMainURL = await getMainProfileUrl(uid);
+      final fetchedEditURL = await getEditProfileUrl(uid);
       Map<String, dynamic>? user = await authServices.getUserDetail(uid);
-      final currentPassword = await profileServices.getUserPassword(uid);
+      final currentPassword = await getUserPassword(uid);
       setState(() {
         username = user?['username'];
         name = user?['name'];
@@ -140,6 +140,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
+//=========================================================                           edit profile image           =========================================
                         Center(
                           child: CircleAvatar(
                             backgroundImage:
@@ -298,6 +299,12 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                           usernameController.text.trim(),
                           email,
                         );
+
+                        globalData.updateUser(
+                            email,
+                            uid,
+                            usernameController.text.trim(),
+                            nameController.text.trim());
                       }
                       if (mounted) {
                         _uploadFile();

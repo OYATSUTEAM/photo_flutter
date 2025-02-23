@@ -215,7 +215,8 @@ class _PostCameraScreenState extends State<PostCameraScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          backgroundColor: Colors.black,
+          // backgroundColor: Colors.grey,
+
           body: _isCameraPermissionGranted
               ? _isCameraInitialized
                   ? Stack(children: [

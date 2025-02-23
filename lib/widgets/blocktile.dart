@@ -54,10 +54,13 @@ class BlocktileState extends State<Blocktile> {
     final uid = await getCurrentUserUID();
     try {
       String? fetchedUsername = await otherService.getUserName(widget.otherUid);
-      String? fetchedUserEmail = await otherService.getUserEmail(widget.otherUid);
-      String fetchedURL = await profileServices.getMainProfileUrl(widget.otherUid);
-      final fetchedIsUserBlocked = await profileServices.isUserBlocked(uid, widget.otherUid);
-      final fetchedIsMeBlocked = await profileServices.isMeBlocked(uid, widget.otherUid);
+      String? fetchedUserEmail =
+          await otherService.getUserEmail(widget.otherUid);
+      String fetchedURL = await getMainProfileUrl(widget.otherUid);
+      final fetchedIsUserBlocked =
+          await profileServices.isUserBlocked(uid, widget.otherUid);
+      final fetchedIsMeBlocked =
+          await profileServices.isMeBlocked(uid, widget.otherUid);
       if (mounted) {
         setState(() {
           otherProfileURL = fetchedURL;
@@ -99,7 +102,9 @@ class BlocktileState extends State<Blocktile> {
                 child: InkWell(
                   // backgroundColor: Colors.transparent,
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(otherProfileURL != null ? otherProfileURL! : _otherProfileURL),
+                    backgroundImage: NetworkImage(otherProfileURL != null
+                        ? otherProfileURL!
+                        : _otherProfileURL),
                     radius: 20,
                   ),
                   onTap: () async {
@@ -110,7 +115,8 @@ class BlocktileState extends State<Blocktile> {
                             child: CircularProgressIndicator(),
                           );
                         });
-                    await Future.delayed(Duration(seconds: 1)); // Simulating a delay
+                    await Future.delayed(
+                        Duration(seconds: 1)); // Simulating a delay
                     if (mounted) Navigator.pop(context);
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -154,7 +160,8 @@ class BlocktileState extends State<Blocktile> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        content: Text("このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
+                        content: Text(
+                            "このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
                       );
                     },
                   );
@@ -172,7 +179,8 @@ class BlocktileState extends State<Blocktile> {
                       Radius.circular(12),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 5.0),
                   child: Text(
                     'unblock',
                     style: TextStyle(

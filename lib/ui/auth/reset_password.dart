@@ -33,8 +33,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         return;
       }
       if (user != null) {
-        final currentPassword =
-            await profileServices.getUserPassword(user!.uid);
+        final currentPassword = await getUserPassword(user!.uid);
         print('${widget.email}, !!!!!, $currentPassword');
         if (currentPasswordController.text.trim() == currentPassword) {
           if (newPasswordController.text.trim() ==
@@ -46,8 +45,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: CircularProgressIndicator(),
                   );
                 });
-            profileServices.updatePassword(
-                widget.uid, newPasswordController.text.trim());
+            updatePassword(widget.uid, newPasswordController.text.trim());
             AuthCredential credential = await EmailAuthProvider.credential(
               email: widget.email,
               password: currentPassword,

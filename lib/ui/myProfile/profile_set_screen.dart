@@ -31,6 +31,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
       name = 'default';
   bool? shouldDelete = false;
   String myProfileImage = '';
+  String editProfileImage = '';
   XFile? _selectImage;
   UploadTask? uploadTask;
   final List<String> allFileListPath = [];
@@ -59,7 +60,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-    myProfileImage = '${directory.path}/$uid/myProfileImage';
+    myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
+    editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
     final fileList = directory.listSync();
     allFileListPath
       ..clear()
@@ -70,7 +72,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
       ..sort((a, b) => b.compareTo(a));
 
     setState(() {
-      _selectImage = XFile(allFileListPath.first);
+      _selectImage = XFile(editProfileImage);
       isLoading = false;
     });
   }
@@ -86,8 +88,6 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
     uploadTask = ref.putFile(File(_selectImage!.path), metadata);
     final snapshot = await uploadTask!.whenComplete(() => null);
     final downloadUrl = await snapshot.ref.getDownloadURL();
-    print(
-        '$downloadUrl!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!this is upload which profile');
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -196,17 +196,17 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
       );
     }
 
-    if (allFileListPath.isEmpty) {
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-          child: Text(
-            "画像が見つかりません！",
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    }
+    // if (allFileListPath.isEmpty) {
+    //   return const Scaffold(
+    //     backgroundColor: Colors.black,
+    //     body: Center(
+    //       child: Text(
+    //         "画像が見つかりません！",
+    //         style: TextStyle(color: Colors.white),
+    //       ),
+    //     ),
+    //   );
+    // }
 
     try {
       // Main UI rendering
@@ -217,7 +217,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
             Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [_buildImageTile(allFileListPath.first)]),
+              children: [_buildImageTile(editProfileImage)]),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -248,7 +248,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
                       Navigator.pop(context);
                       Navigator.pop(context);
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => MyProfileScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => MyProfileScreen()),
                       );
                     }
                   },
@@ -280,7 +281,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         children: [
           Container(
             width: MediaQuery.of(context).size.width * 0.99,
-            height: MediaQuery.of(context).size.height * 0.8,
+            height: MediaQuery.of(context).size.height * 0.84,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black, width: 5),
             ),

@@ -44,8 +44,7 @@ class _BlockedUsersScreenState extends State<BlockedMeUsers> {
   Future<void> updateData() async {
     setState(() {
       data = "Updated Data";
-      _otherUidFuture =
-          profileServices.getBlockedMeUsers(uid); // Call the function
+      _otherUidFuture = getBlockedMeUsers(uid); // Call the function
     });
   }
 

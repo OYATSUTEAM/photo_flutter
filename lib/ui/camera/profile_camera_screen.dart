@@ -207,9 +207,7 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                 ? Stack(children: [
                     Column(
                       children: [
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         Container(
                           height: MediaQuery.of(context).size.height * 0.78,
                           width: MediaQuery.of(context).size.width * 0.99,
@@ -317,10 +315,10 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                           );
                                         },
                                       );
-                                      final storageRef =
-                                          FirebaseStorage.instance.ref();
-                                      final imageRef = storageRef.child(
-                                          'images/$uid/editProfileImage');
+                                      // final storageRef =
+                                      //     FirebaseStorage.instance.ref();
+                                      // final imageRef = storageRef.child(
+                                      //     'images/$uid/editProfileImage');
 
                                       await imageFile.copy(
                                         '${directory.path}/${uid}/editProfileImage.$fileFormat',

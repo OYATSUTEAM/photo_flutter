@@ -41,7 +41,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
   }
 
   Future<void> _setUpCommentStatus() async {
-    bool fetchedComments = await profileServices.getCommentStatus();
+    bool fetchedComments = await getCommentStatus();
     if (mounted) {
       setState(() {
         isCommenting = fetchedComments;
@@ -68,7 +68,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
                       // This is called when the user toggles the switch.
                       setState(() {
                         isReportTrue = value;
-                        profileServices.setReportStatus(value);
+                        setReportStatus(value);
                       });
                     },
                   ),
@@ -86,7 +86,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
                       // This is called when the user toggles the switch.
                       setState(() {
                         isBlockTrue = value;
-                        profileServices.setBlockStatus(value);
+                        setBlockStatus(value);
                       });
                     },
                   )
@@ -104,7 +104,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
                       // This is called when the user toggles the switch.
                       setState(() {
                         isCommenting = value;
-                        profileServices.setCommentStatus(value);
+                        setCommentStatus(value);
                       });
                     },
                   )

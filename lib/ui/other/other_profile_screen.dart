@@ -443,7 +443,7 @@ class _OtherProfile extends State<OtherProfile> {
               //         icon: Icon(status ? Icons.lock_open : Icons.lock),
               //         color: Colors.green,
               //         onPressed: () async {
-              //           await profileServices.publicThisImage(
+              //           await publicThisImage(
               //               uid,
               //               path.basenameWithoutExtension(filelist[index]),
               //               !status);

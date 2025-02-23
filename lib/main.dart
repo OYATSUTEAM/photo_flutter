@@ -5,40 +5,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_state.dart';
-// import 'package:photo_sharing_app/data/model/drink.dart';
-// import 'package:photo_sharing_app/redux/reducer.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/theme/light_mode.dart';
 import 'package:photo_sharing_app/theme/dark_mode.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  print(
-      "Firebase apps count: ${Firebase.apps.length}==============================="); // Debugging line
-  // Firebase.initializeApp();
   cameras = await availableCameras();
-  // if (Firebase.apps.isEmpty) {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       name: "unprocessedsns",
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
+
   await initSerivceLocator();
-  runApp(
-    BlocProvider(
-      create: (context) => ThemeBloc(),
-      child: MyApp(),
-    ),
-  );
+
+  runApp(BlocProvider(create: (context) => ThemeBloc(), child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -50,6 +39,8 @@ class MyApp extends StatelessWidget {
       builder: (context, state) {
         if (state is ThemeInitState) {
           return MaterialApp(
+            navigatorObservers: [FlutterSmartDialog.observer],
+            builder: FlutterSmartDialog.init(),
             locale: Locale('ja', 'JP'), // or 'en' for English
             supportedLocales: [
               // Locale('en', 'US'),

@@ -53,8 +53,7 @@ class _UserTileState extends State<UserTile> {
   }
 
   Future<void> _setUpUserTile() async {
-    String fetchedURL =
-        await profileServices.getMainProfileUrl(widget.otherUid);
+    String fetchedURL = await getMainProfileUrl(widget.otherUid);
     final fetchedIsUserBlocked =
         await profileServices.isUserBlocked(uid, widget.otherUid);
     final fetchedIsMeBlocked =

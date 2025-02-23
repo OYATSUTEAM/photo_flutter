@@ -36,14 +36,14 @@ class Imagetile extends StatelessWidget {
           ),
           // Positioned delete icon
           Positioned(
-            top: 14, // Adjusted to account for padding
-            right: 10, // Adjusted to account for padding
+            top: 0, // Adjusted to account for padding
+            right: -10, // Adjusted to account for padding
             child: IconButton(
               onPressed: onDeletePressed,
               icon: const Icon(
                 Icons.delete_forever,
-                color: Color.fromARGB(174, 1514, 158, 158),
-                size: 25,
+                color: Colors.white,
+                size: 35,
               ),
             ),
           ),

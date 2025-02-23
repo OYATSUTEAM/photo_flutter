@@ -162,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: Column(children: [
+                                    Text('おすすめ'),
                                     Expanded(
                                       child: recommendedOtherUsers == null
                                           ? Center(
@@ -189,6 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: Column(
                                     children: [
+                                      Text('フォロー'),
                                       Expanded(
                                         child: recommendedFollowUsers == null
                                             ? Center(
@@ -231,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               );
+                              // _show();
                             },
                             iconSize: 38,
                             icon: const Icon(
@@ -251,7 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: CircularProgressIndicator(),
                                       );
                                     });
-                                // if (allCacheFileListPath.length > 0) {
                                 List<File> filesToRemove = [];
 
                                 for (final String filePath
@@ -262,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     filesToRemove.add(file);
                                   }
                                 }
-
+                                globalData.updatePostText('');
                                 Navigator.pop(context);
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/ui/auth/register_screen.dart';
 import 'package:photo_sharing_app/ui/camera/add_post_camera_screen.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
@@ -38,7 +39,6 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             await file.delete();
           }
         }
-        print("All files deleted successfully.");
       } catch (e) {
         print("Error deleting files: $e");
       }
@@ -50,7 +50,9 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
     final subDir = Directory('${directory.path}/$uid/postImages');
-
+    setState(() {
+      textController.text = globalData.postText;
+    });
     if (await subDir.exists()) {
       final fileList = subDir
           .listSync()
@@ -58,7 +60,6 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
           .map((file) => file.path)
           .toList()
         ..sort(); // Sort the list alphabetically
-      print('${fileList.length}========================');
       setState(() {
         allPostFileList
           ..clear()
@@ -116,6 +117,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
             );
           }
         }
+        // globalData.updatePostText('');
         setState(() {
           _loadImages();
         });
@@ -178,14 +180,17 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       xFiles,
       text: textController.text.trim(),
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-    ).then((result) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => PostPreviewScreen(),
-        ),
-      );
-      print('$result  , =====================================================');
-      return result;
+    ).then((shareResult) async {
+      if (shareResult.status.toString() == 'ShareResultStatus.success') {
+        await deleteAllFileWithConfirm(context);
+        // deleteAllFiles();
+        // Navigator.of(context).pushReplacement(
+        //   MaterialPageRoute(
+        //     builder: (context) => PostPreviewScreen(),
+        //   ),
+        // );
+        return shareResult.status.toString();
+      }
     });
 
     return 'failure';
@@ -201,7 +206,8 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
 
     if (allPostFileList.isEmpty) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.grey,
+        appBar: AppBar(),
         body: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -232,73 +238,69 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
 
     return SafeArea(
         child: Scaffold(
-            backgroundColor: Colors.black,
+            // backgroundColor: Colors.black,
             body: GestureDetector(
-              onTap: () {
-                FocusScope.of(context)
-                    .unfocus(); // Hide keyboard when tapping outside
-              },
-              child: SingleChildScrollView(
-                  child: Center(
-                      child: Column(children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.74,
-                  width: MediaQuery.of(context).size.width,
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Number of columns
-                      crossAxisSpacing: 8.0, // Space between columns
-                      mainAxisSpacing: 8.0, // Space between rows
-                      childAspectRatio: 0.7, // Aspect ratio of each grid item
-                    ),
-                    itemCount: allPostFileList.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        child: _buildImageTile(index, allPostFileList.length),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: TextField(
-                    focusNode: focusNode,
-                    controller: textController,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 1.0, horizontal: 18.0),
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 0, 0, 0),
-                      hintText: '投稿文',
-                      hintStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.primary),
-                    ),
-                    minLines: 1,
-                    maxLines: 5,
-                    keyboardType: TextInputType.multiline,
-                  ),
-                ),
-                const SizedBox(height: 20),
+      onTap: () {
+        FocusScope.of(context).unfocus(); // Hide keyboard when tapping outside
+      },
+      child: SingleChildScrollView(
+          child: Center(
+              child: Column(children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.74,
+          width: MediaQuery.of(context).size.width,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(8.0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // Number of columns
+              crossAxisSpacing: 8.0, // Space between columns
+              mainAxisSpacing: 8.0, // Space between rows
+              childAspectRatio: 0.7, // Aspect ratio of each grid item
+            ),
+            itemCount: allPostFileList.length,
+            itemBuilder: (context, index) {
+              return Container(
+                child: _buildImageTile(index, allPostFileList.length),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: TextField(
+            focusNode: focusNode,
+            controller: textController,
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 1.0, horizontal: 18.0),
+              filled: true,
+              // fillColor: const Color.fromARGB(255, 0, 0, 0),
+              hintText: '投稿文',
+              hintStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+            minLines: 1,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+          ),
+        ),
+        const SizedBox(height: 20),
 // ==========================================================        post file   =====================================================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                        child: TextButton(
-                            onPressed: () async {
-                              await shareImage()
-                                  .then((result) {deleteAllFiles();});
-                            },
-                            child: const Text('投稿',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16)))),
-                  ],
-                )
-              ]))),
-            )));
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                child: TextButton(
+                    onPressed: () async {
+                      await shareImage();
+                    },
+                    child: const Text('投稿',
+                        style: TextStyle(color: Colors.white, fontSize: 16)))),
+          ],
+        )
+      ]))),
+    )));
   }
 
   Widget _buildImageTile(int index, int count) {
@@ -355,6 +357,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
                         icon: Icon(Icons.add_circle),
                         color: Colors.green,
                         onPressed: () {
+                          globalData.updatePostText(textController.text.trim());
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (context) => PostCameraScreen(

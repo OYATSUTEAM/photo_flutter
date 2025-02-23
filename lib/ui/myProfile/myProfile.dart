@@ -32,7 +32,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   List<String> allFileListPath = [];
   List<String> list = <String>['public', 'private'];
   List<File> allFileList = [];
-  String myMainProfileURL = profileServices.mainURL;
+  String myMainProfileURL = mainURL;
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
@@ -62,7 +62,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> fetchURLs() async {
-    final fetchedUrl = await profileServices.getMainProfileUrl(uid);
+    final fetchedUrl = await getMainProfileUrl(uid);
     if (mounted)
       setState(() {
         myMainProfileURL = fetchedUrl;
@@ -129,8 +129,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
       try {
         if (await File(filePath).exists()) {
           await File(filePath).delete();
-          await profileServices.deleteThisImage(
-              uid, path.basenameWithoutExtension(filePath));
+          await deleteThisImage(uid, path.basenameWithoutExtension(filePath));
           setState(() {
             refreshAlreadyCapturedImages();
           });
@@ -192,6 +191,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                               );
                             });
                         if (!mounted) return;
+                        Navigator.pop(context);
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => MyProfileEdit(
                                   whichImage: 'myProfileImage',
@@ -241,7 +241,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                             children: [
                               Spacer(), // Pushes the text to the center
                               Text(
-                                username,
+                                name,
                                 style: const TextStyle(
                                     fontSize: 22, color: Colors.white),
                               ),
@@ -299,14 +299,13 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                     itemCount: latestImages.length,
                                     itemBuilder: (context, index) {
                                       return FutureBuilder<bool>(
-                                          future:
-                                              profileServices.getDirPathStatus(
-                                                  uid,
-                                                  path.basenameWithoutExtension(
-                                                      latestImages[
-                                                          latestImages.length -
-                                                              index -
-                                                              1])),
+                                          future: getDirPathStatus(
+                                              uid,
+                                              path.basenameWithoutExtension(
+                                                  latestImages[
+                                                      latestImages.length -
+                                                          index -
+                                                          1])),
                                           builder: (context, snapshot) {
                                             // if (snapshot.connectionState ==
                                             //     ConnectionState.waiting) {
@@ -354,11 +353,10 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                       itemCount: oldestImages.length,
                                       itemBuilder: (context, index) {
                                         return FutureBuilder<bool>(
-                                          future:
-                                              profileServices.getDirPathStatus(
-                                                  uid,
-                                                  path.basenameWithoutExtension(
-                                                      oldestImages[index])),
+                                          future: getDirPathStatus(
+                                              uid,
+                                              path.basenameWithoutExtension(
+                                                  oldestImages[index])),
                                           builder: (context, snapshot) {
                                             // if (snapshot.connectionState ==
                                             //     ConnectionState.waiting) {
@@ -421,7 +419,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                   icon: Icon(status ? Icons.lock_open : Icons.lock),
                   color: Colors.green,
                   onPressed: () async {
-                    await profileServices.publicThisImage(
+                    await publicThisImage(
                         uid,
                         path.basenameWithoutExtension(filelist[index]),
                         !status);

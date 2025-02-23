@@ -57,7 +57,7 @@ class _Report_BlockState extends State<Report_Block> {
                       // This is called when the user toggles the switch.
                       setState(() {
                         isReportTrue = value;
-                        profileServices.setReportStatus(value);
+                        setReportStatus(value);
                       });
                     },
                   ),
@@ -75,7 +75,7 @@ class _Report_BlockState extends State<Report_Block> {
                       // This is called when the user toggles the switch.
                       setState(() {
                         isBlockTrue = value;
-                        profileServices.setBlockStatus(value);
+                        setBlockStatus(value);
                       });
                     },
                   )
