@@ -298,6 +298,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                                       CircularProgressIndicator());
                                             return _buildImageTile(
                                                 urlSnapshot.data!,
+                                                image['name'],
                                                 image['status']);
                                           });
                                     }).toList(),
@@ -329,6 +330,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                                     CircularProgressIndicator());
                                           return _buildImageTile(
                                               urlSnapshot.data!,
+                                              image['name'],
                                               image['status']);
                                         });
                                   }).toList(),
@@ -339,7 +341,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                 ])))));
   }
 
-  Widget _buildImageTile(String imageURL, String status) {
+  Widget _buildImageTile(String imageURL, String imageName, String status) {
     return GestureDetector(
         onTap: () {
           Navigator.of(context).push(
@@ -368,11 +370,11 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                   icon: Icon(status == 'true' ? Icons.lock_open : Icons.lock),
                   color: Colors.green,
                   onPressed: () async {
-                    // await publicThisImage(
-                    //     uid, path.basenameWithoutExtension(filelist[index]));
-                    // setState(() {
-                    //   _setProfileInitiate();
-                    // });
+                    await saveOrUpdateImage(
+                        uid, imageName, status == 'true' ? 'false' : 'true');
+                    setState(() {
+                      _setProfileInitiate();
+                    });
                   }))
         ]));
   }
