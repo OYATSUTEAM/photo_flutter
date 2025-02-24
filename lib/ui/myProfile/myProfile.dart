@@ -351,13 +351,15 @@ class _MyProfileScreen extends State<MyProfileScreen> {
           );
         },
         child: Stack(children: [
-          CachedNetworkImage(
-            width: MediaQuery.of(context).size.width * 0.5 - 6,
-            fit: BoxFit.fitWidth,
-            height: MediaQuery.of(context).size.height * 0.4,
-            imageUrl: imageURL,
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+              child: CachedNetworkImage(
+                width: MediaQuery.of(context).size.width * 0.5 - 6,
+                fit: BoxFit.fitWidth,
+                height: MediaQuery.of(context).size.height * 0.4,
+                imageUrl: imageURL,
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              )),
           Positioned(
               top: 0,
               right: 0,
