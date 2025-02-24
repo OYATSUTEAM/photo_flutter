@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
@@ -33,6 +35,9 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   List<String> list = <String>['public', 'private'];
   List<File> allFileList = [];
   String myMainProfileURL = mainURL;
+  List<Reference> firstHalf = [];
+  List<Reference> secondHalf = [];
+
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
@@ -41,7 +46,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   String myProfileImagePath = '';
   File? myProfileImage;
   bool switchResult = ThemeManager.readTheme();
-
+  // ListResult listResult = [] as ListResult;
   @override
   void initState() {
     super.initState();
@@ -61,12 +66,26 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> fetchURLs() async {
-    print('$uid================');
     final fetchedUrl = await getMainProfileUrl(uid);
+    // final _listResult = await getProfileURLs(uid);
+    fetchAndUseProfileURLs(uid);
     if (mounted)
       setState(() {
+        // listResult = _listResult;
         myMainProfileURL = fetchedUrl;
       });
+  }
+
+  void fetchAndUseProfileURLs(String uid) async {
+    // Map<String, List<Reference>> result = await getProfileURLsReference(uid);
+
+    // List<Reference> _firstHalf = result["firstHalf"] ?? [];
+    // List<Reference> _secondHalf = result["secondHalf"] ?? [];
+    print(await getImageNames(uid));
+    setState(() {
+      // firstHalf = _firstHalf;
+      // secondHalf = _secondHalf;
+    });
   }
 
   refreshAlreadyCapturedImages() async {
@@ -129,68 +148,59 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    allFileListPath.sort((a, b) {
-      DateTime aCreationTime = File(a).lastModifiedSync();
-      DateTime bCreationTime = File(b).lastModifiedSync();
-      return aCreationTime.compareTo(bCreationTime);
-    });
-
-    int midIndex = allFileListPath.length ~/ 2;
-    List<String> oldestImages = allFileListPath.sublist(0, midIndex);
-    List<String> latestImages = allFileListPath.sublist(midIndex);
-
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 36,
-        title: Container(
-          child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Stack(children: [
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          toolbarHeight: 36,
+          title: Container(
+            child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Stack(children: [
 // =========================================================================         username   ============================
-                SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    height: 36,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(username,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.white)),
-                        ])),
-                Positioned(
-                    top: 0,
-                    right: 0,
-                    child: TextButton(
-                      onPressed: () async {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            });
-                        if (!mounted) return;
-                        Navigator.pop(context);
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) => MyProfileEdit(
-                                  whichImage: 'myProfileImage',
-                                )));
-                      },
-                      child: Text(
-                        '. . .',
-                        style:
-                            const TextStyle(fontSize: 24, color: Colors.white),
-                      ),
-                    ))
-              ])),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: 36,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(username,
+                                style: const TextStyle(
+                                    fontSize: 18, color: Colors.white)),
+                          ])),
+                  Positioned(
+                      top: 0,
+                      right: 0,
+                      child: TextButton(
+                        onPressed: () async {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              });
+                          if (!mounted) return;
+                          Navigator.pop(context);
+                          Navigator.of(context)
+                              .pushReplacement(MaterialPageRoute(
+                                  builder: (context) => MyProfileEdit(
+                                        whichImage: 'myProfileImage',
+                                      )));
+                        },
+                        child: Text(
+                          '. . .',
+                          style: const TextStyle(
+                              fontSize: 24, color: Colors.white),
+                        ),
+                      ))
+                ])),
+          ),
         ),
-      ),
-      body: SafeArea(
-          child: Padding(
-              padding: EdgeInsets.all(5),
-              child: SingleChildScrollView(
-                child: Column(children: [
+        body: SafeArea(
+            child: Padding(
+                padding: EdgeInsets.all(5),
+                child: SingleChildScrollView(
+                    child: Column(children: [
 //===========================================================                         main profile image       =====================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -246,135 +256,102 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                       ])),
                   const SizedBox(height: 10),
 //================================================          my images         ===============================================
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
+
+                  FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
+                      future: getImageNames(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        }
+
+                        if (!snapshot.hasData ||
+                            snapshot.data!['latest']!.isEmpty) {
+                          return Center(child: Text(""));
+                        }
+
+                        final imagesData = snapshot.data!;
+                        final latestImages = imagesData["latest"]!;
+                        final otherImages = imagesData["others"]!;
+                        return Row(children: [
                           SizedBox(
                               width:
-                                  MediaQuery.of(context).size.width * 0.5 - 8,
+                                  MediaQuery.of(context).size.width * 0.5 - 6,
                               height: MediaQuery.of(context).size.height -
                                   40 -
                                   MediaQuery.of(context).size.width * 0.5 -
                                   80,
                               child: SingleChildScrollView(
-                                child: GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 1,
-                                            crossAxisSpacing: 1.0,
-                                            mainAxisSpacing: 1.0,
-                                            childAspectRatio: 0.7),
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: latestImages.length,
-                                    itemBuilder: (context, index) {
-                                      return FutureBuilder<bool>(
-                                          future: getDirPathStatus(
-                                              uid,
-                                              path.basenameWithoutExtension(
-                                                  latestImages[
-                                                      latestImages.length -
-                                                          index -
-                                                          1])),
-                                          builder: (context, snapshot) {
-                                            // if (snapshot.connectionState ==
-                                            //     ConnectionState.waiting) {
-                                            //   return CircularProgressIndicator(); // Show loading indicator while waiting
-                                            // }
-                                            if (snapshot.hasError) {
-                                              return Text(
-                                                  "Error loading status"); // Handle errors
-                                            }
-
-                                            bool status =
-                                                snapshot.data ?? false;
-                                            return Container(
-                                                child: _buildImageTile(
-                                                    latestImages,
-                                                    latestImages.length -
-                                                        index -
-                                                        1,
-                                                    status));
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...latestImages.map((image) {
+                                      return FutureBuilder<String>(
+                                          future: FirebaseStorage.instance
+                                              .ref(
+                                                  'images/$uid/profileImages/${image['name']}')
+                                              .getDownloadURL(),
+                                          builder: (context, urlSnapshot) {
+                                            if (!urlSnapshot.hasData)
+                                              return Center(
+                                                  child:
+                                                      CircularProgressIndicator());
+                                            return _buildImageTile(
+                                                urlSnapshot.data!,
+                                                image['status']);
                                           });
-                                    }),
-                              ))
-                        ],
-                      ),
-                      Column(
-                        children: [
+                                    }).toList(),
+                                  ],
+                                ),
+                              )),
+                          SizedBox(width: 2),
                           SizedBox(
                               width:
-                                  MediaQuery.of(context).size.width * 0.5 - 8,
+                                  MediaQuery.of(context).size.width * 0.5 - 6,
                               height: MediaQuery.of(context).size.height -
                                   40 -
                                   MediaQuery.of(context).size.width * 0.5 -
                                   80,
                               child: SingleChildScrollView(
-                                  child: GridView.builder(
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount:
-                                                  1, // Number of columns
-                                              crossAxisSpacing: 1.0,
-                                              mainAxisSpacing: 1.0,
-                                              childAspectRatio: 0.7),
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: oldestImages.length,
-                                      itemBuilder: (context, index) {
-                                        return FutureBuilder<bool>(
-                                          future: getDirPathStatus(
-                                              uid,
-                                              path.basenameWithoutExtension(
-                                                  oldestImages[index])),
-                                          builder: (context, snapshot) {
-                                            // if (snapshot.connectionState ==
-                                            //     ConnectionState.waiting) {
-                                            //   return CircularProgressIndicator(); // Show loading indicator while waiting
-                                            // }
-                                            if (snapshot.hasError) {
-                                              return Text(
-                                                  "Error loading status"); // Handle errors
-                                            }
-
-                                            bool status =
-                                                snapshot.data ?? false;
-                                            return Container(
-                                              child: _buildImageTile(
-                                                  oldestImages, index, status),
-                                            );
-                                          },
-                                        );
-                                      })))
-                        ],
-                      )
-                    ],
-                  ),
-                ]),
-              ))),
-    );
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ...otherImages.map((image) {
+                                    return FutureBuilder<String>(
+                                        future: FirebaseStorage.instance
+                                            .ref(
+                                                'images/$uid/profileImages/${image['name']}')
+                                            .getDownloadURL(),
+                                        builder: (context, urlSnapshot) {
+                                          if (!urlSnapshot.hasData)
+                                            return Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          return _buildImageTile(
+                                              urlSnapshot.data!,
+                                              image['status']);
+                                        });
+                                  }).toList(),
+                                ],
+                              )))
+                        ]);
+                      }),
+                ])))));
   }
 
-  Widget _buildImageTile(List<String> filelist, int index, bool status) {
+  Widget _buildImageTile(String imageURL, String status) {
     return GestureDetector(
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => PreviewScreen(
-                imageFile: File(filelist[index]),
-              ),
+              builder: (context) => PreviewScreen(imageURL: imageURL),
             ),
           );
         },
         child: Stack(children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              image: DecorationImage(
-                  image: FileImage(File(filelist[index])), fit: BoxFit.cover),
-            ),
+          CachedNetworkImage(
+            imageUrl: imageURL,
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
           Positioned(
               top: 0,
@@ -382,20 +359,20 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               child: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    deleteFileWithConfirmation(context, filelist[index]);
+                    // deleteFileWithConfirmation(context, filelist[index]);
                   })),
           Positioned(
               bottom: 0,
               right: 0,
               child: IconButton(
-                  icon: Icon(status ? Icons.lock_open : Icons.lock),
+                  icon: Icon(status == 'true' ? Icons.lock_open : Icons.lock),
                   color: Colors.green,
                   onPressed: () async {
-                    await publicThisImage(
-                        uid, path.basenameWithoutExtension(filelist[index]));
-                    setState(() {
-                      _setProfileInitiate();
-                    });
+                    // await publicThisImage(
+                    //     uid, path.basenameWithoutExtension(filelist[index]));
+                    // setState(() {
+                    //   _setProfileInitiate();
+                    // });
                   }))
         ]));
   }

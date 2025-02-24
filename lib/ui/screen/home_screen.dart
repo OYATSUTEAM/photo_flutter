@@ -132,207 +132,200 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.grey,
-              elevation: 0,
-              title: TextButton(
-                child: Text("ホーム", style: TextStyle(fontSize: 20)),
-                onPressed: () {
-                  setState(() {
-                    _setUpInit();
-                  });
-                },
-              ),
-              centerTitle: true,
-              toolbarHeight: 30,
-            ),
+            // appBar: AppBar(
+            //   backgroundColor: Colors.transparent,
+            //   foregroundColor: Colors.grey,
+            //   elevation: 0,
+            //   title: TextButton(
+            //     child: Text("ホーム", style: TextStyle(fontSize: 20)),
+            //     onPressed: () {
+            //       setState(() {
+            //         _setUpInit();
+            //       });
+            //     },
+            //   ),
+            //   centerTitle: true,
+            //   toolbarHeight: 30,
+            // ),
             body: SingleChildScrollView(
-              child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.74,
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Expanded(
-                                  child: Column(children: [
-                                    Text('おすすめ'),
-                                    Expanded(
-                                      child: recommendedOtherUsers == null
-                                          ? Center(
-                                              child:
-                                                  CircularProgressIndicator())
-                                          : GridView.builder(
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 1,
-                                                crossAxisSpacing: 1.0,
-                                                mainAxisSpacing: 1.0,
-                                                childAspectRatio: 0.7,
-                                              ),
-                                              itemCount:
-                                                  recommendedOtherUsers!.length,
-                                              itemBuilder: (context, index) {
-                                                return _buildImageTile(
-                                                    recommendedOtherUsers!,
-                                                    index);
-                                              },
-                                            ),
-                                    ),
-                                  ]),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text('フォロー'),
-                                      Expanded(
-                                        child: recommendedFollowUsers == null
-                                            ? Center(
-                                                child:
-                                                    CircularProgressIndicator()) // Show loader until data arrives
-                                            : GridView.builder(
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 1,
-                                                  crossAxisSpacing: 1.0,
-                                                  mainAxisSpacing: 1.0,
-                                                  childAspectRatio: 0.7,
-                                                ),
-                                                itemCount:
-                                                    recommendedFollowUsers!
-                                                        .length,
-                                                itemBuilder: (context, index) {
-                                                  return _buildImageTile(
-                                                      recommendedFollowUsers!,
-                                                      index);
-                                                },
-                                              ),
+      child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.74,
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          child: Column(children: [
+                            Text('おすすめ'),
+                            Expanded(
+                              child: recommendedOtherUsers == null
+                                  ? Center(child: CircularProgressIndicator())
+                                  : GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 1,
+                                        crossAxisSpacing: 1.0,
+                                        mainAxisSpacing: 1.0,
+                                        childAspectRatio: 0.7,
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ])),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
+                                      itemCount: recommendedOtherUsers!.length,
+                                      itemBuilder: (context, index) {
+                                        return _buildImageTile(
+                                            recommendedOtherUsers!, index);
+                                      },
+                                    ),
+                            ),
+                          ]),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text('フォロー'),
+                              Expanded(
+                                child: recommendedFollowUsers == null
+                                    ? Center(
+                                        child:
+                                            CircularProgressIndicator()) // Show loader until data arrives
+                                    : GridView.builder(
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 1,
+                                          crossAxisSpacing: 1.0,
+                                          mainAxisSpacing: 1.0,
+                                          childAspectRatio: 0.7,
+                                        ),
+                                        itemCount:
+                                            recommendedFollowUsers!.length,
+                                        itemBuilder: (context, index) {
+                                          return _buildImageTile(
+                                              recommendedFollowUsers!, index);
+                                        },
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ])),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
 //===================================================                             home button======================================
 
-                          IconButton(
-                            onPressed: () async {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => MyDrawer(
-                                    email: email,
-                                    uid: uid,
-                                  ),
-                                ),
-                              );
-                              // _show();
-                            },
-                            iconSize: 38,
-                            icon: const Icon(
-                              Icons.settings,
-                              color: Colors.white,
-                              weight: 90,
-                            ),
+                  IconButton(
+                    onPressed: () async {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MyDrawer(
+                            email: email,
+                            uid: uid,
                           ),
+                        ),
+                      );
+                      // _show();
+                    },
+                    iconSize: 38,
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      weight: 90,
+                    ),
+                  ),
 
 //===================================================                             post button======================================
 
-                          IconButton(
-                              onPressed: () async {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    });
-                                List<File> filesToRemove = [];
+                  IconButton(
+                      onPressed: () async {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            });
+                        List<File> filesToRemove = [];
 
-                                for (final String filePath
-                                    in allCacheFileListPath) {
-                                  File file = File(filePath);
-                                  if (await file.exists()) {
-                                    await file.delete();
-                                    filesToRemove.add(file);
-                                  }
-                                }
-                                globalData.updatePostText('');
-                                Navigator.pop(context);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        PostCameraScreen(isDelete: true)));
-                                if (!mounted) return;
-                              },
-                              iconSize: 42,
-                              icon: const Icon(Icons.add, color: Colors.white)),
+                        for (final String filePath in allCacheFileListPath) {
+                          File file = File(filePath);
+                          if (await file.exists()) {
+                            await file.delete();
+                            filesToRemove.add(file);
+                          }
+                        }
+                        globalData.updatePostText('');
+                        Navigator.pop(context);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                PostCameraScreen(isDelete: true)));
+                        if (!mounted) return;
+                      },
+                      iconSize: 42,
+                      icon: const Icon(Icons.add, color: Colors.white)),
 
 //===================================================                             search button ===================================
 
-                          IconButton(
-                            onPressed: () async {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  });
-                              if (!mounted) return;
-                              Navigator.pop(context);
-                              // setState(() {});
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => SearchUser(),
-                                ),
-                              );
-                            },
-                            iconSize: 40,
-                            icon: const Icon(
-                              Icons.search,
-                              color: Colors.white,
-                            ),
-                          ),
+                  IconButton(
+                    onPressed: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          });
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                      // setState(() {});
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => SearchUser(),
+                        ),
+                      );
+                    },
+                    iconSize: 40,
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                  ),
 //===================================================                             avatar button ===================================
 
-                          IconButton(
-                            icon: CircleAvatar(
-                              backgroundImage: AssetImage('assets/avatar.png'),
-                              // radius: 20,
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.white,
-                            ),
-                            onPressed: () async {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  });
+                  IconButton(
+                    icon: CircleAvatar(
+                      backgroundImage: AssetImage('assets/avatar.png'),
+                      // radius: 20,
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          });
 
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return MyProfileScreen();
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                        // )
-                      )
-                    ],
-                  )),
-            )));
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return MyProfileScreen();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                // )
+              )
+            ],
+          )),
+    )));
   }
 
   Widget _buildImageTile(List<String> imageFiles, int index) {

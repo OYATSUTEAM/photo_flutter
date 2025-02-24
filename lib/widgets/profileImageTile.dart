@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';

@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 // import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 
 class PreviewScreen extends StatefulWidget {
-  final File imageFile;
-
+  final String imageURL;
   const PreviewScreen({
-    required this.imageFile,
+    required this.imageURL,
   });
 
   @override
@@ -30,10 +29,16 @@ class _PreviewScreenState extends State<PreviewScreen> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Image.file(widget.imageFile,
-                  cacheWidth: 300, cacheHeight: 500),
-            )
+            Container(
+                width: MediaQuery.of(context).size.width * 0.97,
+                height: MediaQuery.of(context).size.height * 0.8,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.grey,
+                    image: DecorationImage(
+                      image: NetworkImage(widget.imageURL),
+                      fit: BoxFit.cover,
+                    ))),
           ],
         ),
       );

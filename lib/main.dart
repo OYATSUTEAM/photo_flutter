@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_state.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/theme/light_mode.dart';
@@ -29,7 +30,7 @@ void main() async {
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
   await initSerivceLocator();
-
+  await globalData.getAppDir();
   runApp(BlocProvider(create: (context) => ThemeBloc(), child: MyApp()));
 }
 

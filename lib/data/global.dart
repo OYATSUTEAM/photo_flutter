@@ -2,6 +2,10 @@
 
 // import 'package:path_provider/path_provider.dart';
 
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+
 class GlobalData {
   static final GlobalData _instance = GlobalData._internal();
   factory GlobalData() {
@@ -25,6 +29,7 @@ class GlobalData {
   bool isAccountPublic = false;
   String postText = '';
 
+  Directory appDir = Directory('');
   updateUser(String email, String uid, String username, String name) async {
     myEmail = email;
     myUid = uid;
@@ -45,6 +50,10 @@ class GlobalData {
 
   updatePostText(String _postText) async {
     postText = _postText;
+  }
+
+  getAppDir() async {
+    appDir = await getApplicationDocumentsDirectory();
   }
 }
 

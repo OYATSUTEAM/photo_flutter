@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
@@ -6,6 +7,7 @@ import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/report_screen.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
@@ -153,9 +155,7 @@ class _OtherProfile extends State<OtherProfile> {
                         Text(
                           username,
                           style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
+                              fontSize: 18, color: Colors.white),
                         ),
                       ],
                     )),
@@ -175,14 +175,11 @@ class _OtherProfile extends State<OtherProfile> {
                       children: [
                         InkWell(
                           onTap: () {
-                            // Navigator.of(context).pushReplacement(
-                            //   MaterialPageRoute(
-                            //     builder: (context) => OtherProfilePreviewScreen(
-                            //       whichProfile: 'mainProfileImage',
-                            //       otherUid: widget.otherUid,
-                            //     ),
-                            //   ),
-                            // );
+                            Navigator.of(context)
+                                .pushReplacement(MaterialPageRoute(
+                              builder: (context) => OtherProfilePreviewScreen(
+                                  imageURL: otherMainProfileURL),
+                            ));
                           },
                           child: CircleAvatar(
                             backgroundImage: NetworkImage(otherMainProfileURL),
@@ -190,13 +187,10 @@ class _OtherProfile extends State<OtherProfile> {
                           ),
                         ),
 
-                        const SizedBox(
-                            height: 1), // Spacing between image and name
+                        const SizedBox(height: 1),
                         Text(
                           name,
-                          style: const TextStyle(
-                            fontSize: 26,
-                          ),
+                          style: const TextStyle(fontSize: 26),
                         ),
                         SizedBox(height: 1),
 //=============================================================================                  follow this user        ===========================
@@ -226,67 +220,92 @@ class _OtherProfile extends State<OtherProfile> {
                                 ),
                               )),
                         ),
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.47,
-                            width: MediaQuery.of(context).size.width,
-                            // backgroundColor:Colors.white,
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Expanded(
-                                    child: Column(children: [
-                                      Expanded(
-                                        child: latestImages.isEmpty
-                                            ? Center(
-                                                child: Text(
-                                                    '画像はありません。')) // Show loader until data arrives
-                                            : GridView.builder(
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 1,
-                                                  crossAxisSpacing: 2.0,
-                                                  mainAxisSpacing: 2.0,
-                                                  childAspectRatio: 0.7,
-                                                ),
-                                                itemCount: latestImages.length,
-                                                itemBuilder: (context, index) {
+                        FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
+                            future: getImageNames(widget.otherUid),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text("Error: ${snapshot.error}"));
+                              }
+
+                              if (!snapshot.hasData ||
+                                  snapshot.data!['latest']!.isEmpty) {
+                                return Center(child: Text(""));
+                              }
+
+                              final imagesData = snapshot.data!;
+                              final latestImages = imagesData["latest"]!;
+                              final otherImages = imagesData["others"]!;
+                              return Row(children: [
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                            0.5 -
+                                        6,
+                                    height: MediaQuery.of(context).size.height -
+                                        40 -
+                                        MediaQuery.of(context).size.width *
+                                            0.5 -
+                                        80,
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ...latestImages.map((image) {
+                                            return FutureBuilder<String>(
+                                                future: FirebaseStorage.instance
+                                                    .ref(
+                                                        'images/${widget.otherUid}/profileImages/${image['name']}')
+                                                    .getDownloadURL(),
+                                                builder:
+                                                    (context, urlSnapshot) {
+                                                  if (!urlSnapshot.hasData)
+                                                    return Center(
+                                                        child:
+                                                            CircularProgressIndicator());
                                                   return _buildImageTile(
-                                                      latestImages, index);
-                                                },
-                                              ),
+                                                      urlSnapshot.data!,
+                                                      image['status']);
+                                                });
+                                          }).toList(),
+                                        ],
                                       ),
-                                    ]),
-                                  ),
-                                  Expanded(
-                                    child: Column(
+                                    )),
+                                SizedBox(width: 2),
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                            0.5 -
+                                        6,
+                                    height: MediaQuery.of(context).size.height -
+                                        40 -
+                                        MediaQuery.of(context).size.width *
+                                            0.5 -
+                                        80,
+                                    child: SingleChildScrollView(
+                                        child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: oldestImages.isEmpty
-                                              ? Center(
-                                                  child: Text(
-                                                      '画像はありません。')) // Show loader until data arrives
-                                              : GridView.builder(
-                                                  gridDelegate:
-                                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 1,
-                                                    crossAxisSpacing: 1.0,
-                                                    mainAxisSpacing: 1.0,
-                                                    childAspectRatio: 0.7,
-                                                  ),
-                                                  itemCount:
-                                                      oldestImages.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return _buildImageTile(
-                                                        oldestImages, index);
-                                                  },
-                                                ),
-                                        ),
+                                        ...otherImages.map((image) {
+                                          return FutureBuilder<String>(
+                                              future: FirebaseStorage.instance
+                                                  .ref(
+                                                      'images/$uid/profileImages/${image['name']}')
+                                                  .getDownloadURL(),
+                                              builder: (context, urlSnapshot) {
+                                                if (!urlSnapshot.hasData)
+                                                  return Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                return _buildImageTile(
+                                                    urlSnapshot.data!,
+                                                    image['status']);
+                                              });
+                                        }).toList(),
                                       ],
-                                    ),
-                                  ),
-                                ])),
+                                    )))
+                              ]);
+                            }),
                       ],
                     ),
                   ),
@@ -374,53 +393,20 @@ class _OtherProfile extends State<OtherProfile> {
         ));
   }
 
-  Widget _buildImageTile(List<String> filelist, int index) {
+  Widget _buildImageTile(String imageURL, String status) {
     return GestureDetector(
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => OtherProfilePreviewScreen(
-                imageURL: filelist[index],
-              ),
+              builder: (context) => PreviewScreen(imageURL: imageURL),
             ),
           );
         },
-        child: Padding(
-            padding: EdgeInsets.all(2),
-            child: Stack(children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        filelist[index]), // Replace with your image URL
-                    fit: BoxFit.cover, // Ensures the image covers the container
-                  ),
-                ),
-              ),
-              // Positioned(
-              //     top: 0,
-              //     right: 0,
-              //     child: IconButton(
-              //         icon: const Icon(Icons.delete, color: Colors.red),
-              //         onPressed: () {
-              //           deleteFileWithConfirmation(context, filelist[index]);
-              //         })),
-              // Positioned(
-              //     bottom: 0,
-              //     right: 0,
-              //     child: IconButton(
-              //         icon: Icon(status ? Icons.lock_open : Icons.lock),
-              //         color: Colors.green,
-              //         onPressed: () async {
-              //           await publicThisImage(
-              //               uid,
-              //               path.basenameWithoutExtension(filelist[index]),
-              //               !status);
-              //           setState(() {
-              //             _setProfileInitiate();
-              //           });
-              //         }))
-            ])));
+        child: Stack(children: [
+          CachedNetworkImage(
+            imageUrl: imageURL,
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
+        ]));
   }
 }

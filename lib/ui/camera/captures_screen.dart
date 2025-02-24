@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:photo_sharing_app/widgets/imagetile.dart';
 import 'package:path_provider/path_provider.dart';
@@ -164,7 +165,7 @@ class _CapturesScreenState extends State<CapturesScreen> {
                       onTap: () {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) => PreviewScreen(
+                            builder: (context) => PostPreviewScreen(
                               // fileList: allFileList,
                               imageFile: imageFile,
                             ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_sharing_app/data/global.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/auth/register_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
@@ -315,16 +316,19 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                         if (!(await subDir.exists())) {
                                           await subDir.create(recursive: true);
                                         }
-                                        String fileFormat =
-                                            imageFile.path.split('.').last;
+                                        // String fileFormat =
+                                        //     imageFile.path.split('.').last;
 
                                         await imageFile.copy(
-                                          '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat',
+                                          '${directory.path}/$uid/profileImages/$currentUnix.jpg',
                                         );
                                         uploadFile(
                                             uid,
                                             'profileImages/$currentUnix',
-                                            '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat');
+                                            '${directory.path}/$uid/profileImages/$currentUnix.jpg');
+
+                                        await saveOrUpdateImage(uid,
+                                            currentUnix.toString(), 'false');
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>

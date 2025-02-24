@@ -3,7 +3,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/data/global.dart';
-// import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileServices {
   FirebaseFirestore database = FirebaseFirestore.instance;
@@ -248,22 +249,22 @@ Future<List<String>> getRecentImageUrls() async {
   }
 }
 
-Future<ListResult> getProfileURLs(String uid) async {
-  ListResult listResult = [] as ListResult;
-  try {
-    List<String> publicImageUrls = [];
+// Future<ListResult> getProfileURLs(String uid) async {
+//   ListResult listResult = [] as ListResult;
+//   try {
+//     List<String> publicImageUrls = [];
 
-    final storageRef =
-        FirebaseStorage.instance.ref("images/$uid/profileImages");
+//     final storageRef =
+//         FirebaseStorage.instance.ref("images/$uid/profileImages");
 
-    final ListResult result = await storageRef.listAll();
+//     final ListResult result = await storageRef.listAll();
 
-    return result;
-  } catch (e) {
-    print("Error fetching public image URLs: $e");
-    return listResult;
-  }
-}
+//     return result;
+//   } catch (e) {
+//     print("Error fetching public image URLs: $e");
+//     return listResult;
+//   }
+// }
 
 Future<bool> isPublicAccount(String uid) async {
   try {
@@ -274,6 +275,48 @@ Future<bool> isPublicAccount(String uid) async {
     print(e);
     return true;
   }
+}
+
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+//================================================================================================================================
+Future<Map<String, List<Map<String, dynamic>>>> getImageNames(
+    String uid) async {
+  final collectionRef = FirebaseFirestore.instance
+      .collection("profileImages")
+      .doc(uid)
+      .collection("images");
+
+  final querySnapshot =
+      await collectionRef.orderBy('timestamp', descending: true).get();
+
+  List<Map<String, dynamic>> latestImages = [];
+  List<Map<String, dynamic>> otherImages = [];
+
+  for (int i = 0; i < querySnapshot.docs.length; i++) {
+    var doc = querySnapshot.docs[i];
+    Map<String, dynamic> imageData = {
+      'name': doc.id, // Image name (doc ID)
+      'status': doc['status'], // Image status
+    };
+
+    if (i < querySnapshot.docs.length / 2) {
+      latestImages.add(imageData);
+    } else {
+      otherImages.add(imageData);
+    }
+  }
+
+  return {
+    "latest": latestImages,
+    "others": otherImages,
+  };
 }
 
 Future<String> getUserPassword(String uid) async {
@@ -526,22 +569,6 @@ Future<void> deleteThisImage(String uid, String dirpath) async {
   }
 }
 
-Future<String> getProfileImageUrl(String path) async {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-
-  try {
-    // Get the image reference from Firebase Storage
-    Reference ref = _storage.ref().child(path);
-
-    // Get the download URL
-    String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
-  } catch (e) {
-    print("Error getting image URL: $e");
-    return ''; // Return empty if there's an error
-  }
-}
-
 Future<void> addImageUrl(String imageUrl, String uid) async {
   DateTime now = DateTime.now();
   String timestamp = now.toIso8601String();
@@ -597,4 +624,26 @@ Future<void> removeImageUrl(String imageUrl, FullMetadata metadata) async {
   } else {
     print("Document does not exist.");
   }
+}
+
+Future<void> saveOrUpdateImage(String uid, String name, String status) async {
+  final docRef = FirebaseFirestore.instance
+      .collection("profileImages")
+      .doc(uid)
+      .collection("images")
+      .doc(name);
+
+  final docSnapshot = await docRef.get();
+
+  final data = {
+    "status": status,
+  };
+
+  if (!docSnapshot.exists) {
+    data["timestamp"] = DateTime.now().toIso8601String();
+  }
+
+  await docRef.set(data, SetOptions(merge: true));
+
+  print("Document for $name updated/created successfully");
 }
