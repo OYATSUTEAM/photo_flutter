@@ -24,15 +24,8 @@ class OtherProfilePreviewScreen extends StatefulWidget {
 ProfileServices profileServices = ProfileServices();
 
 final AuthServices authServices = locator.get();
-String? uid = authServices.getCurrentuser()!.uid;
-String? email = authServices.getCurrentuser()!.email;
-
-String username = '', name = '';
+String email = '', uid = '', username = '', name = '';
 List<dynamic> like = [], dislike = [], favourite = [];
-bool isLikeClickable = true,
-    isDislikeClickable = true,
-    isFavouriteClickable = true,
-    commentsStatus = false;
 
 class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   ScrollController _scrollController = ScrollController();
@@ -58,25 +51,12 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
   }
 
   Future<void> _setUpInit() async {
-    // final fetchedURL = await getWhichProfileUrl();
-
-    // final fetchedCommentsStatus = await getCommentStatus();
-    // var user = await authServices.getDocument(widget.otherUid);
-    // List<Map<String, dynamic>> fetchedComments =
-    //     await otherService.getAllComments(widget.otherUid, widget.whichProfile);
-    print('${widget.imageURL}===============================');
     if (mounted) {
-      // if (user != null) {
       setState(() {
-        // commentsStatus = fetchedCommentsStatus;
-        // username = user['username'];
-        // name = user['name'];
-        // final favouriteWhichProfile = 'favourite-${widget.whichProfile}';
-        // final likeWhichProfile = 'like-${widget.whichProfile}';
-        // final disLikeWhichProfile = 'dislike-${widget.whichProfile}';
-        // like = user[likeWhichProfile] ?? [];
-        // dislike = user[disLikeWhichProfile] ?? [];
-        // favourite = user[favouriteWhichProfile] ?? [];
+        email = globalData.myEmail;
+        uid = globalData.myUid;
+        username = globalData.myUserName;
+        name = globalData.myName;
       });
 
       // }
@@ -85,19 +65,15 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
 
   Future<void> shareInternetImage(String imageUrl, String fileName) async {
     try {
-      // 1. Fetch the image from the internet
       final http.Response response = await http.get(Uri.parse(imageUrl));
 
       if (response.statusCode == 200) {
-        // 2. Get a temporary directory to save the file
         final tempDir = await getTemporaryDirectory();
         final filePath = '${tempDir.path}/$fileName';
 
-        // 3. Write the image bytes to a local file
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
-        // 4. Share the image file
         await Share.shareXFiles([XFile(filePath)],
             text: 'Check out this image!');
       } else {
@@ -107,25 +83,6 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
       print('Error sharing image: $e');
     }
   }
-
-  // Future<String> getWhichProfileUrl() async {
-  // try {
-  //   final profileRef = FirebaseStorage.instance
-  //       .ref()
-  //       .child("images/${widget.otherUid}/${widget.whichProfile}");
-  //   String profileUrl = await profileRef.getDownloadURL();
-  //   return profileUrl;
-  // } catch (e) {
-  //   print(e);
-  //   if (widget.whichProfile == 'firstProfileImage')
-  //     return firstURL;
-  //   else if (widget.whichProfile == 'secondProfileImage')
-  //     return secondURL;
-  //   else if (widget.whichProfile == 'thirdProfileImage')
-  //     return thirdURL;
-  //   return forthURL;
-  // }
-  // }
 
   @override
   void dispose() {
@@ -154,10 +111,8 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                               Text(
                                 username,
                                 style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
+                                    fontSize: 18, color: Colors.white),
+                              )
                             ],
                           )),
                       MyMenuButton()
@@ -165,7 +120,6 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                   ),
                 ),
               ),
-              backgroundColor: Colors.black,
               body: Stack(children: [
                 SingleChildScrollView(
                     controller: _scrollController,
@@ -436,8 +390,6 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                   width: 100, // Set width here
                   padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(149, 0, 0, 0),
-
                     // Background color
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),

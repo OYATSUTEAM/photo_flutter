@@ -7,18 +7,22 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/ui/auth/register_screen.dart';
-import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/ui/myProfile/profile_set_screen.dart';
+// import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
+import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
+// import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
+// import 'package:photo_sharing_app/ui/camera/profile_set_screen.dart';
+// import 'package:photo_sharing_app/ui/screen/post_screen.dart';
 
 import '../../main.dart';
 
-class ProfileAddCameraScreen extends StatefulWidget {
-  const ProfileAddCameraScreen({super.key});
+class PostCameraScreen extends StatefulWidget {
+  final bool isDelete;
+  const PostCameraScreen({super.key, required this.isDelete});
   @override
-  _ProfileAddCameraScreenState createState() => _ProfileAddCameraScreenState();
+  _PostCameraScreenState createState() => _PostCameraScreenState();
 }
 
-class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
+class _PostCameraScreenState extends State<PostCameraScreen>
     with WidgetsBindingObserver {
   final List<String> allPostFileList = [];
   CameraController? controller;
@@ -26,11 +30,11 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
   bool _isCameraPermissionGranted = false;
   bool _isRearCameraSelected = true;
   FlashMode? _currentFlashMode;
-
   List<File> allFileList = [];
+  String uid = '', email = '', username = '', name = '';
 
   final resolutionPresets = ResolutionPreset.ultraHigh;
-  String name = '', username = '', uid = '', email = '';
+
   ResolutionPreset currentResolutionPreset = ResolutionPreset.ultraHigh;
 
   getPermissionStatus() async {
@@ -139,20 +143,31 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
   }
 
   void initStateCamera() async {
+    print(globalData.myEmail);
+    setState(() {
+      uid = globalData.myUid;
+      email = globalData.myEmail;
+      username = globalData.myUserName;
+      name = globalData.myName;
+    });
+
     final directory = await getApplicationDocumentsDirectory();
-    final subDir = Directory('${directory.path}/$uid/profileImages');
-    if (!await subDir.exists()) {
-      await subDir.create(recursive: true);
-    }
-    try {
-      setState(() {
-        uid = globalData.myUid;
-        email = globalData.myEmail;
-        name = globalData.myName;
-        username = globalData.myUserName;
-      });
-    } catch (e) {
-      print("Error deleting files: $e");
+    final subDir = Directory('${directory.path}/$uid/postImages');
+    if (widget.isDelete) {
+      if (await subDir.exists()) {
+        try {
+          for (final file in subDir.listSync()) {
+            if (file is File) {
+              await file.delete();
+            }
+          }
+          print("All files deleted successfully.");
+        } catch (e) {
+          print("Error deleting files: $e");
+        }
+      } else {
+        print("Directory does not exist: ${subDir.path}");
+      }
     }
   }
 
@@ -209,7 +224,8 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          backgroundColor: Colors.black,
+          // backgroundColor: Colors.grey,
+
           body: _isCameraPermissionGranted
               ? _isCameraInitialized
                   ? Stack(children: [
@@ -310,7 +326,7 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                         final directory =
                                             await getApplicationDocumentsDirectory();
                                         final subDir = Directory(
-                                            '${directory.path}/$uid/profileImages');
+                                            '${directory.path}/$uid/postImages');
                                         if (!(await subDir.exists())) {
                                           await subDir.create(recursive: true);
                                         }
@@ -318,16 +334,13 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                             imageFile.path.split('.').last;
 
                                         await imageFile.copy(
-                                          '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat',
+                                          '${directory.path}/$uid/postImages/$currentUnix.$fileFormat',
                                         );
-                                        uploadService.uploadFile(
-                                            uid,
-                                            'profileImages/$currentUnix',
-                                            '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat');
+
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  MyProfileScreen()),
+                                                  PostPreviewScreen()),
                                         );
                                       },
                                       child: Stack(
@@ -336,7 +349,7 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                           const Icon(
                                               Icons.radio_button_unchecked,
                                               size: 60,
-                                              color: Colors.white)
+                                              color: Colors.white),
                                         ],
                                       ),
                                     ),

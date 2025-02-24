@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_sharing_app/ui/myProfile/profile_set_screen.dart';
+import 'package:photo_sharing_app/ui/myProfile/myprofile_set_screen.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import '../../data/global.dart';
@@ -20,7 +20,7 @@ class ProfileCameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<ProfileCameraScreen>
     with WidgetsBindingObserver {
   final AuthServices authServices = locator.get();
-  String? email, uid, username, name;
+  String email = '', uid = '', username = '', name = '';
   CameraController? controller;
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
@@ -37,13 +37,14 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     await Permission.camera.request();
     await refreshAlreadyCapturedImages();
     var status = await Permission.camera.status;
-    final fetchedUid = authServices.getCurrentuser()!.uid;
 
     if (status.isGranted) {
       log('Camera Permission: GRANTED');
       setState(() {
-        uid = fetchedUid;
-
+        uid = globalData.myUid;
+        email = globalData.myEmail;
+        username = globalData.myUserName;
+        name = globalData.myName;
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
@@ -293,7 +294,8 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                   InkWell(
                                     onTap: () async {
                                       XFile? rawImage = await takePicture();
-                                      File imageFile = File(rawImage!.path);
+                                      if (rawImage == null) return;
+                                      File imageFile = File(rawImage.path);
 
                                       int currentUnix =
                                           DateTime.now().millisecondsSinceEpoch;
@@ -321,7 +323,7 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       //     'images/$uid/editProfileImage');
 
                                       await imageFile.copy(
-                                        '${directory.path}/${uid}/editProfileImage.$fileFormat',
+                                        '${directory.path}/${uid}/editProfileImage.jpg',
                                       );
 
                                       Navigator.pop(context);

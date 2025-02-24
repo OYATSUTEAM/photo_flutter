@@ -83,7 +83,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
     SettableMetadata metadata = SettableMetadata(customMetadata: {
       'timestamp': timestamp,
     });
-    final ref = FirebaseStorage.instance.ref().child("images/$uid/main");
+    final ref =
+        FirebaseStorage.instance.ref().child("images/$uid/profileImage");
 
     uploadTask = ref.putFile(File(_selectImage!.path), metadata);
     final snapshot = await uploadTask!.whenComplete(() => null);
@@ -233,8 +234,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
                     final directory = await getApplicationDocumentsDirectory();
                     myProfileImage =
                         '${directory.path}/$uid/editProfileImage.jpg';
-                    await uploadService.uploadFile(
-                        uid, 'profileImage', myProfileImage);
+                    await uploadFile(uid, 'profileImage', myProfileImage);
                     File imageFile = File(myProfileImage);
                     await imageFile
                         .copy('${directory.path}/${uid}/myProfileImage.jpg');
@@ -245,7 +245,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
                       // });
 
                       deleteAllFileWithConfirmation(context);
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                       Navigator.pop(context);
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(

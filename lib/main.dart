@@ -18,16 +18,16 @@ List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
-  // if (Firebase.apps.isEmpty) {
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      name: "unprocessedsns",
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   // await Firebase.initializeApp(
-  //   name: "unprocessedsns",
+  //   // name: "unprocessedsns",
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
-  // }
-  await Firebase.initializeApp(
-    // name: "unprocessedsns",
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   await initSerivceLocator();
 
   runApp(BlocProvider(create: (context) => ThemeBloc(), child: MyApp()));

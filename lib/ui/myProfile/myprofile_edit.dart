@@ -1,12 +1,13 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/auth/reset_password.dart';
-import 'package:photo_sharing_app/ui/camera/profile_camera_screen.dart';
+import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
@@ -34,55 +35,45 @@ class _MyProfileEdit extends State<MyProfileEdit> {
   String editProfileURL = globalData.profileURL;
 
   String myProfileImage = '', editProfileImage = '';
-  String email = globalData.myEmail;
-  String uid = globalData.myUid;
-  String username = globalData.myUserName;
-  String name = globalData.myName;
-
+  String email = '';
+  String uid = '';
+  String username = '';
+  String name = '';
+  String imageURL = '';
   final currentUser = authServices.getCurrentuser();
   final _formKey = GlobalKey<FormState>(); // Form key for validation
   bool isLoading = true;
   @override
   void initState() {
+    _setUserProfile();
     _setUpInitial();
-    fetchUsername();
     super.initState();
+  }
+
+  _setUserProfile() async {
+    setState(() {
+      uid = globalData.myUid;
+      email = globalData.myEmail;
+      username = globalData.myUserName;
+      name = globalData.myName;
+    });
   }
 
   Future<void> _setUpInitial() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      setState(() {
-        myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
-        editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
-      });
-    } catch (e) {
-      print('$e this error occurred in my profile.');
-    }
-  }
+      // final directory = await getApplicationDocumentsDirectory();
+      final fetchedURL = await getMainProfileUrl(uid);
 
-  Future<void> fetchUsername() async {
-    try {
-      final fetchedMainURL = await getMainProfileUrl(uid);
-      final fetchedEditURL = await getEditProfileUrl(uid);
-      Map<String, dynamic>? user = await authServices.getUserDetail(uid);
-      final currentPassword = await getUserPassword(uid);
       setState(() {
-        username = user?['username'];
-        name = user?['name'];
-        myMainProfileURL = fetchedMainURL;
-        editProfileURL = fetchedEditURL;
+        imageURL = fetchedURL;
         nameController.text = name;
         usernameController.text = username;
         isLoading = false;
+        // myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
+        // editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
       });
     } catch (e) {
       print('$e this error occurred in my profile.');
-      if (mounted)
-        setState(() {
-          username = "Error fetching username";
-          name = "Error fetching username";
-        });
     }
   }
 
@@ -143,46 +134,40 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 //=========================================================                           edit profile image           =========================================
                         Center(
                           child: CircleAvatar(
-                            backgroundImage:
-                                widget.whichImage == 'myProfileImage'
-                                    ? FileImage(File(myProfileImage))
-                                    : FileImage(File(editProfileImage)),
-                            radius:
-                                MediaQuery.of(context).size.width * 0.5 * 0.5,
+                            backgroundImage: NetworkImage(imageURL),
+                            radius: MediaQuery.of(context).size.width * 0.25,
                           ),
                         ),
                         Positioned(
                           bottom: -8,
                           right: MediaQuery.of(context).size.width * 0.27,
                           child: IconButton(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileCameraScreen(),
-                                ),
-                              );
-                            },
-                            iconSize: 40,
-                            icon: const Icon(
-                              Icons.add_a_photo,
-                              color: Color.fromARGB(255, 255, 255, 255),
-                            ),
-                          ),
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProfileCameraScreen()),
+                                );
+                              },
+                              iconSize: 40,
+                              icon: const Icon(
+                                Icons.add_a_photo,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              )),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Name Input
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+//=========================================================                           name  =========================================
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25.0),
                         child: Text('名前', style: TextStyle(fontSize: 20)),
-//=========================================================                           name  =========================================
                       ),
                       SizedBox(
                         width: 200,
@@ -209,11 +194,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+// =========================================================                           username =============================================================
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text('ユーザーネーム', style: TextStyle(fontSize: 20)
-// =========================================================                           username =============================================================
-                            ),
+                        child: Text('ユーザーネーム', style: TextStyle(fontSize: 20)),
                       ),
                       SizedBox(
                         width: 100,

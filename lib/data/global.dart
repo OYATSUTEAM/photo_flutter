@@ -17,21 +17,33 @@ class GlobalData {
   String profileURL =
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 
+  String otherEmail = "default@gmail.com";
+  String otherUid = '1234567890';
+  String otherUserName = 'defaultUserName';
+  String otherName = 'defaultName';
+
   bool isAccountPublic = false;
   String postText = '';
 
-  void updateUser(String email, String uid, String username, String name) {
+  updateUser(String email, String uid, String username, String name) async {
     myEmail = email;
     myUid = uid;
     myUserName = username;
     myName = name;
   }
 
-  void updataPublic(bool _isAccountPublic) {
+  updateOther(String email, String uid, String username, String name) async {
+    otherEmail = email;
+    otherUid = uid;
+    otherUserName = username;
+    otherName = name;
+  }
+
+  updataPublic(bool _isAccountPublic) async {
     isAccountPublic = _isAccountPublic;
   }
 
-  void updatePostText(String _postText) {
+  updatePostText(String _postText) async {
     postText = _postText;
   }
 }

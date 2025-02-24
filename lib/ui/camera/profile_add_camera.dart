@@ -5,23 +5,21 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_sharing_app/data/global.dart';
+import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/auth/register_screen.dart';
-// import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
-import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
-// import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
-// import 'package:photo_sharing_app/ui/camera/profile_set_screen.dart';
-// import 'package:photo_sharing_app/ui/screen/post_screen.dart';
+import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
+import 'package:photo_sharing_app/ui/myProfile/myprofile_set_screen.dart';
 
 import '../../main.dart';
 
-class PostCameraScreen extends StatefulWidget {
-  final bool isDelete;
-  const PostCameraScreen({super.key, required this.isDelete});
+class ProfileAddCameraScreen extends StatefulWidget {
+  const ProfileAddCameraScreen({super.key});
   @override
-  _PostCameraScreenState createState() => _PostCameraScreenState();
+  _ProfileAddCameraScreenState createState() => _ProfileAddCameraScreenState();
 }
 
-class _PostCameraScreenState extends State<PostCameraScreen>
+class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
     with WidgetsBindingObserver {
   final List<String> allPostFileList = [];
   CameraController? controller;
@@ -33,7 +31,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
   List<File> allFileList = [];
 
   final resolutionPresets = ResolutionPreset.ultraHigh;
-
+  String name = '', username = '', uid = '', email = '';
   ResolutionPreset currentResolutionPreset = ResolutionPreset.ultraHigh;
 
   getPermissionStatus() async {
@@ -143,22 +141,19 @@ class _PostCameraScreenState extends State<PostCameraScreen>
 
   void initStateCamera() async {
     final directory = await getApplicationDocumentsDirectory();
-    final subDir = Directory('${directory.path}/$uid/postImages');
-    if (widget.isDelete) {
-      if (await subDir.exists()) {
-        try {
-          for (final file in subDir.listSync()) {
-            if (file is File) {
-              await file.delete();
-            }
-          }
-          print("All files deleted successfully.");
-        } catch (e) {
-          print("Error deleting files: $e");
-        }
-      } else {
-        print("Directory does not exist: ${subDir.path}");
-      }
+    final subDir = Directory('${directory.path}/$uid/profileImages');
+    if (!await subDir.exists()) {
+      await subDir.create(recursive: true);
+    }
+    try {
+      setState(() {
+        uid = globalData.myUid;
+        email = globalData.myEmail;
+        name = globalData.myName;
+        username = globalData.myUserName;
+      });
+    } catch (e) {
+      print("Error deleting files: $e");
     }
   }
 
@@ -215,8 +210,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          // backgroundColor: Colors.grey,
-
+          backgroundColor: Colors.black,
           body: _isCameraPermissionGranted
               ? _isCameraInitialized
                   ? Stack(children: [
@@ -317,7 +311,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                                         final directory =
                                             await getApplicationDocumentsDirectory();
                                         final subDir = Directory(
-                                            '${directory.path}/$uid/postImages');
+                                            '${directory.path}/$uid/profileImages');
                                         if (!(await subDir.exists())) {
                                           await subDir.create(recursive: true);
                                         }
@@ -325,13 +319,16 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                                             imageFile.path.split('.').last;
 
                                         await imageFile.copy(
-                                          '${directory.path}/$uid/postImages/$currentUnix.$fileFormat',
+                                          '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat',
                                         );
-
+                                        uploadFile(
+                                            uid,
+                                            'profileImages/$currentUnix',
+                                            '${directory.path}/$uid/profileImages/$currentUnix.$fileFormat');
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  PostPreviewScreen()),
+                                                  MyProfileScreen()),
                                         );
                                       },
                                       child: Stack(
@@ -340,7 +337,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                                           const Icon(
                                               Icons.radio_button_unchecked,
                                               size: 60,
-                                              color: Colors.white),
+                                              color: Colors.white)
                                         ],
                                       ),
                                     ),

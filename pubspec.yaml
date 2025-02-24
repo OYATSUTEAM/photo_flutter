@@ -17,7 +17,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_spinkit: ^5.2.1
-  # get_it: ^8.0.2
+  get_it: ^8.0.2
   http: ^1.2.2
   image_picker: ^1.1.2
   path_provider: ^2.1.5
@@ -48,7 +48,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  msix: ^3.16.7
+  # msix: ^3.16.7
 
 flutter_launcher_icons:
   android: "launcher_icon"

@@ -18,7 +18,6 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     compileOptions {
-                coreLibraryDesugaringEnabled  true
                 sourceCompatibility = JavaVersion.VERSION_11
                 targetCompatibility = JavaVersion.VERSION_11
             }
@@ -45,8 +44,6 @@ defaultConfig {
                     }
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig  signingConfigs.debug
         }
     }
@@ -58,38 +55,4 @@ flutter {
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
 }
-
-// dependencies {
-    // implementation 'com.google.firebase:firebase-bom:33.9.0' // Latest BOM
-
-    // // Firebase dependencies
-    // implementation 'com.google.firebase:firebase-database' // Firebase Realtime Database
-    // implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics (optional)
-    // implementation 'com.google.firebase:firebase-auth' // Firebase Authentication (if needed)
-
-    // // AndroidX and Material components
-    // implementation 'androidx.core:core-ktx:1.12.0'
-    // implementation 'androidx.appcompat:appcompat:1.6.1'
-    // implementation 'com.google.android.material:material:1.9.0'
-    // implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-
-    // // Testing dependencies
-    // testImplementation 'junit:junit:4.13.2'
-    // androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    // androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-//     implementation 'androidx.window:window:1.0.0'
-//     implementation 'androidx.window:window-java:1.0.0'
-// }
-
-
-dependencies {
-    implementation 'androidx.window:window:1.0.0'
-    implementation 'androidx.window:window-java:1.0.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-}
-
 

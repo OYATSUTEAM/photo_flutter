@@ -1,8 +1,11 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_screen.dart';
 import 'package:photo_sharing_app/widgets/othertile.dart';
 
@@ -13,6 +16,8 @@ class OtherUsers extends StatefulWidget {
   @override
   _OtherUsersScreenState createState() => _OtherUsersScreenState();
 }
+
+ProfileServices profileServices = ProfileServices();
 
 class _OtherUsersScreenState extends State<OtherUsers> {
   Future<List<dynamic>?>? _otherUidFuture;
@@ -55,11 +60,21 @@ class _OtherUsersScreenState extends State<OtherUsers> {
                 return ListTile(
                     title: OtherTile(
                   onButtonPressed: updateData,
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            OtherProfile(otherUid: otherUid)));
-                    if (!mounted) return;
+                  onTap: () async {
+                    bool isMeblocked = await profileServices.isMeBlocked(
+                        globalData.myUid, otherUid);
+                    final user = await authServices.getDocument(otherUid);
+                    if (user != null) {
+                      globalData.updateOther(user['email'], user['uid'],
+                          user['username'], user['name']);
+                    }
+                    final fetchedBlock = await profileServices.isBlockTrue();
+                    if (!isMeblocked) {
+                      if (!mounted) return;
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              OtherProfile(otherUid: otherUid)));
+                    }
                   },
                   otherUid: otherUid,
                 ));

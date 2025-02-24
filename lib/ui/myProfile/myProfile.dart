@@ -4,8 +4,8 @@ import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
-import 'package:photo_sharing_app/ui/camera/profile_add_camera_screen.dart';
-import 'package:photo_sharing_app/ui/myProfile/profile_preview_screen.dart';
+import 'package:photo_sharing_app/ui/camera/profile_add_camera.dart';
+import 'package:photo_sharing_app/ui/myProfile/myprofile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,8 +38,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
       username = 'ローディング...',
       uid = 'default';
   bool isToggled = false;
+  String myProfileImagePath = '';
   File? myProfileImage;
-  final currentUser = authServices.getCurrentuser();
   bool switchResult = ThemeManager.readTheme();
 
   @override
@@ -51,17 +51,17 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
   Future<void> _setProfileInitiate() async {
     refreshAlreadyCapturedImages();
-    if (mounted) {
-      setState(() {
-        email = globalData.myEmail;
-        uid = globalData.myUid;
-        name = globalData.myName;
-        username = globalData.myUserName;
-      });
-    }
+    print(globalData.myUid);
+    setState(() {
+      email = globalData.myEmail;
+      uid = globalData.myUid;
+      name = globalData.myName;
+      username = globalData.myUserName;
+    });
   }
 
   Future<void> fetchURLs() async {
+    print('$uid================');
     final fetchedUrl = await getMainProfileUrl(uid);
     if (mounted)
       setState(() {
@@ -71,6 +71,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
   refreshAlreadyCapturedImages() async {
     final directory = await getApplicationDocumentsDirectory();
+
     final subDir = Directory('${directory.path}/$uid/profileImages');
     if (await subDir.exists()) {
       final fileList = subDir.listSync();
@@ -81,28 +82,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
             .map((e) => e.path)
             .toList())
         ..sort((a, b) => a.compareTo(b));
-    }
-  }
-
-  Future<void> setIsShowAll(bool value, String whichProfile) async {
-    final user = FirebaseAuth.instance.currentUser;
-    setState(() {
-      isShowAll = value;
-    });
-
-    if (user != null) {
-      final userDoc =
-          FirebaseFirestore.instance.collection("Users").doc(user.uid);
-      try {
-        await userDoc.set({"isShowAll": value}, SetOptions(merge: true));
-        await userDoc
-            .set({"whichIsDisplayed": whichProfile}, SetOptions(merge: true));
-        print("isShowAll updated to $value for user ${user.uid}");
-      } catch (e) {
-        print("Error updating isShowAll: $e");
-      }
-    } else {
-      print("No authenticated user found.");
     }
   }
 
@@ -159,6 +138,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     int midIndex = allFileListPath.length ~/ 2;
     List<String> oldestImages = allFileListPath.sublist(0, midIndex);
     List<String> latestImages = allFileListPath.sublist(midIndex);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -211,7 +191,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               padding: EdgeInsets.all(5),
               child: SingleChildScrollView(
                 child: Column(children: [
-//=================================================     main profile image       =====================================
+//===========================================================                         main profile image       =====================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -225,13 +205,14 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         },
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(myMainProfileURL),
+                          // backgroundImage: FileImage(File(myProfileImagePath)),
                           radius: MediaQuery.of(context).size.width * 0.25,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 3),
-//======================================================================     name    ======================================
+//============================================================                       name    ======================================
                   SizedBox(
                       width: MediaQuery.of(context).size.width,
                       child: Stack(children: [
@@ -240,11 +221,9 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                           child: Row(
                             children: [
                               Spacer(), // Pushes the text to the center
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                    fontSize: 22, color: Colors.white),
-                              ),
+                              Text(name,
+                                  style: TextStyle(
+                                      fontSize: 22, color: Colors.white)),
                               Spacer(), // Pushes the button to the end
                             ],
                           ),
@@ -253,22 +232,17 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         Positioned(
                           top: -6,
                           right: 0,
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProfileAddCameraScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              '+',
-                              style: const TextStyle(
-                                  fontSize: 24, color: Colors.white),
-                            ),
-                          ),
-                        )
+                          child: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProfileAddCameraScreen(),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.add)),
+                        ),
                       ])),
                   const SizedBox(height: 10),
 //================================================          my images         ===============================================
@@ -288,11 +262,9 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                 child: GridView.builder(
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount:
-                                                1, // Number of columns
+                                            crossAxisCount: 1,
                                             crossAxisSpacing: 1.0,
-                                            mainAxisSpacing:
-                                                1.0, // Space between rows
+                                            mainAxisSpacing: 1.0,
                                             childAspectRatio: 0.7),
                                     shrinkWrap: true,
                                     physics: NeverScrollableScrollPhysics(),
@@ -420,9 +392,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                   color: Colors.green,
                   onPressed: () async {
                     await publicThisImage(
-                        uid,
-                        path.basenameWithoutExtension(filelist[index]),
-                        !status);
+                        uid, path.basenameWithoutExtension(filelist[index]));
                     setState(() {
                       _setProfileInitiate();
                     });

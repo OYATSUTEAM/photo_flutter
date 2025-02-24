@@ -5,7 +5,7 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
-import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
+import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isAccountPublic = userDetail['public'];
       globalData.updateUser(email, uid, username, name);
       globalData.updataPublic(isAccountPublic);
-      final fetchedFollowFiles = await otherService.getRecentFollowFiles(uid);
+      final fetchedFollowFiles = await otherService.getRecentFollowImages(uid);
       final fetchedOtherFiles = await otherService.getRecentImageUrls();
 
       if (mounted && userDetail != null) {

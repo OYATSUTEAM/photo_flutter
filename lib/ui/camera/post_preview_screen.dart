@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/data/global.dart';
+import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/auth/register_screen.dart';
-import 'package:photo_sharing_app/ui/camera/add_post_camera_screen.dart';
-import 'package:photo_sharing_app/ui/camera/post_camera_screen.dart';
+import 'package:photo_sharing_app/ui/camera/add_post_camera.dart';
+import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -19,14 +21,24 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
   final List<String> allPostFileList = [];
-
+  String uid = '', email = '', username = '', name = '';
   bool isLoading = true;
   bool sharing = true;
 
   @override
   void initState() {
     super.initState();
+    _initState();
     _loadImages();
+  }
+
+  void _initState() async {
+    setState(() {
+      uid = globalData.myUid;
+      username = globalData.myUserName;
+      name = globalData.myName;
+      email = globalData.myEmail;
+    });
   }
 
   void deleteAllFiles() async {
@@ -48,6 +60,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
   }
 
   Future<void> _loadImages() async {
+    print(uid);
     final directory = await getApplicationDocumentsDirectory();
     final subDir = Directory('${directory.path}/$uid/postImages');
     setState(() {
@@ -181,8 +194,13 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
       text: textController.text.trim(),
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ).then((shareResult) async {
+      print(shareResult.status.toString());
       if (shareResult.status.toString() == 'ShareResultStatus.success') {
+        for (var path in allPostFileList) {
+          await addToPostedImages(uid, globalData.postText, path);
+        }
         await deleteAllFileWithConfirm(context);
+
         // deleteAllFiles();
         // Navigator.of(context).pushReplacement(
         //   MaterialPageRoute(
@@ -206,7 +224,7 @@ class _PostPreviewScreenState extends State<PostPreviewScreen> {
 
     if (allPostFileList.isEmpty) {
       return Scaffold(
-        backgroundColor: Colors.grey,
+        // backgroundColor: Colors.grey,
         appBar: AppBar(),
         body: Center(
             child: Column(

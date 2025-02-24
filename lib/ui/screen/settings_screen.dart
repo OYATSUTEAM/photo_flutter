@@ -56,17 +56,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         foregroundColor: Colors.grey,
       ),
       body: GestureDetector(
-        onTap: () {
+        onTap: () async {
           setState(() {
             switchResult = !switchResult;
           });
           if (switchResult) {
             ThemeManager.saveTheme(true);
-            publicAccount(uid, true);
-            globalData.updataPublic(true);
+            await globalData.updataPublic(true);
+            await publicAccount(uid, true);
           } else {
             ThemeManager.saveTheme(false);
-            publicAccount(uid, false);
+            await publicAccount(uid, false);
             globalData.updataPublic(false);
           }
           context.read<ThemeBloc>().add(ThemeDarkedMode());

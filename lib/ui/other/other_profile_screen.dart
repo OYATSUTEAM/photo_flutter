@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
@@ -52,7 +51,7 @@ class _OtherProfile extends State<OtherProfile> {
 
   Future<void> _setProfileInitiate() async {
     final fetchedOtheProfileImagesURL =
-        await otherService.getOtherProfileURLs(widget.otherUid);
+        await otherService.getPublicImageURLs(widget.otherUid);
     final fetchedOtherMainProfileURL =
         await otherService.getOtherMainProfileURL(widget.otherUid);
 
@@ -200,6 +199,7 @@ class _OtherProfile extends State<OtherProfile> {
                           ),
                         ),
                         SizedBox(height: 1),
+//=============================================================================                  follow this user        ===========================
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: TextButton(
@@ -214,7 +214,7 @@ class _OtherProfile extends State<OtherProfile> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
-                                            'お客様は「${otherUsername}」をフォローしました。')),
+                                            'お客様は「${globalData.otherUserName}」をフォローしました。')),
                                   );
                                 });
                               },
@@ -293,34 +293,6 @@ class _OtherProfile extends State<OtherProfile> {
                 ]))));
   }
 
-  Widget ProfileImageTile(String imageURL, String whichProfile) {
-    return GestureDetector(
-      onTap: () {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (context) => OtherProfilePreviewScreen(
-        //       whichProfile: whichProfile,
-        //       otherUid: widget.otherUid,
-        //     ),
-        //   ),
-        // );
-      },
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                color: Colors.grey,
-                image: DecorationImage(
-                  image: NetworkImage(imageURL),
-                  fit: BoxFit.cover,
-                )),
-          ),
-        ],
-      ),
-    );
-  }
-
   TextEditingController spamController = TextEditingController();
   TextEditingController sexController = TextEditingController();
   TextEditingController otherHaressmentController = TextEditingController();
@@ -344,7 +316,6 @@ class _OtherProfile extends State<OtherProfile> {
           constraints: BoxConstraints(maxHeight: 100, maxWidth: 80),
           onSelected: (value) async {
             if (value == "report") {
-              print('$isReportTrue!!!!!!!!!!!!!!!!!!this is report ');
               if (isReportTrue) {
                 showModalBottomSheet(
                   context: context,
@@ -355,7 +326,6 @@ class _OtherProfile extends State<OtherProfile> {
                 );
               }
             } else if (value == "block") {
-              print('$isBlockTrue!!!!!!!!!!!!!!!!!!this is block ');
               if (isBlockTrue) {
                 await otherService.blockThisUser(widget.otherUid);
                 showDialog(
