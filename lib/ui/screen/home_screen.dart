@@ -162,7 +162,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Expanded(
                           child: Column(children: [
-                            Text('おすすめ'),
+                            Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 0, vertical: 10),
+                                child: Text('おすすめ')),
                             Expanded(
                               child: recommendedOtherUsers == null
                                   ? Center(child: CircularProgressIndicator())
@@ -186,7 +189,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Column(
                             children: [
-                              Text('フォロー'),
+                              Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 10),
+                                  child: Text('フォロー')),
                               Expanded(
                                 child: recommendedFollowUsers == null
                                     ? Center(
