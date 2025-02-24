@@ -36,6 +36,10 @@ class GlobalData {
     myName = name;
   }
 
+  updatePostText(String text) async {
+    postText = text;
+  }
+
   updateOther(String email, String uid, String username, String name) async {
     otherEmail = email;
     otherUid = uid;
@@ -45,10 +49,6 @@ class GlobalData {
 
   updatePublic(bool isAccountPublic1) async {
     isAccountPublic = isAccountPublic1;
-  }
-
-  updatePostText(String text) async {
-    postText = text;
   }
 
   getAppDir() async {

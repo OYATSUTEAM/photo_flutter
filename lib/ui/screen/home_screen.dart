@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
       name = userDetail!['name'];
       username = userDetail['username'];
       isAccountPublic = userDetail['public'];
-      // globalData.updatePostText(postedText);
+      globalData.updatePostText(postedText);
       globalData.updateUser(email, uid, username, name);
       globalData.updatePublic(isAccountPublic);
       final fetchedFollowFiles = await otherService.getRecentFollowImages(uid);
