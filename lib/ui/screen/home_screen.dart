@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
+      postedText = '',
       uid = 'default';
   bool isAccountPublic = false;
   List<String>? recommendedOtherUsers;
@@ -53,8 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
       name = userDetail!['name'];
       username = userDetail['username'];
       isAccountPublic = userDetail['public'];
+      // globalData.updatePostText(postedText);
       globalData.updateUser(email, uid, username, name);
-      globalData.updataPublic(isAccountPublic);
+      globalData.updatePublic(isAccountPublic);
       final fetchedFollowFiles = await otherService.getRecentFollowImages(uid);
       final fetchedOtherFiles = await otherService.getRecentImageUrls();
 
@@ -103,9 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
         showDialog(
             context: context,
             builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             });
         for (final String filePath in allFileListPath) {
           File file = File(filePath);
@@ -257,12 +257,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             filesToRemove.add(file);
                           }
                         }
+                        if (!mounted) return;
                         globalData.updatePostText('');
                         Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
                                 PostCameraScreen(isDelete: true)));
-                        if (!mounted) return;
                       },
                       iconSize: 42,
                       icon: const Icon(Icons.add, color: Colors.white)),

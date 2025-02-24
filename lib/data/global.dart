@@ -21,13 +21,12 @@ class GlobalData {
   String profileURL =
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqafzhnwwYzuOTjTlaYMeQ7hxQLy_Wq8dnQg&s";
 
+  String postText = "default";
   String otherEmail = "default@gmail.com";
   String otherUid = '1234567890';
   String otherUserName = 'defaultUserName';
   String otherName = 'defaultName';
-
   bool isAccountPublic = false;
-  String postText = '';
 
   Directory appDir = Directory('');
   updateUser(String email, String uid, String username, String name) async {
@@ -44,12 +43,12 @@ class GlobalData {
     otherName = name;
   }
 
-  updataPublic(bool _isAccountPublic) async {
-    isAccountPublic = _isAccountPublic;
+  updatePublic(bool isAccountPublic1) async {
+    isAccountPublic = isAccountPublic1;
   }
 
-  updatePostText(String _postText) async {
-    postText = _postText;
+  updatePostText(String text) async {
+    postText = text;
   }
 
   getAppDir() async {

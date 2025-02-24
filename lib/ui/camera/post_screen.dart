@@ -332,8 +332,8 @@ class _PostScreenState extends State<PostScreen> {
         ),
         child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-            ),
+                //   borderRadius: BorderRadius.circular(16),
+                ),
             child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(

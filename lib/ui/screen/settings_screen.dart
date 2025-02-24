@@ -62,12 +62,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           });
           if (switchResult) {
             ThemeManager.saveTheme(true);
-            await globalData.updataPublic(true);
+            await globalData.updatePublic(true);
             await publicAccount(uid, true);
           } else {
             ThemeManager.saveTheme(false);
             await publicAccount(uid, false);
-            globalData.updataPublic(false);
+            globalData.updatePublic(false);
           }
           context.read<ThemeBloc>().add(ThemeDarkedMode());
         },
