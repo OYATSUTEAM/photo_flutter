@@ -25,22 +25,25 @@ class _PreviewScreenState extends State<PreviewScreen> {
     try {
       // Main UI rendering
       return Scaffold(
-        backgroundColor: Colors.black,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        appBar: AppBar(),
+        body: Center(
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                width: MediaQuery.of(context).size.width * 0.97,
-                height: MediaQuery.of(context).size.height * 0.8,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30.0),
-                    color: Colors.grey,
-                    image: DecorationImage(
-                      image: NetworkImage(widget.imageURL),
-                      fit: BoxFit.cover,
-                    ))),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.97,
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30.0),
+                      color: Colors.grey,
+                      image: DecorationImage(
+                        image: NetworkImage(widget.imageURL),
+                        fit: BoxFit.cover,
+                      ))),
+            ])
           ],
-        ),
+        )),
       );
     } catch (e) {
       // Fallback UI in case of error
