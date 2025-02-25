@@ -607,20 +607,16 @@ Future<void> addImageUrl(String imageUrl, String uid) async {
   }
 }
 
-Future<void> removeImageUrl(String imageUrl, FullMetadata metadata) async {
-  DocumentReference docRef =
-      FirebaseFirestore.instance.collection('PublicImageList').doc('imagesDoc');
-
-  DocumentSnapshot docSnapshot = await docRef.get();
-  Map<String, dynamic> imageObject = {
-    'url': imageUrl,
-    'timestamp': metadata.timeCreated, // Firestore server timestamp
-  };
+Future<void> removeImage(String uid, String name) async {
+  final docRef = FirebaseFirestore.instance
+      .collection("profileImages")
+      .doc(uid)
+      .collection("images")
+      .doc(name);
+  final docSnapshot = await docRef.get();
 
   if (docSnapshot.exists) {
-    await docRef.update({
-      'imageUrls': FieldValue.arrayRemove([imageObject])
-    });
+    await docRef.delete();
   } else {
     print("Document does not exist.");
   }

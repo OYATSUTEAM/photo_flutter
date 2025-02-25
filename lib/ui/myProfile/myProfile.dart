@@ -68,7 +68,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   Future<void> fetchURLs() async {
     final fetchedUrl = await getMainProfileUrl(uid);
     // final _listResult = await getProfileURLs(uid);
-    fetchAndUseProfileURLs(uid);
+    // fetchAndUseProfileURLs(uid);
     if (mounted)
       setState(() {
         // listResult = _listResult;
@@ -76,17 +76,17 @@ class _MyProfileScreen extends State<MyProfileScreen> {
       });
   }
 
-  void fetchAndUseProfileURLs(String uid) async {
-    // Map<String, List<Reference>> result = await getProfileURLsReference(uid);
+  // void fetchAndUseProfileURLs(String uid) async {
+  //   // Map<String, List<Reference>> result = await getProfileURLsReference(uid);
 
-    // List<Reference> _firstHalf = result["firstHalf"] ?? [];
-    // List<Reference> _secondHalf = result["secondHalf"] ?? [];
-    print(await getImageNames(uid));
-    setState(() {
-      // firstHalf = _firstHalf;
-      // secondHalf = _secondHalf;
-    });
-  }
+  //   // List<Reference> _firstHalf = result["firstHalf"] ?? [];
+  //   // List<Reference> _secondHalf = result["secondHalf"] ?? [];
+  //   print(await getImageNames(uid));
+  //   setState(() {
+  //     // firstHalf = _firstHalf;
+  //     // secondHalf = _secondHalf;
+  //   });
+  // }
 
   refreshAlreadyCapturedImages() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -105,7 +105,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> deleteFileWithConfirmation(
-      BuildContext context, String filePath) async {
+      BuildContext context, String imageName) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -125,18 +125,21 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
     if (shouldDelete == true) {
       try {
-        if (await File(filePath).exists()) {
-          await File(filePath).delete();
-          await deleteThisImage(uid, path.basenameWithoutExtension(filePath));
-          setState(() {
-            refreshAlreadyCapturedImages();
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: const Text('ファイルは正常に削除されました！'),
-              duration: const Duration(milliseconds: 600),
-            ));
-          }
+        await removeImage(uid, imageName);
+
+        if (mounted) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return const Center(child: CircularProgressIndicator());
+              });
+        }
+
+        setState(() {
+          _setProfileInitiate();
+        });
+        if (mounted) {
+          Navigator.pop(context);
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -214,7 +217,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                           );
                         },
                         child: CircleAvatar(
-                          backgroundImage: NetworkImage(myMainProfileURL),
+                          backgroundImage:
+                              CachedNetworkImageProvider(myMainProfileURL),
                           // backgroundImage: FileImage(File(myProfileImagePath)),
                           radius: MediaQuery.of(context).size.width * 0.25,
                         ),
@@ -294,8 +298,15 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                           builder: (context, urlSnapshot) {
                                             if (!urlSnapshot.hasData)
                                               return Center(
-                                                  child:
-                                                      CircularProgressIndicator());
+                                                  child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  CircularProgressIndicator()
+                                                ],
+                                              ));
                                             return _buildImageTile(
                                                 urlSnapshot.data!,
                                                 image['name'],
@@ -366,7 +377,10 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               child: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    // deleteFileWithConfirmation(context, filelist[index]);
+                    deleteFileWithConfirmation(context, imageName);
+                    setState(() {
+                      _setProfileInitiate();
+                    });
                   })),
           Positioned(
               bottom: 0,
