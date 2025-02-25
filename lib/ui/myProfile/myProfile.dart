@@ -356,7 +356,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               child: CachedNetworkImage(
                 width: MediaQuery.of(context).size.width * 0.5 - 6,
                 fit: BoxFit.fitWidth,
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.33,
                 imageUrl: imageURL,
                 errorWidget: (context, url, error) => Icon(Icons.error),
               )),
