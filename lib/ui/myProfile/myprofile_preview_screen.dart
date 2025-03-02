@@ -293,7 +293,6 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
               // await shareInternetImage(imageURL!, widget.whichProfile);
               Future.delayed(Duration(seconds: 1), () {
                 // Navigator.of(context).pop();
-                print('share image!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
               });
             }
           },

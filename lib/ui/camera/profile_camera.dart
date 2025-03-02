@@ -92,9 +92,9 @@ class _CameraScreenState extends State<ProfileCameraScreen>
 
     try {
       XFile file = await cameraController.takePicture();
-      // if (cameraController.value.isInitialized == true) {
-      //   await cameraController.dispose();
-      // }
+      if (cameraController.value.isInitialized == true) {
+        await cameraController.dispose();
+      }
       return file;
     } on CameraException catch (e) {
       print('Error occurred while taking picture: $e');
@@ -313,6 +313,8 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       if (!(await subDir.exists())) {
                                         await subDir.create(recursive: true);
                                       }
+                                      await imageFile.copy(
+                                          '${directory.path}/$uid/editProfileImage.jpg');
                                       await uploadFile(uid, 'editProfileImage',
                                           imageFile.path);
 

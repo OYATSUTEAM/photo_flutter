@@ -18,8 +18,6 @@ final User? user = _auth.currentUser;
 
 final AuthServices authServices = locator.get();
 final ProfileServices profileServices = ProfileServices();
-bool isShowAll = true;
-bool firstImage = false;
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -28,6 +26,7 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreen extends State<MyProfileScreen> {
+  bool isShowAll = true;
   List<String> allFileListPath = [];
   List<String> list = <String>['public', 'private'];
   List<File> allFileList = [];
@@ -52,7 +51,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> _setProfileInitiate() async {
-    refreshAlreadyCapturedImages();
     setState(() {
       email = globalData.myEmail;
       uid = globalData.myUid;
@@ -66,23 +64,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     if (mounted)
       setState(() {
         myMainProfileURL = fetchedUrl;
+        print(fetchedUrl);
       });
-  }
-
-  refreshAlreadyCapturedImages() async {
-    // final directory = await getApplicationDocumentsDirectory();
-
-    // final subDir = Directory('${directory.path}/$uid/profileImages');
-    // if (await subDir.exists()) {
-    //   final fileList = subDir.listSync();
-    //   allFileListPath
-    //     ..clear()
-    //     ..addAll(fileList
-    //         .where((file) => file.path.endsWith('.jpg'))
-    //         .map((e) => e.path)
-    //         .toList())
-    //     ..sort((a, b) => a.compareTo(b));
-    // }
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -123,9 +106,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
           Navigator.pop(context);
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('ファイルの削除に失敗しました: $e')));
       }
     }
   }
@@ -200,7 +182,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         child: CircleAvatar(
                           backgroundImage:
                               CachedNetworkImageProvider(myMainProfileURL),
-                          // backgroundImage: FileImage(File(myProfileImagePath)),
                           radius: MediaQuery.of(context).size.width * 0.25,
                         ),
                       ),

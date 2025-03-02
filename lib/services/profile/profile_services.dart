@@ -162,7 +162,6 @@ Future<String> getEditProfileUrl(String uid) async {
 Future<String> getMainProfileUrl(String uid) async {
   String mainURL = globalData.profileURL;
 
-  print('$uid=================');
   try {
     final profileRef =
         FirebaseStorage.instance.ref().child("images/$uid/profileImage");

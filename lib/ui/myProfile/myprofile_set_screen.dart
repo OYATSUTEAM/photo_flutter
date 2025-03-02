@@ -64,38 +64,14 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
     final directory = await getApplicationDocumentsDirectory();
     final fetchedURL = await getEditProfileUrl(uid);
 
-    // final fileList = directory.listSync();
-    // allFileListPath
-    //   ..clear()
-    //   ..addAll(fileList
-    //       .where((file) => file.path.endsWith('.jpg'))
-    //       .map((e) => e.path)
-    //       .toList())
-    //   ..sort((a, b) => b.compareTo(a));
-
     setState(() {
       imageURL = fetchedURL;
 
       editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
-      print('$editProfileImage============');
       myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
       _selectImage = XFile(editProfileImage);
       isLoading = false;
     });
-  }
-
-  Future _uploadFile() async {
-    DateTime now = DateTime.now();
-    String timestamp = now.toIso8601String();
-    SettableMetadata metadata = SettableMetadata(customMetadata: {
-      'timestamp': timestamp,
-    });
-    final ref =
-        FirebaseStorage.instance.ref().child("images/$uid/profileImage");
-
-    uploadTask = ref.putFile(File(_selectImage!.path), metadata);
-    // final snapshot = await uploadTask!.whenComplete(() => null);
-    // final downloadUrl = await snapshot.ref.getDownloadURL();
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -146,19 +122,15 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
           content: const Text('すでに撮影した画像を本当に削除しますか？'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false); // User pressed Cancel
-              },
-              child: const Text('キャンセル'),
-            ),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(false); // User pressed Cancel
+                },
+                child: const Text('キャンセル')),
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true); // User pressed Delete
               },
-              child: const Text(
-                '削除',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -275,7 +247,6 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
   }
 
   Widget _buildImageTile(String filePath) {
-    print('$filePath============== this is edit profile path');
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

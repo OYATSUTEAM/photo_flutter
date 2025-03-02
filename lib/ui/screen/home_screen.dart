@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final fetchedFollowFiles = await otherService.getRecentFollowImages(uid);
       final fetchedOtherFiles = await otherService.getRecentImageUrls();
 
-      if (mounted && userDetail != null) {
+      if (mounted && (userDetail != null)) {
         setState(() {
           loading = false;
           recommendedOtherUsers = fetchedOtherFiles;
@@ -134,21 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            // appBar: AppBar(
-            //   backgroundColor: Colors.transparent,
-            //   foregroundColor: Colors.grey,
-            //   elevation: 0,
-            //   title: TextButton(
-            //     child: Text("ホーム", style: TextStyle(fontSize: 20)),
-            //     onPressed: () {
-            //       setState(() {
-            //         _setUpInit();
-            //       });
-            //     },
-            //   ),
-            //   centerTitle: true,
-            //   toolbarHeight: 30,
-            // ),
             body: SingleChildScrollView(
       child: Padding(
           padding: const EdgeInsets.all(4.0),
@@ -295,23 +280,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundColor: Colors.white,
                       ),
                       onPressed: () async {
-                        if (loading)
-                          showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              });
+                        // if (loading)
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            });
                         await Future.delayed(Duration(seconds: 1));
-                        setState(() {
-                          loading = false;
-                        });
-                        if (!loading && mounted) {
-                          Navigator.of(context).pop();
-                        }
+                        // setState(() {
+                        //   loading = false;
+                        // });
+                        // if (!loading && mounted) {
+                        //   Navigator.of(context).pop();
+                        // }
                         if (!loading)
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
                                 return MyProfileScreen();
