@@ -21,7 +21,7 @@ void main() async {
   cameras = await availableCameras();
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-      // name: "unprocessedsns",
+      name: "unprocessedsns",
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }

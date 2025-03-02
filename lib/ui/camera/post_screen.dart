@@ -1,14 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
-import 'package:photo_sharing_app/ui/auth/register_screen.dart';
-import 'package:photo_sharing_app/ui/camera/add_post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
-import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostScreen extends StatefulWidget {
@@ -135,7 +132,9 @@ class _PostScreenState extends State<PostScreen> {
         setState(() {
           _loadImages();
         });
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ファイルの削除に失敗しました: $e')),
@@ -197,8 +196,18 @@ class _PostScreenState extends State<PostScreen> {
     ).then((shareResult) async {
       print(shareResult.status.toString());
       if (shareResult.status.toString() == 'ShareResultStatus.success') {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            });
         for (var path in allPostFileList) {
           await addToPostedImages(uid, globalData.postText, path);
+        }
+        if (mounted) {
+          Navigator.pop(context);
         }
         await deleteAllFileWithConfirm(context);
 
@@ -324,12 +333,6 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildImageTile(int index, int count) {
     return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 5),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(70),
-          ),
-        ),
         child: DecoratedBox(
             decoration: BoxDecoration(
                 //   borderRadius: BorderRadius.circular(16),

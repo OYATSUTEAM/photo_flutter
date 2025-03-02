@@ -18,35 +18,27 @@ class Imagetile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('${image_File.path}===========    this is image tile path');
     return GestureDetector(
       onTap: onTap,
       child: Stack(
         children: [
-          // Setting width using MediaQuery and maintaining 4:5 aspect ratio
           Center(
             child: Padding(
                 padding:
                     const EdgeInsets.all(9.0), // Add padding around the image
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30.0),
-                  child: Image.file(
-                    image_File,
-                  ),
+                  child: Image.file(File(image_File.path)),
                 )),
           ),
-          // Positioned delete icon
           Positioned(
-            top: 0, // Adjusted to account for padding
-            right: -10, // Adjusted to account for padding
-            child: IconButton(
-              onPressed: onDeletePressed,
-              icon: const Icon(
-                Icons.delete_forever,
-                color: Colors.white,
-                size: 35,
-              ),
-            ),
-          ),
+              top: 0,
+              right: -10,
+              child: IconButton(
+                  onPressed: onDeletePressed,
+                  icon: const Icon(Icons.delete_forever,
+                      color: Colors.white, size: 35)))
         ],
       ),
     );

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_set_screen.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
@@ -20,7 +20,10 @@ class ProfileCameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<ProfileCameraScreen>
     with WidgetsBindingObserver {
   final AuthServices authServices = locator.get();
-  String email = '', uid = '', username = '', name = '';
+  String uid = globalData.myUid,
+      email = globalData.myEmail,
+      username = globalData.myUserName,
+      name = globalData.myName;
   CameraController? controller;
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
@@ -41,10 +44,6 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     if (status.isGranted) {
       log('Camera Permission: GRANTED');
       setState(() {
-        uid = globalData.myUid;
-        email = globalData.myEmail;
-        username = globalData.myUserName;
-        name = globalData.myName;
         _isCameraPermissionGranted = true;
       });
       // Set and initialize the new camera
@@ -93,6 +92,9 @@ class _CameraScreenState extends State<ProfileCameraScreen>
 
     try {
       XFile file = await cameraController.takePicture();
+      // if (cameraController.value.isInitialized == true) {
+      //   await cameraController.dispose();
+      // }
       return file;
     } on CameraException catch (e) {
       print('Error occurred while taking picture: $e');
@@ -297,41 +299,29 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       if (rawImage == null) return;
                                       File imageFile = File(rawImage.path);
 
-                                      int currentUnix =
-                                          DateTime.now().millisecondsSinceEpoch;
-
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          });
                                       final directory =
                                           await getApplicationDocumentsDirectory();
                                       final subDir =
-                                          Directory('${directory.path}/${uid}');
+                                          Directory('${directory.path}/$uid');
                                       if (!(await subDir.exists())) {
                                         await subDir.create(recursive: true);
                                       }
-                                      String fileFormat =
-                                          imageFile.path.split('.').last;
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        },
-                                      );
-                                      // final storageRef =
-                                      //     FirebaseStorage.instance.ref();
-                                      // final imageRef = storageRef.child(
-                                      //     'images/$uid/editProfileImage');
+                                      await uploadFile(uid, 'editProfileImage',
+                                          imageFile.path);
 
-                                      await imageFile.copy(
-                                        '${directory.path}/${uid}/editProfileImage.jpg',
-                                      );
-
+                                      if (!mounted) return;
                                       Navigator.pop(context);
                                       Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfileSetScreen()),
-                                      );
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProfileSetScreen()));
                                     },
                                     child: Stack(
                                       alignment: Alignment.center,

@@ -1,6 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
@@ -9,7 +8,6 @@ import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/auth/reset_password.dart';
 import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import '../../data/global.dart';
@@ -17,7 +15,7 @@ import '../../data/global.dart';
 final AuthServices authServices = locator.get();
 final ProfileServices profileServices = ProfileServices();
 // File? _imageFile;
-File? _selectImage;
+// File? _selectImage;
 UploadTask? uploadTask;
 List<File> allFileList = [];
 
@@ -101,7 +99,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
 
       final uploadTask = targetRef.putData(uint8ImageData, metadata);
       await uploadTask.whenComplete(() => null);
-      final snapshot = await uploadTask.whenComplete(() => null);
+      // final snapshot = await uploadTask.whenComplete(() => null);
     } catch (e) {
       print('Error sharing image: $e');
     }
@@ -173,9 +171,8 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                         width: 200,
                         child: TextFormField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
+                          decoration:
+                              const InputDecoration(border: InputBorder.none),
                           style: const TextStyle(fontSize: 20.0),
                           textAlign: TextAlign.center,
                           validator: (value) {
@@ -189,7 +186,6 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Username Input
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,20 +198,18 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       SizedBox(
                         width: 100,
                         child: TextFormField(
-                          controller: usernameController,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          style: const TextStyle(fontSize: 20.0),
-                          textAlign: TextAlign.center,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'ユーザーネームを空にすることはできません。';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                            controller: usernameController,
+                            decoration:
+                                const InputDecoration(border: InputBorder.none),
+                            style: const TextStyle(fontSize: 20.0),
+                            textAlign: TextAlign.center,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'ユーザーネームを空にすることはできません。';
+                              }
+                              return null;
+                            }),
+                      )
                     ],
                   ),
                   const SizedBox(height: 15),
@@ -224,11 +218,9 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       text: "パスワード変更",
                       onTap: () async {
                         Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ResetPasswordScreen(email: email, uid: uid)),
-                        );
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ResetPasswordScreen(email: email, uid: uid)));
                       })
                 ],
               ),
@@ -241,8 +233,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     Navigator.pop(context);
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => MyProfileScreen(),
-                      ),
+                          builder: (context) => MyProfileScreen()),
                     );
                   },
                   child: const Text(
@@ -267,7 +258,6 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                 child: TextButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      // If all fields are valid, proceed
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -278,11 +268,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                       );
                       if (mounted) {
                         await profileServices.updateProfile(
-                          uid,
-                          nameController.text.trim(),
-                          usernameController.text.trim(),
-                          email,
-                        );
+                            uid,
+                            nameController.text.trim(),
+                            usernameController.text.trim(),
+                            email);
 
                         globalData.updateUser(
                             email,

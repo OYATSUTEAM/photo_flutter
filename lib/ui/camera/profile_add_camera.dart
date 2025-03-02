@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,9 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
-import 'package:photo_sharing_app/ui/auth/register_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/ui/myProfile/myprofile_set_screen.dart';
 
 import '../../main.dart';
 

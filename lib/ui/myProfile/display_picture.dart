@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-// import 'package:http_paser/http_paser.dart' as http;
 import 'package:http/http.dart' as http;
-// import 'package:http_parser/http_parser.dart' as http;
 import 'alert.dart';
 
 class DisplayPicture extends StatelessWidget {

@@ -5,7 +5,6 @@ import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/other/blocked_users.dart';
 import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
-import 'package:photo_sharing_app/ui/other/etc_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:photo_sharing_app/ui/screen/manager_screen.dart';
 import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
@@ -56,7 +55,6 @@ class _MyDrawer extends State<MyDrawer> {
         );
       },
     );
-    print('$email!!!!!!!!!!!!!!this is email');
     if (shouldDelete == true) {
       try {
         showDialog(
@@ -66,7 +64,7 @@ class _MyDrawer extends State<MyDrawer> {
                 child: CircularProgressIndicator(),
               );
             });
-        await deleteAccount(uid);
+        await deleteAccount(widget.uid);
         if (user != null) {
           await user.delete();
           print("Account deleted successfully");

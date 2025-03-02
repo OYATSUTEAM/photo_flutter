@@ -1,9 +1,7 @@
-// import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
@@ -12,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../data/global.dart';
-import 'package:photo_sharing_app/services/profile/profile_services.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
@@ -44,20 +41,24 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
   @override
   void initState() {
     _setUpProfilePreview();
+    _getProfileImageURL();
     super.initState();
   }
 
   Future<void> _setUpProfilePreview() async {
+    setState(() {
+      uid = globalData.myUid;
+      email = globalData.myEmail;
+      name = globalData.myName;
+      username = globalData.myUserName;
+    });
+  }
+
+  Future<void> _getProfileImageURL() async {
     final fetchedURL = await getMainProfileUrl(uid);
-    if (mounted) {
-      setState(() {
-        uid = globalData.myUid;
-        email = globalData.myEmail;
-        name = globalData.myName;
-        username = globalData.myUserName;
-        imageURL = fetchedURL;
-      });
-    }
+    setState(() {
+      imageURL = fetchedURL;
+    });
   }
 
   @override
@@ -138,38 +139,13 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                                 BorderRadius.circular(30.0),
                                             color: Colors.grey,
                                             image: DecorationImage(
-                                              image: NetworkImage(imageURL!),
-                                              fit: BoxFit.cover,
-                                            ))),
+                                                image: NetworkImage(imageURL!),
+                                                fit: BoxFit.cover)))
                                   ],
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // SizedBox(width: 35),
-                                    // IconButton(
-                                    //   onPressed: () async {
-                                    //     Map<String, dynamic>? user =
-                                    //         await authServices.getUserDetail(uid);
-                                    //     if (mounted)
-                                    //       setState(() {
-                                    //         _scrollToBottom();
-                                    //         isCommenting = !isCommenting;
-                                    //         username = user?['username'];
-                                    //       });
-                                    //   },
-                                    //   icon: Icon(Icons.chat_bubble_outline),
-                                    // ),
-                                    // Text(comments.length.toString()),
-                                    // SizedBox(width: 20),
-                                    // Icon(Icons.thumb_up),
-                                    // SizedBox(width: 20),
-                                    // Text(like.length.toString()),
-                                    // SizedBox(width: 20),
-                                    // Icon(Icons.thumb_down),
-                                    // SizedBox(width: 20),
-                                    // Text(dislike.length.toString()),
-                                    // SizedBox(width: 20),
                                     Icon(Icons.favorite_outline),
                                     SizedBox(width: 20),
                                     Text(favourite.length.toString()),
@@ -265,11 +241,9 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                               child: IconButton(
                                   onPressed: () {
                                     Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProfileCameraScreen(),
-                                      ),
-                                    );
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProfileCameraScreen()));
                                   },
                                   icon: Icon(Icons.camera_alt))),
                         ],

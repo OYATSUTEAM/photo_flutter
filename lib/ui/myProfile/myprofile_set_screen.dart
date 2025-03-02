@@ -4,13 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/ui/screen/home_screen.dart';
-import 'package:photo_sharing_app/widgets/imagetile.dart';
 import '../../data/global.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -25,12 +25,14 @@ class ProfileSetScreen extends StatefulWidget {
 }
 
 class _ProfileSetScreenState extends State<ProfileSetScreen> {
-  String uid = 'default',
-      email = 'default@gmail.com',
-      username = 'default',
-      name = 'default';
+  String uid = globalData.myUid;
+  String email = globalData.myEmail;
+  String username = globalData.myUserName;
+  String name = globalData.myName;
   bool? shouldDelete = false;
   String myProfileImage = '';
+  String imageURL = '';
+
   String editProfileImage = '';
   XFile? _selectImage;
   UploadTask? uploadTask;
@@ -60,18 +62,23 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-    myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
-    editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
-    final fileList = directory.listSync();
-    allFileListPath
-      ..clear()
-      ..addAll(fileList
-          .where((file) => file.path.endsWith('.jpg'))
-          .map((e) => e.path)
-          .toList())
-      ..sort((a, b) => b.compareTo(a));
+    final fetchedURL = await getEditProfileUrl(uid);
+
+    // final fileList = directory.listSync();
+    // allFileListPath
+    //   ..clear()
+    //   ..addAll(fileList
+    //       .where((file) => file.path.endsWith('.jpg'))
+    //       .map((e) => e.path)
+    //       .toList())
+    //   ..sort((a, b) => b.compareTo(a));
 
     setState(() {
+      imageURL = fetchedURL;
+
+      editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
+      print('$editProfileImage============');
+      myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
       _selectImage = XFile(editProfileImage);
       isLoading = false;
     });
@@ -87,8 +94,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         FirebaseStorage.instance.ref().child("images/$uid/profileImage");
 
     uploadTask = ref.putFile(File(_selectImage!.path), metadata);
-    final snapshot = await uploadTask!.whenComplete(() => null);
-    final downloadUrl = await snapshot.ref.getDownloadURL();
+    // final snapshot = await uploadTask!.whenComplete(() => null);
+    // final downloadUrl = await snapshot.ref.getDownloadURL();
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -117,9 +124,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
           setState(() {
             allFileListPath.remove(file.path);
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ファイルは正常に削除されました！')),
-          );
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => ProfileCameraScreen()));
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -197,66 +203,60 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
       );
     }
 
-    // if (allFileListPath.isEmpty) {
-    //   return const Scaffold(
-    //     backgroundColor: Colors.black,
-    //     body: Center(
-    //       child: Text(
-    //         "画像が見つかりません！",
-    //         style: TextStyle(color: Colors.white),
-    //       ),
-    //     ),
-    //   );
-    // }
-
     try {
       // Main UI rendering
       return SafeArea(
           child: Scaffold(
         backgroundColor: Colors.black,
-        body:
-            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [_buildImageTile(editProfileImage)]),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                  onPressed: () async {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        });
-                    final directory = await getApplicationDocumentsDirectory();
-                    myProfileImage =
-                        '${directory.path}/$uid/editProfileImage.jpg';
-                    await uploadFile(uid, 'profileImage', myProfileImage);
-                    File imageFile = File(myProfileImage);
-                    await imageFile
-                        .copy('${directory.path}/${uid}/myProfileImage.jpg');
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildImageTile(editProfileImage),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                    onPressed: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          });
+                      final directory =
+                          await getApplicationDocumentsDirectory();
+                      myProfileImage =
+                          '${directory.path}/$uid/editProfileImage.jpg';
+                      await uploadFile(uid, 'profileImage', myProfileImage);
+                      // File imageFile = File(myProfileImage);
+                      // await imageFile
+                      //     .copy('${directory.path}/${uid}/myProfileImage.jpg');
 
-                    if (mounted) {
-                      // await firestore.collection('Users').doc('$uid').update({
-                      //   'comments-${widget.whichProfile}': FieldValue.delete(),
-                      // });
+                      if (mounted) {
+                        // await firestore.collection('Users').doc('$uid').update({
+                        //   'comments-${widget.whichProfile}': FieldValue.delete(),
+                        // });
 
-                      deleteAllFileWithConfirmation(context);
-                      // Navigator.pop(context);
-                      Navigator.pop(context);
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => MyProfileScreen()),
-                      );
-                    }
-                  },
-                  icon: Icon(Icons.check, size: 40))
-            ],
-          )
-        ]),
+                        deleteAllFileWithConfirmation(context);
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => MyProfileScreen()),
+                        );
+                      }
+                    },
+                    icon: Icon(Icons.check, size: 40)),
+                IconButton(
+                    onPressed: () {
+                      deleteFileWithConfirmation(
+                          context, File(editProfileImage));
+                    },
+                    icon: Icon(Icons.delete))
+              ],
+            )
+          ],
+        ),
         // ],
         // ),
       ));
@@ -275,24 +275,27 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
   }
 
   Widget _buildImageTile(String filePath) {
+    print('$filePath============== this is edit profile path');
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: MediaQuery.of(context).size.width * 0.99,
-            height: MediaQuery.of(context).size.height * 0.84,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 5),
-            ),
-            child: Imagetile(
-              onDeletePressed: () => deleteAllFileWithConfirmation(context),
-              // deleteFileWithConfirmation(context, File(filePath)),
-              onSetPressed: () {},
-              image_File: File(filePath),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => CapturesScreen()),
+            width: MediaQuery.of(context).size.width * 0.95,
+            height: MediaQuery.of(context).size.height * 0.8,
+            decoration: BoxDecoration(),
+            child: Image.network(
+              imageURL, // Replace with your actual image URL
+              fit: BoxFit.cover, // Adjusts the image size
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Center(
+                  child: Icon(Icons.error, color: Colors.red),
                 );
               },
             ),

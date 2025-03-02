@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:http/http.dart';
 // import 'package:photo_sharing_app/ui/camera/captures_screen.dart';

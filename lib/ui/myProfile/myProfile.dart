@@ -10,11 +10,8 @@ import 'package:photo_sharing_app/ui/camera/profile_add_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../data/global.dart';
-import 'package:path/path.dart' as path;
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
@@ -56,7 +53,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
   Future<void> _setProfileInitiate() async {
     refreshAlreadyCapturedImages();
-    print(globalData.myUid);
     setState(() {
       email = globalData.myEmail;
       uid = globalData.myUid;
@@ -67,41 +63,26 @@ class _MyProfileScreen extends State<MyProfileScreen> {
 
   Future<void> fetchURLs() async {
     final fetchedUrl = await getMainProfileUrl(uid);
-    // final _listResult = await getProfileURLs(uid);
-    // fetchAndUseProfileURLs(uid);
     if (mounted)
       setState(() {
-        // listResult = _listResult;
         myMainProfileURL = fetchedUrl;
       });
   }
 
-  // void fetchAndUseProfileURLs(String uid) async {
-  //   // Map<String, List<Reference>> result = await getProfileURLsReference(uid);
-
-  //   // List<Reference> _firstHalf = result["firstHalf"] ?? [];
-  //   // List<Reference> _secondHalf = result["secondHalf"] ?? [];
-  //   print(await getImageNames(uid));
-  //   setState(() {
-  //     // firstHalf = _firstHalf;
-  //     // secondHalf = _secondHalf;
-  //   });
-  // }
-
   refreshAlreadyCapturedImages() async {
-    final directory = await getApplicationDocumentsDirectory();
+    // final directory = await getApplicationDocumentsDirectory();
 
-    final subDir = Directory('${directory.path}/$uid/profileImages');
-    if (await subDir.exists()) {
-      final fileList = subDir.listSync();
-      allFileListPath
-        ..clear()
-        ..addAll(fileList
-            .where((file) => file.path.endsWith('.jpg'))
-            .map((e) => e.path)
-            .toList())
-        ..sort((a, b) => a.compareTo(b));
-    }
+    // final subDir = Directory('${directory.path}/$uid/profileImages');
+    // if (await subDir.exists()) {
+    //   final fileList = subDir.listSync();
+    //   allFileListPath
+    //     ..clear()
+    //     ..addAll(fileList
+    //         .where((file) => file.path.endsWith('.jpg'))
+    //         .map((e) => e.path)
+    //         .toList())
+    //     ..sort((a, b) => a.compareTo(b));
+    // }
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -210,7 +191,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => ProfilePreviewScreen(),
                             ),

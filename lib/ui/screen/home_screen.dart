@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       postedText = '',
       uid = 'default';
   bool isAccountPublic = false;
+  bool loading = true;
   List<String>? recommendedOtherUsers;
   List<String>? recommendedFollowUsers;
   final List<String> allFileListPath = [];
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (mounted && userDetail != null) {
         setState(() {
+          loading = false;
           recommendedOtherUsers = fetchedOtherFiles;
           recommendedFollowUsers = fetchedFollowFiles;
         });
@@ -225,22 +227,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   IconButton(
                     onPressed: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => MyDrawer(
-                            email: email,
-                            uid: uid,
-                          ),
-                        ),
-                      );
-                      // _show();
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => MyDrawer(email: email, uid: uid),
+                      ));
                     },
                     iconSize: 38,
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                      weight: 90,
-                    ),
+                    icon: const Icon(Icons.settings,
+                        color: Colors.white, weight: 90),
                   ),
 
 //===================================================                             post button======================================
@@ -251,8 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context: context,
                             builder: (context) {
                               return const Center(
-                                child: CircularProgressIndicator(),
-                              );
+                                  child: CircularProgressIndicator());
                             });
                         List<File> filesToRemove = [];
 
@@ -273,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       iconSize: 42,
                       icon: const Icon(Icons.add, color: Colors.white)),
 
-//===================================================                             search button ===================================
+//===================================================                             search button      ===================================
 
                   IconButton(
                     onPressed: () async {
@@ -281,12 +273,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           context: context,
                           builder: (context) {
                             return const Center(
-                              child: CircularProgressIndicator(),
-                            );
+                                child: CircularProgressIndicator());
                           });
                       if (!mounted) return;
                       Navigator.pop(context);
-                      // setState(() {});
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => SearchUser(),
@@ -294,38 +284,41 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     iconSize: 40,
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.search, color: Colors.white),
                   ),
 //===================================================                             avatar button ===================================
 
                   IconButton(
-                    icon: CircleAvatar(
-                      backgroundImage: AssetImage('assets/avatar.png'),
-                      // radius: 20,
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.white,
-                    ),
-                    onPressed: () async {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          });
-
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return MyProfileScreen();
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                      icon: CircleAvatar(
+                        backgroundImage: AssetImage('assets/avatar.png'),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        if (loading)
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              });
+                        await Future.delayed(Duration(seconds: 1));
+                        setState(() {
+                          loading = false;
+                        });
+                        if (!loading && mounted) {
+                          Navigator.of(context).pop();
+                        }
+                        if (!loading)
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return MyProfileScreen();
+                              },
+                            ),
+                          );
+                      }),
                 ],
                 // )
               )
@@ -339,9 +332,8 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => OtherProfilePreviewScreen(
-              imageURL: imageFiles[index],
-            ),
+            builder: (context) =>
+                OtherProfilePreviewScreen(imageURL: imageFiles[index]),
           ),
         );
       },
@@ -350,14 +342,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Stack(
             children: [
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: DecorationImage(
-                    image: NetworkImage(imageFiles[index]),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+                  decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                image: DecorationImage(
+                    image: NetworkImage(imageFiles[index]), fit: BoxFit.cover),
+              )),
               Text('')
               // Positioned(
               //   bottom: 0,
