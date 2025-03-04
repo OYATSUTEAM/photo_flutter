@@ -137,10 +137,8 @@ class _CapturesScreenState extends State<CapturesScreen> {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'No captures found!',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
+                  child: Text('No captures found!',
+                      style: TextStyle(color: Colors.white, fontSize: 18)),
                 ),
               )
             else
@@ -151,10 +149,7 @@ class _CapturesScreenState extends State<CapturesScreen> {
                 children: allFileList.map((imageFile) {
                   return Container(
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 3,
-                      ),
+                      border: Border.all(color: Colors.black, width: 3),
                     ),
                     child: Imagetile(
                       onDeletePressed: () =>
@@ -164,10 +159,8 @@ class _CapturesScreenState extends State<CapturesScreen> {
                       onTap: () {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) => PostPreviewScreen(
-                              // fileList: allFileList,
-                              imageFile: imageFile,
-                            ),
+                            builder: (context) =>
+                                PostPreviewScreen(imageFile: imageFile),
                           ),
                         );
                       },

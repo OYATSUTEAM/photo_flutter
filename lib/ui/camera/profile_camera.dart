@@ -148,19 +148,6 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     }
   }
 
-  // void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-  //   if (controller == null) {
-  //     return;
-  //   }
-
-  //   final offset = Offset(
-  //     details.localPosition.dx / constraints.maxWidth,
-  //     details.localPosition.dy / constraints.maxHeight,
-  //   );
-  //   controller!.setExposurePoint(offset);
-  //   controller!.setFocusPoint(offset);
-  // }
-
   @override
   void initState() {
     super.initState();
