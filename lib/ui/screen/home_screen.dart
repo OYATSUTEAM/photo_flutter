@@ -153,10 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 0, vertical: 10),
-                                child: Text(
-                                  'おすすめ',
-                                  style: TextStyle(fontSize: 18),
-                                )),
+                                child: Text('おすすめ',
+                                    style: TextStyle(fontSize: 18))),
                             Expanded(
                               child: recommendedOtherUsers == null
                                   ? Center(child: CircularProgressIndicator())
@@ -183,10 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 0, vertical: 10),
-                                  child: Text(
-                                    'フォロー',
-                                    style: TextStyle(fontSize: 18),
-                                  )),
+                                  child: Text('フォロー',
+                                      style: TextStyle(fontSize: 18))),
                               Expanded(
                                 child: recommendedFollowUsers == null
                                     ? Center(
@@ -205,8 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         itemBuilder: (context, index) {
                                           return _buildImageTile(
                                               recommendedFollowUsers!, index);
-                                        },
-                                      ),
+                                        }),
                               ),
                             ],
                           ),

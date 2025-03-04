@@ -294,61 +294,61 @@ class OtherService {
     return commentsList;
   }
 
-  Future<List<Map<String, dynamic>>> getRecentFilesFromAllUsers(
-      String myUid) async {
-    try {
-      final List<Map<String, dynamic>> recentFiles = [];
-      final DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
-      QuerySnapshot usersSnapshot =
-          await FirebaseFirestore.instance.collection('Users').get();
+  // Future<List<String>> getRecentFollowImages(String uid) async {
+  //   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  //   try {
+  //     final firestoreRef =
+  //         FirebaseFirestore.instance.collection("Users").doc(uid);
 
-      for (QueryDocumentSnapshot<Object?> userDoc in usersSnapshot.docs) {
-        String userUid = userDoc.get('uid');
-        bool isPublic = userDoc.get('public');
-        if (userUid == myUid) continue;
-        if (isPublic) {
-          try {
-            final ListResult profileRef = await FirebaseStorage.instance
-                .ref()
-                .child("images/$userUid")
-                .listAll();
+  //     final DocumentSnapshot userDoc = await firestoreRef.get();
+  //     if (!userDoc.exists || userDoc.data() == null) {
+  //       print("User document not found.");
+  //       return [];
+  //     }
 
-            for (final fileRef in profileRef.items) {
-              final metadata = await fileRef.getMetadata();
-              final timestampString = metadata.customMetadata?['timestamp'];
+  //     final Map<String, dynamic> userData =
+  //         userDoc.data() as Map<String, dynamic>;
+  //     List<String> followList =
+  //         (userData["follow"] as List<dynamic>?)?.cast<String>() ?? [];
 
-              if (timestampString != null) {
-                try {
-                  final DateTime timestamp = DateTime.parse(timestampString);
-                  if (timestamp.isAfter(threeDaysAgo)) {
-                    recentFiles.add({"fileRef": fileRef, "uid": userUid});
-                  }
-                } catch (e) {
-                  print(
-                      'Error parsing timestamp for file: $fileRef, error: $e');
-                }
-              }
-            }
-          } catch (e) {
-            print('Error listing files for user: $userUid, error: $e');
-          }
-        }
-      }
+  //     if (followList.isEmpty) {
+  //       print("Follow list is empty.");
+  //       return [];
+  //     }
 
-      return recentFiles;
-    } catch (e) {
-      print('Error fetching recent files: $e');
-      return [];
-    }
-  }
+  //     List<String> allImageUrls = [];
+
+  //     for (String otherUid in followList) {
+  //       DocumentReference docRef =
+  //           firestore.collection("PublicImageList").doc("imagesDoc");
+  //       DocumentSnapshot docSnapshot = await docRef.get();
+  //       if (docSnapshot.exists) {
+  //         List<dynamic> imageUrls = docSnapshot["imageUrls"];
+  //         List<String> publicURLs = imageUrls.map((image) {
+  //           if (image["public"] && image['uid'] == otherUid) {
+  //             return image['url'].toString();
+  //           }
+  //           return '';
+  //         }).toList();
+  //         return publicURLs;
+  //       } else {
+  //         return [];
+  //       }
+  //     }
+  //     return [];
+  //   } catch (e) {
+  //     print("Error updating public status: $e");
+  //     return [];
+  //   }
+  // }
 
   Future<List<String>> getRecentFollowImages(String uid) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    try {
-      final firestoreRef =
-          FirebaseFirestore.instance.collection("Users").doc(uid);
 
+    try {
+      final firestoreRef = firestore.collection("Users").doc(uid);
       final DocumentSnapshot userDoc = await firestoreRef.get();
+
       if (!userDoc.exists || userDoc.data() == null) {
         print("User document not found.");
         return [];
@@ -364,28 +364,29 @@ class OtherService {
         return [];
       }
 
-      List<String> allImageUrls = [];
+      // Fetch all images only once
+      DocumentReference docRef =
+          firestore.collection("PublicImageList").doc("imagesDoc");
+      DocumentSnapshot docSnapshot = await docRef.get();
 
-      for (String otherUid in followList) {
-        DocumentReference docRef =
-            firestore.collection("PublicImageList").doc("imagesDoc");
-        DocumentSnapshot docSnapshot = await docRef.get();
-        if (docSnapshot.exists) {
-          List<dynamic> imageUrls = docSnapshot["imageUrls"];
-          List<String> publicURLs = imageUrls.map((image) {
-            if (image["public"] && image['uid'] == otherUid) {
-              return image['url'].toString();
-            }
-            return '';
-          }).toList();
-          return publicURLs;
-        } else {
-          return [];
-        }
+      if (!docSnapshot.exists) {
+        print("PublicImageList not found.");
+        return [];
       }
-      return [];
+
+      List<dynamic> imageUrls = docSnapshot["imageUrls"];
+
+      // Filter only public images from followed users
+      List<String> publicURLs = imageUrls
+          .where((image) {
+            return image["public"] == true && followList.contains(image["uid"]);
+          })
+          .map((image) => image["url"].toString())
+          .toList();
+
+      return publicURLs;
     } catch (e) {
-      print("Error updating public status: $e");
+      print("Error fetching follow images: $e");
       return [];
     }
   }
@@ -444,20 +445,40 @@ class OtherService {
       DocumentReference docRef =
           firestore.collection("PublicImageList").doc("imagesDoc");
       DocumentSnapshot docSnapshot = await docRef.get();
+
       if (docSnapshot.exists) {
         List<dynamic> imageUrls = docSnapshot["imageUrls"];
-        List<String> publicURLs = imageUrls.map((image) {
-          if (image["public"]) {
-            return image['url'].toString();
-          }
-          return '';
-        }).toList();
+
+        // Get current date and subtract 3 days
+        DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+
+        List<String> publicURLs = imageUrls
+            .where((image) {
+              // Ensure required fields exist
+              if (!image.containsKey("public") ||
+                  !image.containsKey("url") ||
+                  !image.containsKey("timestamp")) {
+                return false;
+              }
+
+              // Check if the image is public
+              if (image["public"] != true) {
+                return false;
+              }
+
+              // Parse timestamp and check if within 3 days
+              DateTime imageTimestamp = DateTime.parse(image["timestamp"]);
+              return imageTimestamp.isAfter(threeDaysAgo);
+            })
+            .map((image) => image["url"].toString())
+            .toList();
+
         return publicURLs;
       } else {
         return [];
       }
     } catch (e) {
-      print("Error updating public status: $e");
+      print("Error fetching recent public image URLs: $e");
       return [];
     }
   }

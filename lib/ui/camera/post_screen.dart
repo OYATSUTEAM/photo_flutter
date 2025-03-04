@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
@@ -7,6 +8,7 @@ import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:appinio_social_share/appinio_social_share.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -14,6 +16,8 @@ class PostScreen extends StatefulWidget {
   @override
   _PostScreenState createState() => _PostScreenState();
 }
+
+const MethodChannel _channel = MethodChannel('app/share');
 
 class _PostScreenState extends State<PostScreen> {
   final FocusNode focusNode = FocusNode();
@@ -23,6 +27,7 @@ class _PostScreenState extends State<PostScreen> {
   bool isLoading = true;
   bool sharing = true;
 
+  AppinioSocialShare appinioSocialShare = AppinioSocialShare();
   @override
   void initState() {
     super.initState();
@@ -87,8 +92,8 @@ class _PostScreenState extends State<PostScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('削除の確認'),
-          content: const Text('すでに撮影した画像を本当に削除しますか？'),
+          title: const Text('投稿確認'),
+          content: const Text('投稿は正しく行われましたか？'),
           actions: [
             TextButton(
               onPressed: () {
@@ -100,7 +105,7 @@ class _PostScreenState extends State<PostScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(true); // User pressed Delete
               },
-              child: const Text('削除', style: TextStyle(color: Colors.red)),
+              child: const Text('はい', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -188,10 +193,10 @@ class _PostScreenState extends State<PostScreen> {
     final box = context.findRenderObject() as RenderBox?;
 
     List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
-
+    print('${globalData.postText}=================');
     await Share.shareXFiles(
       xFiles,
-      text: textController.text.trim(),
+      text: globalData.postText,
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ).then((shareResult) async {
       print(shareResult.status.toString());
@@ -200,8 +205,11 @@ class _PostScreenState extends State<PostScreen> {
             context: context,
             builder: (context) {
               return const Center(
-                child: CircularProgressIndicator(),
-              );
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [CircularProgressIndicator(), Text('投稿アップロード中...')],
+              ));
             });
         for (var path in allPostFileList) {
           await addToPostedImages(uid, globalData.postText, path);
@@ -211,18 +219,38 @@ class _PostScreenState extends State<PostScreen> {
         }
         await deleteAllFileWithConfirm(context);
 
-        // deleteAllFiles();
-        // Navigator.of(context).pushReplacement(
-        //   MaterialPageRoute(
-        //     builder: (context) => PostScreen(),
-        //   ),
-        // );
         return shareResult.status.toString();
       }
     });
 
     return 'failure';
   }
+
+  // Future<void> shareImage() async {
+  //   try {
+  //     final result = await _channel.invokeMethod('shareImage', {
+  //       'imagePath': allPostFileList.first.toString(),
+  //       'text': 'text',
+  //     });
+
+  //     if (result == 'shared') {
+  //       print("Sharing started...======");
+  //     }
+  //   } on PlatformException catch (e) {
+  //     print("Error==========: ${e.message}");
+  //   }
+
+  //   // Listen for result
+  //   _channel.setMethodCallHandler((call) async {
+  //     if (call.method == "shareSuccess") {
+  //       print("User successfully shared the image!=============");
+  //       // Perform your post-sharing logic here
+  //     } else if (call.method == "shareFailed") {
+  //       print("User did NOT share the image.=======");
+  //       // Handle cases where the user didn't share
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +294,6 @@ class _PostScreenState extends State<PostScreen> {
 
     return SafeArea(
         child: Scaffold(
-            // backgroundColor: Colors.black,
             body: GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus(); // Hide keyboard when tapping outside
@@ -274,8 +301,19 @@ class _PostScreenState extends State<PostScreen> {
       child: SingleChildScrollView(
           child: Center(
               child: Column(children: [
+        Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                },
+                icon: Icon(Icons.arrow_back))
+          ],
+        ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.74,
+          height: MediaQuery.of(context).size.height * 0.7,
           width: MediaQuery.of(context).size.width,
           child: GridView.builder(
             padding: const EdgeInsets.all(8.0),
@@ -310,6 +348,9 @@ class _PostScreenState extends State<PostScreen> {
             minLines: 1,
             maxLines: 5,
             keyboardType: TextInputType.multiline,
+            onChanged: (text) {
+              globalData.updatePostText(text.trim());
+            },
           ),
         ),
         const SizedBox(height: 20),
@@ -322,6 +363,13 @@ class _PostScreenState extends State<PostScreen> {
                 child: TextButton(
                     onPressed: () async {
                       await shareImage();
+                      // print(
+                      // '${appinioSocialShare.getInstalledApps()}===========================');
+                      // appinioSocialShare.android
+                      //     .shareToTelegram('message', allPostFileList.first)
+                      //     .then((result) {
+                      //   print('$result==============');
+                      // });
                     },
                     child: const Text('投稿',
                         style: TextStyle(color: Colors.white, fontSize: 16)))),
@@ -379,7 +427,7 @@ class _PostScreenState extends State<PostScreen> {
                         icon: Icon(Icons.add_circle),
                         color: Colors.green,
                         onPressed: () {
-                          globalData.updatePostText(textController.text.trim());
+                          // globalData.updatePostText(textController.text.trim());
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (context) => PostCameraScreen(

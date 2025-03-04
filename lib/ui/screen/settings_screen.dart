@@ -57,6 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: GestureDetector(
         onTap: () async {
+          context.read<ThemeBloc>().add(ThemeDarkedMode());
           setState(() {
             switchResult = !switchResult;
           });
@@ -69,7 +70,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             await publicAccount(uid, false);
             globalData.updatePublic(false);
           }
-          context.read<ThemeBloc>().add(ThemeDarkedMode());
         },
         child: Container(
           margin: const EdgeInsets.all(25.0),

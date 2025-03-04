@@ -55,12 +55,13 @@ class _MyProfileScreen extends State<MyProfileScreen> {
         globalData.myUid == '1234567890') {
       await Future.delayed(Duration(milliseconds: 100));
     }
-    setState(() {
-      email = globalData.myEmail;
-      uid = globalData.myUid;
-      name = globalData.myName;
-      username = globalData.myUserName;
-    });
+    if (mounted)
+      setState(() {
+        email = globalData.myEmail;
+        uid = globalData.myUid;
+        name = globalData.myName;
+        username = globalData.myUserName;
+      });
   }
 
   Future<void> fetchURLs() async {
