@@ -51,21 +51,24 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
   }
 
   Future<void> _setUpInitial() async {
-    if (mounted)
-      setState(() {
-        email = globalData.myEmail;
-        uid = globalData.myUid;
-        username = globalData.myUserName;
-        name = globalData.myName;
-      });
+    imageCache.clear();
+    imageCache.clearLiveImages();
+
+    setState(() {
+      email = globalData.myEmail;
+      uid = globalData.myUid;
+      username = globalData.myUserName;
+      name = globalData.myName;
+    });
   }
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fetchedURL = await getEditProfileUrl(uid);
+    // final fetchedURL = await getEditProfileUrl(uid);
 
     setState(() {
-      imageURL = fetchedURL;
+      // imageURL = fetchedURL;
+      // '${directory.path}/$uid/editProfileImage.jpg';
 
       editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
       myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
@@ -179,7 +182,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
       // Main UI rendering
       return SafeArea(
           child: Scaffold(
-        backgroundColor: Colors.black,
+        // backgroundColor: Colors.black,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -252,21 +255,23 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: MediaQuery.of(context).size.width * 0.95,
-            height: MediaQuery.of(context).size.height * 0.8,
-            decoration: BoxDecoration(),
-            child: Image.network(imageURL, fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }, errorBuilder: (context, error, stackTrace) {
-              return Center(
-                child: Icon(Icons.error, color: Colors.red),
-              );
-            }),
-          )
+              width: MediaQuery.of(context).size.width * 0.95,
+              height: MediaQuery.of(context).size.height * 0.8,
+              decoration: BoxDecoration(),
+              child: Image.file(File(filePath))
+
+              // Image.network(imageURL, fit: BoxFit.cover,
+              //     loadingBuilder: (context, child, loadingProgress) {
+              //   if (loadingProgress == null) return child;
+              //   return Center(
+              //     child: CircularProgressIndicator(),
+              //   );
+              // }, errorBuilder: (context, error, stackTrace) {
+              //   return Center(
+              //     child: Icon(Icons.error, color: Colors.red),
+              //   );
+              // }),
+              )
         ]);
   }
 }

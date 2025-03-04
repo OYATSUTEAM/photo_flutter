@@ -296,10 +296,10 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       int currentUnix =
                                           DateTime.now().millisecondsSinceEpoch;
 
-                                      final directory =
-                                          await getApplicationDocumentsDirectory();
-                                      final subDir =
-                                          Directory('${directory.path}/$uid');
+                                      // final directory =
+                                      //     await getApplicationDocumentsDirectory();
+                                      final subDir = Directory(
+                                          '${globalData.appDir.path}/$uid');
                                       if (!(await subDir.exists())) {
                                         await subDir.create(recursive: true);
                                       }
@@ -312,24 +312,37 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                                 child:
                                                     CircularProgressIndicator());
                                           });
+
                                       File deleteFile = File(
-                                          '${directory.path}/$uid/editProfileImage.$fileFormat');
+                                          '${globalData.appDir.path}/$uid/editProfileImage.$fileFormat');
+
                                       if (await deleteFile.exists()) {
                                         await deleteFile.delete();
                                       }
-                                      await imageFile.copy(
-                                        '${directory.path}/$uid/editProfileImage.$fileFormat',
-                                      );
 
-                                      await uploadFile(uid, 'editProfileImage',
-                                          imageFile.path);
+// String newFileName = 'editProfileImage_${DateTime.now().millisecondsSinceEpoch}.$fileFormat';
 
-                                      if (!mounted) return;
-                                      Navigator.pop(context);
-                                      Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProfileSetScreen()));
+// File newFile = await imageFile.copy('${globalData.appDir.path}/$uid/$newFileName');
+
+                                      await imageFile
+                                          .copy(
+                                        '${globalData.appDir.path}/$uid/editProfileImage.$fileFormat',
+                                      )
+                                          .then((result) {
+                                        print('${result}===============');
+                                      });
+
+                                      // await uploadFile(uid, 'editProfileImage',
+                                      //     imageFile.path);
+
+                                      if (mounted) {
+                                        Navigator.pop(context);
+                                        Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProfileSetScreen()));
+                                      }
+                                      ;
                                     },
                                     child: Stack(
                                       alignment: Alignment.center,
@@ -356,8 +369,8 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       children: [
                                         Icon(
                                           _isRearCameraSelected
-                                              ? Icons.camera_front
-                                              : Icons.camera_rear,
+                                              ? Icons.camera_rear
+                                              : Icons.camera_front,
                                           color: Colors.white,
                                           size: 30,
                                         ),

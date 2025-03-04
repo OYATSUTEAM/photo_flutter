@@ -52,7 +52,6 @@ class OtherTileState extends State<OtherTile> {
 
   Future<void> _loadUsername() async {
     final uid = await getCurrentUserUID();
-    print('$isMeBlocked===================');
     try {
       String? fetchedUsername = await otherService.getUserName(widget.otherUid);
       String? fetchedUserEmail =

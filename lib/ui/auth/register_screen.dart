@@ -64,7 +64,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         if (mounted) {
           Navigator.pop(context);
-          print('==========================');
         }
       } on Exception catch (ex) {
         if (mounted) {
