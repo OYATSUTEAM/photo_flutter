@@ -280,29 +280,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundColor: Colors.white,
                       ),
                       onPressed: () async {
-                        // if (loading)
+                        BuildContext dialogContext = context;
                         showDialog(
-                            context: context,
+                            context: dialogContext,
                             barrierDismissible: false,
                             builder: (context) {
                               return const Center(
                                   child: CircularProgressIndicator());
                             });
                         await Future.delayed(Duration(seconds: 1));
-                        // setState(() {
-                        //   loading = false;
-                        // });
-                        // if (!loading && mounted) {
-                        //   Navigator.of(context).pop();
-                        // }
-                        if (!loading)
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return MyProfileScreen();
-                              },
-                            ),
-                          );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        // if (mounted) Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return MyProfileScreen();
+                            },
+                          ),
+                        );
                       }),
                 ],
                 // )

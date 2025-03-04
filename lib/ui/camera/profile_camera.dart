@@ -92,9 +92,9 @@ class _CameraScreenState extends State<ProfileCameraScreen>
 
     try {
       XFile file = await cameraController.takePicture();
-      if (cameraController.value.isInitialized == true) {
-        await cameraController.dispose();
-      }
+      // if (cameraController.value.isInitialized == true) {
+      //   await cameraController.dispose();
+      // }
       return file;
     } on CameraException catch (e) {
       print('Error occurred while taking picture: $e');
@@ -113,8 +113,6 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     }
   }
 
-  void resetCameraValues() async {}
-
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     final previousCameraController = controller;
 
@@ -125,8 +123,6 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     );
 
     await previousCameraController?.dispose();
-
-    resetCameraValues();
 
     if (mounted) {
       setState(() {
@@ -152,18 +148,18 @@ class _CameraScreenState extends State<ProfileCameraScreen>
     }
   }
 
-  void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-    if (controller == null) {
-      return;
-    }
+  // void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
+  //   if (controller == null) {
+  //     return;
+  //   }
 
-    final offset = Offset(
-      details.localPosition.dx / constraints.maxWidth,
-      details.localPosition.dy / constraints.maxHeight,
-    );
-    controller!.setExposurePoint(offset);
-    controller!.setFocusPoint(offset);
-  }
+  //   final offset = Offset(
+  //     details.localPosition.dx / constraints.maxWidth,
+  //     details.localPosition.dy / constraints.maxHeight,
+  //   );
+  //   controller!.setExposurePoint(offset);
+  //   controller!.setFocusPoint(offset);
+  // }
 
   @override
   void initState() {
@@ -204,24 +200,22 @@ class _CameraScreenState extends State<ProfileCameraScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.black,
+        // backgroundColor: Colors.black,
         body: _isCameraPermissionGranted
             ? _isCameraInitialized
                 ? Stack(children: [
                     Column(
                       children: [
-                        SizedBox(height: 15),
+                        SizedBox(height: 5),
                         Container(
                           height: MediaQuery.of(context).size.height * 0.78,
                           width: MediaQuery.of(context).size.width * 0.99,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(340.0),
-                            color: Colors.black,
-                          ),
+                              borderRadius: BorderRadius.circular(340.0),
+                              color: Colors.black),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(38.0),
-                            child: CameraPreview(controller!),
-                          ),
+                              borderRadius: BorderRadius.circular(13.0),
+                              child: CameraPreview(controller!)),
                         ),
                         Padding(
                           padding:
@@ -299,13 +293,9 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       if (rawImage == null) return;
                                       File imageFile = File(rawImage.path);
 
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          });
+                                      int currentUnix =
+                                          DateTime.now().millisecondsSinceEpoch;
+
                                       final directory =
                                           await getApplicationDocumentsDirectory();
                                       final subDir =
@@ -313,8 +303,24 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                       if (!(await subDir.exists())) {
                                         await subDir.create(recursive: true);
                                       }
+                                      String fileFormat =
+                                          imageFile.path.split('.').last;
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          });
+                                      File deleteFile = File(
+                                          '${directory.path}/$uid/editProfileImage.$fileFormat');
+                                      if (await deleteFile.exists()) {
+                                        await deleteFile.delete();
+                                      }
                                       await imageFile.copy(
-                                          '${directory.path}/$uid/editProfileImage.jpg');
+                                        '${directory.path}/$uid/editProfileImage.$fileFormat',
+                                      );
+
                                       await uploadFile(uid, 'editProfileImage',
                                           imageFile.path);
 

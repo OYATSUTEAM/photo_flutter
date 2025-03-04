@@ -124,7 +124,6 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 36),
-                  // Profile Image
                   Center(
                     child: Stack(
                       alignment: Alignment.center,

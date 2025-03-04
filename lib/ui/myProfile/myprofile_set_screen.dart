@@ -255,21 +255,17 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
             width: MediaQuery.of(context).size.width * 0.95,
             height: MediaQuery.of(context).size.height * 0.8,
             decoration: BoxDecoration(),
-            child: Image.network(
-              imageURL, // Replace with your actual image URL
-              fit: BoxFit.cover, // Adjusts the image size
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Center(
-                  child: Icon(Icons.error, color: Colors.red),
-                );
-              },
-            ),
+            child: Image.network(imageURL, fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }, errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Icon(Icons.error, color: Colors.red),
+              );
+            }),
           )
         ]);
   }

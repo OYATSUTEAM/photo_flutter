@@ -25,7 +25,6 @@ Future<void> uploadFile(
     String uid, String profileURL, String imageFilePath) async {
   DateTime now = DateTime.now();
   String timestamp = now.toIso8601String();
-  print('$imageFilePath=====================');
   // Set metadata with timestamp
   SettableMetadata metadata = SettableMetadata(customMetadata: {
     'timestamp': timestamp,

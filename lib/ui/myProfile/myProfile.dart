@@ -11,6 +11,7 @@ import 'package:photo_sharing_app/ui/myProfile/myprofile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import '../../data/global.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
@@ -42,7 +43,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   String myProfileImagePath = '';
   File? myProfileImage;
   bool switchResult = ThemeManager.readTheme();
-  // ListResult listResult = [] as ListResult;
   @override
   void initState() {
     super.initState();
@@ -116,57 +116,50 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          toolbarHeight: 36,
-          title: Container(
-            child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Stack(children: [
-// =========================================================================         username   ============================
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      height: 36,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(username,
-                                style: const TextStyle(
-                                    fontSize: 18, color: Colors.white)),
-                          ])),
-                  Positioned(
-                      top: 0,
-                      right: 0,
-                      child: TextButton(
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              });
-                          if (!mounted) return;
-                          Navigator.pop(context);
-                          Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                                  builder: (context) => MyProfileEdit(
-                                        whichImage: 'myProfileImage',
-                                      )));
-                        },
-                        child: Text(
-                          '. . .',
-                          style: const TextStyle(
-                              fontSize: 24, color: Colors.white),
-                        ),
-                      ))
-                ])),
-          ),
-        ),
         body: SafeArea(
             child: Padding(
                 padding: EdgeInsets.all(5),
                 child: SingleChildScrollView(
                     child: Column(children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => HomeScreen()));
+                          }),
+                      Expanded(
+                          child: Text(
+                        username,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 20),
+                      )),
+                      IconButton(
+                          onPressed: () async {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                });
+                            if (!mounted) return;
+                            Navigator.pop(context);
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => MyProfileEdit(
+                                        whichImage: 'myProfileImage')));
+                          },
+                          icon: Icon(
+                            Icons.border_color_rounded,
+                            size: 20,
+                          ))
+                    ],
+                  ),
 //===========================================================                         main profile image       =====================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
