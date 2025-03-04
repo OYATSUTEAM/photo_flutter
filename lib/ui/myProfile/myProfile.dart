@@ -51,6 +51,10 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> _setProfileInitiate() async {
+    while (globalData.myEmail == 'default@gmail.com' ||
+        globalData.myUid == '1234567890') {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
     setState(() {
       email = globalData.myEmail;
       uid = globalData.myUid;
@@ -60,6 +64,10 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Future<void> fetchURLs() async {
+    while (globalData.myEmail == 'default@gmail.com' ||
+        globalData.myUid == '1234567890') {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
     final fetchedUrl = await getMainProfileUrl(uid);
     if (mounted)
       setState(() {
@@ -121,6 +129,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                 padding: EdgeInsets.all(5),
                 child: SingleChildScrollView(
                     child: Column(children: [
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -175,44 +184,37 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         child: CircleAvatar(
                           backgroundImage:
                               CachedNetworkImageProvider(myMainProfileURL),
-                          radius: MediaQuery.of(context).size.width * 0.25,
+                          radius: MediaQuery.of(context).size.width * 0.26,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 3),
 //============================================================                       name    ======================================
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Stack(children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                            children: [
-                              Spacer(), // Pushes the text to the center
-                              Text(name,
-                                  style: TextStyle(
-                                      fontSize: 22, color: Colors.white)),
-                              Spacer(), // Pushes the button to the end
-                            ],
-                          ),
-                        ),
-//========================================================================       +     ======================
-                        Positioned(
-                          top: -6,
-                          right: 0,
-                          child: IconButton(
-                              onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProfileAddCameraScreen(),
-                                  ),
-                                );
-                              },
-                              icon: Icon(Icons.add)),
-                        ),
-                      ])),
+
+                  Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(name, style: TextStyle(fontSize: 30)),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProfileAddCameraScreen(),
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.add),
+                            iconSize: 30),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 10),
 //================================================          my images         ===============================================
 

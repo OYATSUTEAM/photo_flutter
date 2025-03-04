@@ -141,8 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 10),
               SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.74,
+                  height: MediaQuery.of(context).size.height * 0.8,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -152,7 +153,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 0, vertical: 10),
-                                child: Text('おすすめ')),
+                                child: Text(
+                                  'おすすめ',
+                                  style: TextStyle(fontSize: 18),
+                                )),
                             Expanded(
                               child: recommendedOtherUsers == null
                                   ? Center(child: CircularProgressIndicator())
@@ -179,7 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 0, vertical: 10),
-                                  child: Text('フォロー')),
+                                  child: Text(
+                                    'フォロー',
+                                    style: TextStyle(fontSize: 18),
+                                  )),
                               Expanded(
                                 child: recommendedFollowUsers == null
                                     ? Center(
@@ -288,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               return const Center(
                                   child: CircularProgressIndicator());
                             });
-                        await Future.delayed(Duration(seconds: 1));
+                        await Future.delayed(Duration(milliseconds: 50));
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop();
                         }

@@ -225,7 +225,7 @@ class _MyDrawer extends State<MyDrawer> {
                       text: "ログアウト",
                       color: Colors.red,
                       onTap: () async {
-                        print('logout is called');
+                        print('logout is called============');
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -235,8 +235,8 @@ class _MyDrawer extends State<MyDrawer> {
                             });
                         await AuthServices(locator.get(), locator.get())
                             .signOut();
-                        Navigator.pop(context);
-                        Navigator.pop(context);
+                        if (mounted) Navigator.pop(context);
+                        // Navigator.pop(context);
                       }),
                   SizedBox(
                     height: 15,
