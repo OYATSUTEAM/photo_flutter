@@ -187,14 +187,8 @@ class BuilduserStreamList extends StatelessWidget {
     if (otherEmail != currentUser.email) {
       return Column(
         children: [
-          SizedBox(
-            height: 10,
-          ),
-          UserTile(
-            text: otherName,
-            onTap: () {},
-            otherUid: otherUid,
-          )
+          SizedBox(height: 10),
+          UserTile(text: otherName, onTap: () {}, otherUid: otherUid)
         ],
       );
     }

@@ -518,13 +518,12 @@ Future<void> publicThisImage(String uid, String dirpath) async {
     final metadata = await storageRef.getMetadata();
 
     String currentPublicStatus = metadata.customMetadata?['public'] ?? 'false';
-    bool newStatus =
-        currentPublicStatus == 'true' ? false : true; // Toggle the status
+    bool newStatus = currentPublicStatus == 'true' ? false : true;
 
     SettableMetadata updatedMetadata = SettableMetadata(
       customMetadata: {
         'timestamp': metadata.customMetadata?['timestamp'] ??
-            DateTime.now().toIso8601String(), // Keep the original timestamp
+            DateTime.now().toIso8601String(),
         'public': newStatus.toString(),
       },
     );

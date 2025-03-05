@@ -8,6 +8,7 @@ import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'dart:isolate';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -22,6 +23,7 @@ class _PostScreenState extends State<PostScreen> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
   final List<String> allPostFileList = [];
+  final List<String> allPostFileListBackground = [];
   String uid = '', email = '', username = '', name = '';
   bool isLoading = true;
   bool sharing = true;
@@ -31,6 +33,7 @@ class _PostScreenState extends State<PostScreen> {
     super.initState();
     _initState();
     _loadImages();
+    _loadImagesBack();
   }
 
   void _initState() async {
@@ -40,6 +43,12 @@ class _PostScreenState extends State<PostScreen> {
       name = globalData.myName;
       email = globalData.myEmail;
     });
+  }
+
+  Future<void> runInBackground() async {
+    for (var path in allPostFileListBackground) {
+      await addToPostedImages(uid, globalData.postText, path);
+    }
   }
 
   void deleteAllFiles() async {
@@ -74,6 +83,7 @@ class _PostScreenState extends State<PostScreen> {
           .map((file) => file.path)
           .toList()
         ..sort(); // Sort the list alphabetically
+
       setState(() {
         allPostFileList
           ..clear()
@@ -82,6 +92,63 @@ class _PostScreenState extends State<PostScreen> {
       });
     }
   }
+
+  Future<void> _loadImagesBack() async {
+    print(uid);
+    final directory = await getApplicationDocumentsDirectory();
+    final subDirBack = Directory('${directory.path}/$uid/postImagesBack');
+    setState(() {
+      textController.text = globalData.postText;
+    });
+    if (await subDirBack.exists()) {
+      final fileListBack = subDirBack
+          .listSync()
+          .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
+          .map((file) => file.path)
+          .toList()
+        ..sort(); // Sort the list alphabetically
+      setState(() {
+        allPostFileListBackground
+          ..clear()
+          ..addAll(fileListBack);
+        isLoading = false;
+      });
+    }
+  }
+
+  // Future<void> _loadImagesBack() async {
+  //   print(uid);
+  //   final directory = await getApplicationDocumentsDirectory();
+  //   final subDir = Directory('${directory.path}/$uid/postImages');
+  //   final subDirBack = Directory('${directory.path}/$uid/postImagesBack');
+  //   setState(() {
+  //     textController.text = globalData.postText;
+  //   });
+  //   if (await subDir.exists()) {
+  //     final fileList = subDir
+  //         .listSync()
+  //         .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
+  //         .map((file) => file.path)
+  //         .toList()
+  //       ..sort(); // Sort the list alphabetically
+  //     final fileListBack = subDirBack
+  //         .listSync(00)
+  //         .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
+  //         .map((file) => file.path)
+  //         .toList()
+  //       ..sort(); // Sort the list alphabetically
+  //     setState(() {
+  //       allPostFileList
+  //         ..clear()
+  //         ..addAll(fileList);
+  //       isLoading = false;
+  //       allPostFileListBackground
+  //         ..clear()
+  //         ..addAll(fileListBack);
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   Future<void> deleteAllFileWithConfirm(
     BuildContext context,
@@ -95,16 +162,15 @@ class _PostScreenState extends State<PostScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop(false); // User pressed Cancel
+                Navigator.of(dialogContext).pop(false);
               },
               child: const Text('キャンセル'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true); // User pressed Delete
-              },
-              child: const Text('はい', style: TextStyle(color: Colors.red)),
-            ),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(true);
+                },
+                child: const Text('はい', style: TextStyle(color: Colors.red)))
           ],
         );
       },
@@ -114,27 +180,28 @@ class _PostScreenState extends State<PostScreen> {
       try {
         List<File> filesToRemove = [];
         showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             });
+
+        for (var path in allPostFileList) {
+          await addToPostedImages(uid, globalData.postText, path);
+        }
+
         for (final String filePath in allPostFileList) {
           File file = File(filePath);
           if (await file.exists()) {
-            await file.delete(); // Delete each file
-            filesToRemove.add(file); // Mark the file for removal
+            await file.delete();
+            filesToRemove.add(file);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('ファイルが存在しません。')),
             );
           }
         }
-        // globalData.updatePostText('');
-        setState(() {
-          _loadImages();
-        });
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => HomeScreen()),
         );
@@ -194,27 +261,27 @@ class _PostScreenState extends State<PostScreen> {
     print('${globalData.postText}=================');
     await Share.shareXFiles(
       xFiles,
-      text: globalData.postText,
+      subject: globalData.postText,
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ).then((shareResult) async {
-      print(shareResult.status.toString());
       if (shareResult.status.toString() == 'ShareResultStatus.success') {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return const Center(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [CircularProgressIndicator(), Text('投稿アップロード中...')],
-              ));
-            });
-        for (var path in allPostFileList) {
-          await addToPostedImages(uid, globalData.postText, path);
-        }
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        // showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return const Center(
+        //           child: Column(
+        //         mainAxisAlignment: MainAxisAlignment.center,
+        //         crossAxisAlignment: CrossAxisAlignment.center,
+        //         children: [CircularProgressIndicator(), Text('投稿アップロード中...')],
+        //       ));
+        //     });
+
+        // Future.delayed(Duration.zero, () async {
+        //   for (var path in allPostFileListBackground) {
+        //     await addToPostedImages(uid, globalData.postText, path);
+        //   }
+        // });
+
         await deleteAllFileWithConfirm(context);
 
         return shareResult.status.toString();
@@ -281,10 +348,7 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   );
                 },
-                icon: const Icon(
-                  Icons.add_circle_sharp,
-                  size: 50,
-                ))
+                icon: const Icon(Icons.add_circle_sharp, size: 50))
           ],
         )),
       );

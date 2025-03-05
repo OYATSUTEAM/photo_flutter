@@ -21,12 +21,12 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     if (toggled) {
       return RegisterScreen(
-        callBack: onToggle,
-      );
+          // callBack: onToggle,
+          );
     } else {
       return LoginScreen(
-        callBack: onToggle,
-      );
+          // callBack: onToggle,
+          );
     }
   }
 }

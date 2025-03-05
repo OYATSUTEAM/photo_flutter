@@ -128,8 +128,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
         body: SafeArea(
             child: Padding(
                 padding: EdgeInsets.all(5),
-                child: SingleChildScrollView(
-                    child: Column(children: [
+                // child: SingleChildScrollView(
+                child: Column(children: [
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,114 +200,121 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         child: Text(name, style: TextStyle(fontSize: 30)),
                       ),
                       Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProfileAddCameraScreen(),
-                                ),
-                              );
-                            },
-                            icon: Icon(Icons.add),
-                            iconSize: 30),
-                      ),
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProfileAddCameraScreen()),
+                                );
+                              },
+                              icon: Icon(Icons.add),
+                              iconSize: 30)),
                     ],
                   ),
 
                   const SizedBox(height: 10),
 //================================================          my images         ===============================================
+                  SizedBox(
+                      height: MediaQuery.of(context).size.height -
+                          80 -
+                          MediaQuery.of(context).size.width * 0.5 -
+                          90,
+                      child: FutureBuilder<
+                              Map<String, List<Map<String, dynamic>>>>(
+                          future: getImageNames(uid),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                  child: Text("Error: ${snapshot.error}"));
+                            }
 
-                  FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-                      future: getImageNames(uid),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Center(
-                              child: Text("Error: ${snapshot.error}"));
-                        }
+                            if (!snapshot.hasData ||
+                                snapshot.data!['latest']!.isEmpty) {
+                              return Center(child: Text(""));
+                            }
 
-                        if (!snapshot.hasData ||
-                            snapshot.data!['latest']!.isEmpty) {
-                          return Center(child: Text(""));
-                        }
-
-                        final imagesData = snapshot.data!;
-                        final latestImages = imagesData["latest"]!;
-                        final otherImages = imagesData["others"]!;
-                        return Row(children: [
-                          SizedBox(
-                              width:
-                                  MediaQuery.of(context).size.width * 0.5 - 6,
-                              height: MediaQuery.of(context).size.height -
-                                  40 -
-                                  MediaQuery.of(context).size.width * 0.5 -
-                                  80,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ...latestImages.map((image) {
-                                      return FutureBuilder<String>(
-                                          future: FirebaseStorage.instance
-                                              .ref(
-                                                  'images/$uid/profileImages/${image['name']}')
-                                              .getDownloadURL(),
-                                          builder: (context, urlSnapshot) {
-                                            if (!urlSnapshot.hasData)
-                                              return Center(
-                                                  child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  CircularProgressIndicator()
-                                                ],
-                                              ));
-                                            return _buildImageTile(
-                                                urlSnapshot.data!,
-                                                image['name'],
-                                                image['status']);
-                                          });
-                                    }).toList(),
-                                  ],
-                                ),
-                              )),
-                          SizedBox(width: 2),
-                          SizedBox(
-                              width:
-                                  MediaQuery.of(context).size.width * 0.5 - 6,
-                              height: MediaQuery.of(context).size.height -
-                                  40 -
-                                  MediaQuery.of(context).size.width * 0.5 -
-                                  80,
-                              child: SingleChildScrollView(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ...otherImages.map((image) {
+                            final imagesData = snapshot.data!;
+                            final latestImages = imagesData["latest"]!;
+                            final otherImages = imagesData["others"]!;
+                            return Row(children: [
+                              SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.5 -
+                                          6,
+                                  height: MediaQuery.of(context).size.height -
+                                      40 -
+                                      MediaQuery.of(context).size.width * 0.5 -
+                                      80,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ...latestImages.map((image) {
+                                          return FutureBuilder<String>(
+                                              future: FirebaseStorage.instance
+                                                  .ref(
+                                                      'images/$uid/profileImages/${image['name']}')
+                                                  .getDownloadURL(),
+                                              builder: (context, urlSnapshot) {
+                                                if (!urlSnapshot.hasData)
+                                                  return Center(
+                                                      child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      CircularProgressIndicator()
+                                                    ],
+                                                  ));
+                                                return _buildImageTile(
+                                                    urlSnapshot.data!,
+                                                    image['name'],
+                                                    image['status']);
+                                              });
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  )),
+                              SizedBox(width: 1),
+                              SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.width * 0.5 - 6,
+                                height: MediaQuery.of(context).size.height -
+                                    40 -
+                                    MediaQuery.of(context).size.width * 0.5 -
+                                    80,
+                                child: ListView(
+                                  children: otherImages.map((image) {
                                     return FutureBuilder<String>(
-                                        future: FirebaseStorage.instance
-                                            .ref(
-                                                'images/$uid/profileImages/${image['name']}')
-                                            .getDownloadURL(),
-                                        builder: (context, urlSnapshot) {
-                                          if (!urlSnapshot.hasData)
-                                            return Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          return _buildImageTile(
-                                              urlSnapshot.data!,
-                                              image['name'],
-                                              image['status']);
-                                        });
+                                      future: FirebaseStorage.instance
+                                          .ref(
+                                              'images/$uid/profileImages/${image['name']}')
+                                          .getDownloadURL(),
+                                      builder: (context, urlSnapshot) {
+                                        if (!urlSnapshot.hasData) {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                        return _buildImageTile(
+                                          urlSnapshot.data!,
+                                          image['name'],
+                                          image['status'],
+                                        );
+                                      },
+                                    );
                                   }).toList(),
-                                ],
-                              )))
-                        ]);
-                      }),
-                ])))));
+                                ),
+                              )
+                            ]);
+                          })),
+                ]))));
   }
 
   Widget _buildImageTile(String imageURL, String imageName, String status) {

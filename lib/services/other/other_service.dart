@@ -426,7 +426,7 @@ class OtherService {
     try {
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child("images/$otherUid/mainProfile.jpg");
+          .child("images/$otherUid/profileImage.jpg");
 
       // Step 1: Try to get the URL for the main profile image
       final imageUrl = await storageRef.getDownloadURL();

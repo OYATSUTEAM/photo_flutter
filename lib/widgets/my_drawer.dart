@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
+import 'package:photo_sharing_app/ui/auth/login_screen.dart';
 import 'package:photo_sharing_app/ui/other/blocked_users.dart';
 import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
@@ -88,14 +89,12 @@ class _MyDrawer extends State<MyDrawer> {
     return SafeArea(
         child: Drawer(
             width: MediaQuery.of(context).size.width * 0.9,
-            backgroundColor: const Color.fromARGB(255, 29, 29, 29),
+            // backgroundColor: const Color.fromARGB(255, 29, 29, 29),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Text(
                     "設定",
                     style: TextStyle(
@@ -103,9 +102,7 @@ class _MyDrawer extends State<MyDrawer> {
                       fontSize: 20,
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "利用規約", //terms of service
                     onTap: () async {
@@ -117,9 +114,7 @@ class _MyDrawer extends State<MyDrawer> {
                       );
                     },
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "公開設定", //public setting
                     onTap: () async {
@@ -130,53 +125,40 @@ class _MyDrawer extends State<MyDrawer> {
                       );
                     },
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "プライバシーポリシー", //privacy policy
                     onTap: () async {
                       Navigator.pop(context);
                       Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => CookieScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => CookieScreen()),
                       );
                     },
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  MyButton(
-                    text: "その他", //others
-                    onTap: () async {
-                      // Navigator.pop(context);
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => EtcScreen(),
-                      //   ),
-                      // );
-                    },
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  // SizedBox(
+                  //   height: 15,
+                  // ),
+                  // MyButton(
+                  //   text: "その他", //others
+                  //   onTap: () async {
+                  //     // Navigator.pop(context);
+                  //     // Navigator.of(context).push(
+                  //     //   MaterialPageRoute(
+                  //     //     builder: (context) => EtcScreen(),
+                  //     //   ),
+                  //     // );
+                  //   },
+                  // ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "他のユーザー", //others
                     onTap: () async {
-                      // final finalContext = context;
-
-                      // Navigator.pop(context);
                       Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => OtherUsers(),
-                        ),
+                        MaterialPageRoute(builder: (context) => OtherUsers()),
                       );
                     },
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "フォローとフォロワー",
                     onTap: () async {
@@ -218,9 +200,7 @@ class _MyDrawer extends State<MyDrawer> {
                         );
                       },
                     ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.12,
-                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.12),
                   MyButton(
                       text: "ログアウト",
                       color: Colors.red,
@@ -234,13 +214,20 @@ class _MyDrawer extends State<MyDrawer> {
                             });
                         await AuthServices(locator.get(), locator.get())
                             .signOut();
+                        if (mounted) {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) {
+                            return LoginScreen();
+                          }));
+                        }
+                        // await AuthServices(locator.get(), locator.get())
+                        //     .signOut();
                         // await FirebaseAuth.instance.signOut();
                         // Navigator.pop(context);
-                        Navigator.pop(context);
                       }),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "アカウント削除",
                     color: Colors.red,

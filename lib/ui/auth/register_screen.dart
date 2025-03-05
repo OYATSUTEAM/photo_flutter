@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/ui/auth/login_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
@@ -14,8 +15,7 @@ final AuthServices authService = locator.get();
 final FirebaseFirestore database = FirebaseFirestore.instance;
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key, required this.callBack});
-  final VoidCallback callBack;
+  // const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -28,6 +28,8 @@ bool isDialogShown = true;
 String uid = 'default@gmail.com';
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final auth = FirebaseAuth.instance;
+
   void isEmailVerified() {
     User user = FirebaseAuth.instance.currentUser!;
     if (user.emailVerified) {
@@ -41,6 +43,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void sendVerificationEmail() {
+    User user = auth.currentUser!;
+    user.sendEmailVerification();
+  }
+
   User? user = FirebaseAuth.instance.currentUser;
   Future<void> signUp(
     String email,
@@ -51,21 +58,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ) async {
     if (password == passwordConfirm) {
       try {
-        // Check if the email or username already exists
+        if (!RegExp(
+          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+        ).hasMatch(emailController.text.toString().trim())) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please enter a valid email address.'),
+              backgroundColor: const Color.fromARGB(255, 109, 209, 214),
+            ),
+          );
+          return;
+        }
+
         final users = await chatService.getuserStream().first;
         final isExist = users.any((userData) => userData['email'] == email);
+
         final existingUserQuery = await database
             .collection("Users")
             .where('username', isEqualTo: username)
             .get();
 //=======================================================================user is already exist=====================================================================
-        if (isExist) {
-          throw Exception('ユーザは既に存在します！');
-        }
+        // if (isExist) {
+        //   throw Exception('ユーザは既に存在します！');
+        // }
 //=======================================================Username is already in use. Please select a different user name.==========================================
-        else if (existingUserQuery.docs.isNotEmpty) {
-          throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
-        }
+        // else if (existingUserQuery.docs.isNotEmpty) {
+        //   throw Exception('ユーザーネームはすでに使われています。\n別のユーザーネームを選択してください。');
+        // }
         // showDialog(
         //     context: context,
         //     builder: (context) {
@@ -73,12 +92,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
         //         child: CircularProgressIndicator(),
         //       );
         //     });
-        await authUser.register(email, password, name, username);
-        isEmailVerified();
+        try {
+          await auth.createUserWithEmailAndPassword(
+            email: emailController.text.toString().trim(),
+            password: passwordController.text.toString().trim(),
+          );
 
-        // if (mounted) {
-        //   Navigator.pop(context);
-        // }
+          if (auth.currentUser?.uid != null) {
+            sendVerificationEmail();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '登録されたメールアドレスに確認メールが届いています。アカウントを確認し、再度ログインしてください。',
+                ),
+                duration: Duration(seconds: 2),
+              ),
+            );
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return LoginScreen();
+                },
+              ),
+            );
+            await authUser.register(email, password, name, username);
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('お客様のアカウントは既に登録されていますので、ログインをお試しください。')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return RegisterScreen();
+              },
+            ),
+          );
+        }
       } on Exception catch (ex) {
         if (mounted) {
           if (Navigator.canPop(context)) {
@@ -223,7 +276,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: widget.callBack,
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return LoginScreen();
+                              },
+                            ),
+                          );
+                        },
                         child: Text(
                           "今すぐログイン",
                           style: TextStyle(

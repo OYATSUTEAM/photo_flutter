@@ -56,11 +56,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             if (mounted) {
               Navigator.pop(context);
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => MyProfileEdit(
+                MaterialPageRoute(builder: (context) {
+                  return MyProfileEdit(
                     whichImage: '',
-                  ),
-                ),
+                  );
+                }),
               );
             }
           } else {

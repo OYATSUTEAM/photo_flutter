@@ -54,8 +54,7 @@ class _OtherProfile extends State<OtherProfile> {
   Future<void> _setProfileInitiate() async {
     final fetchedOtheProfileImagesURL =
         await otherService.getPublicImageURLs(widget.otherUid);
-    final fetchedOtherMainProfileURL =
-        await otherService.getOtherMainProfileURL(widget.otherUid);
+    final fetchedOtherMainProfileURL = await getMainProfileUrl(widget.otherUid);
 
     if (mounted) {
       setState(() {

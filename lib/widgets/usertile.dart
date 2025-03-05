@@ -82,7 +82,6 @@ class _UserTileState extends State<UserTile> {
           mainAxisAlignment:
               MainAxisAlignment.spaceAround, // Align elements at both ends
           children: [
-            // const SizedBox(width: 1),
             IconButton(
               icon: CircleAvatar(
                 backgroundImage: NetworkImage(otherProfileURL != null

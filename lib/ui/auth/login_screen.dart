@@ -2,13 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/ui/auth/register_screen.dart';
+import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.callBack});
-  final VoidCallback callBack;
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -17,30 +18,80 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  void isEmailVerified() {
+    User user = FirebaseAuth.instance.currentUser!;
+    if (user.emailVerified) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return HomeScreen();
+        }),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Email is not verified.')));
+    }
+  }
 
-  Future<void> signIn(
-    String email,
-    String password,
-  ) async {
+  Future<void> signIn() async {
     final authUser = AuthServices(locator.get(), locator.get());
     try {
-      if (mounted) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return const Center(child: CircularProgressIndicator());
-            });
+      if (!RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      ).hasMatch(emailController.text.toString())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              textAlign: TextAlign.center,
+              'Please enter a valid email address.',
+            ),
+            backgroundColor: const Color.fromARGB(255, 109, 209, 214),
+          ),
+        );
+        return;
       }
-      await authUser.signIn(email, password);
-    } on Exception catch (ex) {
-      if (mounted) Navigator.pop(context);
 
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(content: Text(ex.toString()));
-        },
+      // if (mounted) {
+      //   showDialog(
+      //       context: context,
+      //       builder: (context) {
+      //         return const Center(child: CircularProgressIndicator());
+      //       });
+      // }
+      // await authUser.signIn(email, password);
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.toString(),
+        password: passwordController.text.toString(),
       );
+      String uid = userCredential.user!.uid;
+      // globalData.updateUser(id.text.toString(), uid);
+      isEmailVerified();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        const emailError = 'Enter valid email ID';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(emailError)));
+      }
+      if (e.code == 'wrong-password') {
+        const passError = 'Enter correct password';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(passError)));
+      }
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You are not registed. Sign Up now")),
+        );
+      }
+      if (e.code == 'invalid-credential') {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("正しいパスワードを入力してください。")));
+      }
+      setState(() {});
     }
   }
 
@@ -86,10 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   MyButton(
                     text: "ログイン",
                     onTap: () async {
-                      await signIn(
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                      );
+                      await signIn();
                     },
                   ),
                   const SizedBox(height: 15),
@@ -97,17 +145,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       "会員でない？ ",
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                          color: Theme.of(context).colorScheme.primary),
                     ),
                     GestureDetector(
-                        onTap: widget.callBack,
+                        onTap: () {
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) {
+                            return RegisterScreen();
+                          }));
+                        },
                         child: Text(
                           "今すぐ登録",
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ))
                   ])
                 ],

@@ -93,17 +93,19 @@ class AuthServices {
     }
   }
 
-  Future<UserCredential?> register(
+  Future<void> register(
       String email, String password, String name, String username) async {
     try {
+      final auth = FirebaseAuth.instance;
+
       // await FirebaseAuth.instance.signOut();
-      final UserCredential userCredential =
-          await user.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await database.collection("Users").doc(userCredential.user?.uid).set({
-        "uid": userCredential.user?.uid,
+      // final UserCredential userCredential =
+      //     await user.createUserWithEmailAndPassword(
+      //   email: email,
+      //   password: password,
+      // );
+      await database.collection("Users").doc(auth.currentUser?.uid).set({
+        "uid": auth.currentUser?.uid,
         "email": email,
         "password": password,
         'name': name,
@@ -114,8 +116,8 @@ class AuthServices {
         'isShowAll': true,
         'public': true,
       });
-      await signIn(email, password);
-      return userCredential;
+      // await signIn(email, password);
+      return;
     } on FirebaseAuthException {
       return null;
     } catch (e) {

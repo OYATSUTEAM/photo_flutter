@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_sharing_app/data/global.dart';
-import 'package:photo_sharing_app/ui/camera/post_screen.dart';
+import 'package:photo_sharing_app/ui/screen/post_screen.dart';
 
 import '../../main.dart';
 
@@ -322,8 +322,14 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                                             await getApplicationDocumentsDirectory();
                                         final subDir = Directory(
                                             '${directory.path}/$uid/postImages');
+                                        final subDirBack = Directory(
+                                            '${directory.path}/$uid/postImagesBack');
                                         if (!(await subDir.exists())) {
                                           await subDir.create(recursive: true);
+                                        }
+                                        if (!(await subDirBack.exists())) {
+                                          await subDirBack.create(
+                                              recursive: true);
                                         }
                                         String fileFormat =
                                             imageFile.path.split('.').last;
@@ -332,6 +338,9 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                                           '${directory.path}/$uid/postImages/$currentUnix.$fileFormat',
                                         );
 
+                                        await imageFile.copy(
+                                          '${directory.path}/$uid/postImagesBack/$currentUnix.$fileFormat',
+                                        );
                                         Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>

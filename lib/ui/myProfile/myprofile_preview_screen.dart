@@ -162,13 +162,10 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                   Container(
                                     height: 300,
                                     decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2.0,
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0)),
-                                    ),
+                                        border: Border.all(
+                                            color: Colors.white, width: 2.0),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0))),
                                     child: ListView.builder(
                                       itemCount: comments.length,
                                       itemBuilder: (context, index) {
@@ -199,12 +196,12 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                             }
                                             if (snapshot.hasError) {
                                               return ListTile(
-                                                title: Text(comment['comment']),
-                                                subtitle: Text(
-                                                    'ユーザー: Error loading user'),
-                                                trailing:
-                                                    Text(formattedTimestamp),
-                                              );
+                                                  title:
+                                                      Text(comment['comment']),
+                                                  subtitle: Text(
+                                                      'ユーザー: Error loading user'),
+                                                  trailing:
+                                                      Text(formattedTimestamp));
                                             }
 
                                             var otherUser = snapshot.data;
@@ -213,12 +210,11 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                                                     'Unknown User';
 
                                             return ListTile(
-                                              title: Text(comment['comment']),
-                                              subtitle:
-                                                  Text('ユーザー: $otherUserName'),
-                                              trailing:
-                                                  Text(formattedTimestamp),
-                                            );
+                                                title: Text(comment['comment']),
+                                                subtitle: Text(
+                                                    'ユーザー: $otherUserName'),
+                                                trailing:
+                                                    Text(formattedTimestamp));
                                           },
                                         );
                                       },
