@@ -8,7 +8,6 @@ import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:appinio_social_share/appinio_social_share.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -27,7 +26,6 @@ class _PostScreenState extends State<PostScreen> {
   bool isLoading = true;
   bool sharing = true;
 
-  AppinioSocialShare appinioSocialShare = AppinioSocialShare();
   @override
   void initState() {
     super.initState();
