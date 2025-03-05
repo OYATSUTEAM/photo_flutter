@@ -32,9 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
             });
       }
       await authUser.signIn(email, password);
-      if (mounted) {
-        Navigator.pop(context);
-      }
     } on Exception catch (ex) {
       if (mounted) Navigator.pop(context);
 

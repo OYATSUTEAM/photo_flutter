@@ -28,6 +28,19 @@ bool isDialogShown = true;
 String uid = 'default@gmail.com';
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  void isEmailVerified() {
+    User user = FirebaseAuth.instance.currentUser!;
+    if (user.emailVerified) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Email is not verified.')));
+    }
+  }
+
   User? user = FirebaseAuth.instance.currentUser;
   Future<void> signUp(
     String email,
@@ -61,10 +74,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         //       );
         //     });
         await authUser.register(email, password, name, username);
+        isEmailVerified();
 
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        // if (mounted) {
+        //   Navigator.pop(context);
+        // }
       } on Exception catch (ex) {
         if (mounted) {
           if (Navigator.canPop(context)) {
