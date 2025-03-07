@@ -7,7 +7,6 @@ import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/other/report_screen.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
@@ -52,14 +51,21 @@ class _OtherProfile extends State<OtherProfile> {
   }
 
   Future<void> _setProfileInitiate() async {
+    while (globalData.myUid == '1234567890') {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+    final fetchedOtherMainProfileURL = await getMainProfileUrl(widget.otherUid);
+
+    if (mounted)
+      setState(() {
+        otherMainProfileURL = fetchedOtherMainProfileURL;
+      });
     final fetchedOtheProfileImagesURL =
         await otherService.getPublicImageURLs(widget.otherUid);
-    final fetchedOtherMainProfileURL = await getMainProfileUrl(widget.otherUid);
 
     if (mounted) {
       setState(() {
         otherProfileImagesURL = fetchedOtheProfileImagesURL;
-        otherMainProfileURL = fetchedOtherMainProfileURL;
         isLoading = false;
       });
     }
@@ -67,6 +73,9 @@ class _OtherProfile extends State<OtherProfile> {
 
   Future<void> fetchUsername() async {
     try {
+      while (globalData.myUid == '1234567890') {
+        await Future.delayed(Duration(milliseconds: 100));
+      }
       var user = await authServices.getDocument(widget.otherUid);
       final fetchedBlock = await profileServices.isBlockTrue();
       if (user != null) {
@@ -74,6 +83,7 @@ class _OtherProfile extends State<OtherProfile> {
           username = user['username'];
           isBlockTrue = fetchedBlock;
           name = user['name'];
+          globalData.updateOther(email, widget.otherUid, username, name);
         });
       }
     } catch (e) {
@@ -112,7 +122,6 @@ class _OtherProfile extends State<OtherProfile> {
         final ref =
             FirebaseStorage.instance.ref().child("images/${whichProfile}");
 
-        // Attempt to delete the file
         await ref.delete();
         print("File deleted successfully.");
       } catch (e) {
@@ -127,11 +136,6 @@ class _OtherProfile extends State<OtherProfile> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
     int midIndex = (otherProfileImagesURL.length / 2).floor();
 
     List<String> latestImages = otherProfileImagesURL.sublist(0, midIndex);
@@ -139,184 +143,128 @@ class _OtherProfile extends State<OtherProfile> {
     return Scaffold(
         // drawer: ReportScreen(),
         backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          toolbarHeight: 36,
-          title: SizedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        icon: Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }),
+                    Expanded(
+                        child: Text(globalData.otherName,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 20))),
+                    MyMenuButton()
+                  ],
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => OtherProfilePreviewScreen(
+                          imageURL: otherMainProfileURL),
+                    ));
+                  },
+                  child: CircleAvatar(
+                      backgroundImage:
+                          CachedNetworkImageProvider(otherMainProfileURL),
+                      radius: MediaQuery.of(context).size.width * 0.25),
+                ),
+
+                const SizedBox(height: 1),
+                Text(name, style: const TextStyle(fontSize: 26)),
+                SizedBox(height: 1),
+//=============================================================================                  follow this user        ===========================
                 SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.576,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          username,
-                          style: const TextStyle(
-                              fontSize: 18, color: Colors.white),
-                        ),
-                      ],
-                    )),
-                MyMenuButton()
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 60)),
+                      onPressed: () {
+                        otherService.followOther(widget.otherUid).then((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'お客様は「${globalData.otherUserName}」をフォローしました。')),
+                          );
+                        });
+                      },
+                      child: Text(
+                        "フォロー", // follow
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      )),
+                ),
+                Expanded(
+                  child: FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
+                      future: getOtherImageNames(widget.otherUid),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        }
+
+                        if (!snapshot.hasData ||
+                            snapshot.data!['latest']!.isEmpty) {
+                          return Center(child: Text(""));
+                        }
+
+                        final imagesData = snapshot.data!;
+                        final latestImages = imagesData["latest"]!;
+                        final otherImages = imagesData["others"]!;
+                        return Row(children: [
+                          Expanded(
+                            child: ListView(
+                              children: latestImages.map((image) {
+                                return FutureBuilder<String>(
+                                    future: FirebaseStorage.instance
+                                        .ref(
+                                            'images/${widget.otherUid}/profileImages/${image['name']}')
+                                        .getDownloadURL(),
+                                    builder: (context, urlSnapshot) {
+                                      if (!urlSnapshot.hasData)
+                                        return Center(
+                                            child: CircularProgressIndicator());
+                                      return _buildImageTile(
+                                          urlSnapshot.data!, image['status']);
+                                    });
+                              }).toList(),
+                            ),
+                          ),
+                          SizedBox(width: 2),
+                          Expanded(
+                              child: ListView(
+                            children: otherImages.map((image) {
+                              return FutureBuilder<String>(
+                                  future: FirebaseStorage.instance
+                                      .ref(
+                                          'images/${widget.otherUid}/profileImages/${image['name']}')
+                                      .getDownloadURL(),
+                                  builder: (context, urlSnapshot) {
+                                    if (!urlSnapshot.hasData)
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    return _buildImageTile(
+                                        urlSnapshot.data!, image['status']);
+                                  });
+                            }).toList(),
+                          ))
+                        ]);
+                      }),
+                )
               ],
             ),
           ),
-        ),
-        body: SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Stack(children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context)
-                                .pushReplacement(MaterialPageRoute(
-                              builder: (context) => OtherProfilePreviewScreen(
-                                  imageURL: otherMainProfileURL),
-                            ));
-                          },
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(otherMainProfileURL),
-                            radius: MediaQuery.of(context).size.width * 0.25,
-                          ),
-                        ),
-
-                        const SizedBox(height: 1),
-                        Text(
-                          name,
-                          style: const TextStyle(fontSize: 26),
-                        ),
-                        SizedBox(height: 1),
-//=============================================================================                  follow this user        ===========================
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: TextButton(
-                              style: TextButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 60)),
-                              onPressed: () {
-                                otherService
-                                    .followOther(widget.otherUid)
-                                    .then((_) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'お客様は「${globalData.otherUserName}」をフォローしました。')),
-                                  );
-                                });
-                              },
-                              child: Text(
-                                "フォロー", // follow
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                ),
-                              )),
-                        ),
-                        FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-                            future: getImageNames(widget.otherUid),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                return Center(
-                                    child: Text("Error: ${snapshot.error}"));
-                              }
-
-                              if (!snapshot.hasData ||
-                                  snapshot.data!['latest']!.isEmpty) {
-                                return Center(child: Text(""));
-                              }
-
-                              final imagesData = snapshot.data!;
-                              final latestImages = imagesData["latest"]!;
-                              final otherImages = imagesData["others"]!;
-                              return Row(children: [
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                            0.5 -
-                                        6,
-                                    height: MediaQuery.of(context).size.height -
-                                        40 -
-                                        MediaQuery.of(context).size.width *
-                                            0.5 -
-                                        80,
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ...latestImages.map((image) {
-                                            return FutureBuilder<String>(
-                                                future: FirebaseStorage.instance
-                                                    .ref(
-                                                        'images/${widget.otherUid}/profileImages/${image['name']}')
-                                                    .getDownloadURL(),
-                                                builder:
-                                                    (context, urlSnapshot) {
-                                                  if (!urlSnapshot.hasData)
-                                                    return Center(
-                                                        child:
-                                                            CircularProgressIndicator());
-                                                  return _buildImageTile(
-                                                      urlSnapshot.data!,
-                                                      image['status']);
-                                                });
-                                          }).toList(),
-                                        ],
-                                      ),
-                                    )),
-                                SizedBox(width: 2),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                            0.5 -
-                                        6,
-                                    height: MediaQuery.of(context).size.height -
-                                        40 -
-                                        MediaQuery.of(context).size.width *
-                                            0.5 -
-                                        80,
-                                    child: SingleChildScrollView(
-                                        child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ...otherImages.map((image) {
-                                          return FutureBuilder<String>(
-                                              future: FirebaseStorage.instance
-                                                  .ref(
-                                                      'images/$uid/profileImages/${image['name']}')
-                                                  .getDownloadURL(),
-                                              builder: (context, urlSnapshot) {
-                                                if (!urlSnapshot.hasData)
-                                                  return Center(
-                                                      child:
-                                                          CircularProgressIndicator());
-                                                return _buildImageTile(
-                                                    urlSnapshot.data!,
-                                                    image['status']);
-                                              });
-                                        }).toList(),
-                                      ],
-                                    )))
-                              ]);
-                            }),
-                      ],
-                    ),
-                  ),
-                ]))));
+        ));
   }
-
-  TextEditingController spamController = TextEditingController();
-  TextEditingController sexController = TextEditingController();
-  TextEditingController otherHaressmentController = TextEditingController();
-  TextEditingController scamController = TextEditingController();
-  TextEditingController otherController = TextEditingController();
-  TextEditingController impersonationController = TextEditingController();
 
   Widget MyMenuButton() {
     return SizedBox(
@@ -395,17 +343,19 @@ class _OtherProfile extends State<OtherProfile> {
   Widget _buildImageTile(String imageURL, String status) {
     return GestureDetector(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PreviewScreen(imageURL: imageURL),
-            ),
-          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => OtherProfilePreviewScreen(imageURL: imageURL),
+          ));
         },
-        child: Stack(children: [
-          CachedNetworkImage(
+        child: Padding(
+          padding: EdgeInsets.all(1),
+          child: CachedNetworkImage(
+            width: MediaQuery.of(context).size.width / 2,
+            height: MediaQuery.of(context).size.height / 3 + 10,
+            fit: BoxFit.fitWidth,
             imageUrl: imageURL,
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
-        ]));
+        ));
   }
 }

@@ -39,7 +39,7 @@ class _OtherUsersScreenState extends State<OtherUsers> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(title: Text("他のユーザー")),
+      appBar: AppBar(title: Text("他のユーザー"), centerTitle: true),
       body: FutureBuilder<List<dynamic>?>(
         future: _otherUidFuture,
         builder: (context, snapshot) {
@@ -64,10 +64,7 @@ class _OtherUsersScreenState extends State<OtherUsers> {
                     bool isMeblocked = await profileServices.isMeBlocked(
                         globalData.myUid, otherUid);
                     final user = await authServices.getDocument(otherUid);
-                    if (user != null) {
-                      globalData.updateOther(user['email'], user['uid'],
-                          user['username'], user['name']);
-                    }
+
                     final fetchedBlock = await profileServices.isBlockTrue();
                     if (!isMeblocked) {
                       if (!mounted) return;

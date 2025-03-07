@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Email is not verified.')));
+      ).showSnackBar(SnackBar(content: Text('電子メールは確認されていません。')));
     }
   }
 
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(
             content: Text(
               textAlign: TextAlign.center,
-              'Please enter a valid email address.',
+              '有効なメールアドレスを入力してください。',
             ),
             backgroundColor: const Color.fromARGB(255, 109, 209, 214),
           ),
@@ -70,20 +70,20 @@ class _LoginScreenState extends State<LoginScreen> {
       isEmailVerified();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
-        const emailError = 'Enter valid email ID';
+        const emailError = '有効なメールアドレスを入力してください。';
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text(emailError)));
       }
       if (e.code == 'wrong-password') {
-        const passError = 'Enter correct password';
+        const passError = '正しいパスワードを入力してください。';
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text(passError)));
       }
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You are not registed. Sign Up now")),
+          const SnackBar(content: Text("登録されていません。今すぐ登録してください。")),
         );
       }
       if (e.code == 'invalid-credential') {

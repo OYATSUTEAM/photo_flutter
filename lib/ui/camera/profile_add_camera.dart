@@ -208,7 +208,6 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          backgroundColor: Colors.black,
           body: _isCameraPermissionGranted
               ? _isCameraInitialized
                   ? Stack(children: [
@@ -313,8 +312,6 @@ class _ProfileAddCameraScreenState extends State<ProfileAddCameraScreen>
                                         if (!(await subDir.exists())) {
                                           await subDir.create(recursive: true);
                                         }
-                                        // String fileFormat =
-                                        //     imageFile.path.split('.').last;
 
                                         await imageFile.copy(
                                           '${directory.path}/$uid/profileImages/$currentUnix.jpg',

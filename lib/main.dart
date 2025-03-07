@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:camera/camera.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
@@ -8,14 +9,19 @@ import 'package:photo_sharing_app/bloc/theme_state.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
-import 'package:photo_sharing_app/theme/light_mode.dart';
 import 'package:photo_sharing_app/theme/dark_mode.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("New background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
@@ -25,12 +31,10 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  // await Firebase.initializeApp(
-  //   // name: "unprocessedsns",
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
   await initSerivceLocator();
   await globalData.getAppDir();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(BlocProvider(create: (context) => ThemeBloc(), child: MyApp()));
 }
 
@@ -47,7 +51,6 @@ class MyApp extends StatelessWidget {
             builder: FlutterSmartDialog.init(),
             locale: Locale('ja', 'JP'), // or 'en' for English
             supportedLocales: [
-              // Locale('en', 'US'),
               Locale('ja', 'JP'),
             ],
             localizationsDelegates: [
@@ -63,7 +66,6 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           locale: Locale('ja', 'JP'), // or 'en' for English
           supportedLocales: [
-            // Locale('en', 'US'),
             Locale('ja', 'JP'),
           ],
           localizationsDelegates: [
@@ -72,7 +74,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           debugShowCheckedModeBanner: false,
-          theme: lightMode,
+          theme: darkMode,
           home: AuthGate(),
         );
       },

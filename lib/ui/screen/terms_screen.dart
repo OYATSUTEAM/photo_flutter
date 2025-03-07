@@ -7,7 +7,9 @@ class TermsOfUsePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('利用規約'),
+        centerTitle: true,
+        title: const Text("利用規約"),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

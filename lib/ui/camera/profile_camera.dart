@@ -307,17 +307,9 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                         await deleteFile.delete();
                                       }
 
-// String newFileName = 'editProfileImage_${DateTime.now().millisecondsSinceEpoch}.$fileFormat';
-
-// File newFile = await imageFile.copy('${globalData.appDir.path}/$uid/$newFileName');
-
-                                      await imageFile
-                                          .copy(
+                                      await imageFile.copy(
                                         '${globalData.appDir.path}/$uid/editProfileImage.$fileFormat',
-                                      )
-                                          .then((result) {
-                                        print('${result}===============');
-                                      });
+                                      );
 
                                       // await uploadFile(uid, 'editProfileImage',
                                       //     imageFile.path);
@@ -329,7 +321,6 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                                                 builder: (context) =>
                                                     ProfileSetScreen()));
                                       }
-                                      ;
                                     },
                                     child: Stack(
                                       alignment: Alignment.center,
@@ -373,14 +364,13 @@ class _CameraScreenState extends State<ProfileCameraScreen>
                     ),
                     Positioned(
                       top: 10,
-                      left: 10,
+                      right: 10,
                       child: IconButton(
-                        icon: const Icon(Icons.close,
-                            color: Colors.red, size: 34),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
+                          icon: const Icon(Icons.close,
+                              color: Colors.red, size: 34),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }),
                     ),
                   ])
                 : Center(

@@ -96,246 +96,48 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
     try {
       return SafeArea(
           child: Scaffold(
-              appBar: AppBar(
-                toolbarHeight: 36,
-                title: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.576,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                username,
-                                style: const TextStyle(
-                                    fontSize: 18, color: Colors.white),
-                              )
-                            ],
-                          )),
-                      MyMenuButton()
-                    ],
-                  ),
-                ),
-              ),
-              body: Stack(children: [
-                SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(children: [
-                      // SizedBox(
-                      //   height: 48,
-                      // ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                              width: MediaQuery.of(context).size.width * 0.97,
-                              height: MediaQuery.of(context).size.height * 0.76,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  color: Colors.grey,
-                                  image: DecorationImage(
-                                    image: NetworkImage(widget.imageURL),
-                                    fit: BoxFit.cover,
-                                  ))),
-                        ],
-                      ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: [
-                      //     SizedBox(width: 15),
-                      //     if (commentsStatus == true)
-                      //       IconButton(
-                      //         onPressed: () async {
-                      //           Map<String, dynamic>? user =
-                      //               await authServices.getUserDetail(uid!);
-                      //           setState(() {
-                      //             _scrollToBottom();
-                      //             isCommenting = !isCommenting;
-                      //             username = user?['username'];
-                      //           });
-                      //         },
-                      //         icon: Icon(Icons.chat_bubble_outline),
-                      //       ),
-                      //     if (commentsStatus == true)
-                      //       Text(comments.length.toString()),
-                      //     SizedBox(width: 30),
-                      //     IconButton(
-                      //       onPressed: () {
-                      //         isLikeClickable
-                      //             ? setState(() {
-                      //                 otherService.increamentLike(
-                      //                     widget.otherUid, widget.whichProfile);
-                      //                 isLikeClickable = false;
-                      //                 isDislikeClickable = true;
-                      //                 _setUpInit();
-                      //               })
-                      //             : setState(() {
-                      //                 otherService.decreamentDislike(
-                      //                     widget.otherUid, widget.whichProfile);
-                      //               });
-                      //       },
-                      //       icon: Icon(Icons.thumb_up),
-                      //     ),
-                      //     Text(like.length.toString()),
-                      //     SizedBox(width: 30),
-                      //     if (commentsStatus == true)
-                      //       IconButton(
-                      //         onPressed: () {
-                      //           setState(() {
-                      //             otherService.increamentDislike(
-                      //                 widget.otherUid, widget.whichProfile);
-                      //             isDislikeClickable = false;
-                      //             isLikeClickable = true;
-                      //             _setUpInit();
-                      //           });
-                      //         },
-                      //         icon: Icon(Icons.thumb_down),
-                      //       ),
-                      //     if (commentsStatus == true)
-                      //       Text(dislike.length.toString()),
-                      //     SizedBox(width: 30),
-                      //     if (commentsStatus == true)
-                      //       IconButton(
-                      //         onPressed: () {
-                      //           setState(() {
-                      //             otherService.increamentFavourite(
-                      //                 widget.otherUid, widget.whichProfile);
-                      //             _setUpInit();
-                      //           });
-                      //         },
-                      //         icon: Icon(Icons.favorite_outline),
-                      //       ),
-                      //     if (commentsStatus == true)
-                      //       Text(favourite.length.toString()),
-                      //   ],
-                      // ),
+              body: Column(children: [
+        SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                  // Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         OtherProfile(otherUid: globalData.otherUid)));
+                }),
+            Expanded(
+                child: Text(
+              globalData.otherName,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 20),
+            )),
+            // IconButton(
 
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      //   children: [Text(username), Text(name)],
-                      // ),
-                      // isCommenting
-                      //     ? SizedBox(
-                      //         height: 0,
-                      //       )
-                      //     : SizedBox(
-                      //         height: 50,
-                      //       ),
-                      // if (isCommenting) ...[
-                      //   Container(
-                      //     height: 300,
-                      //     decoration: BoxDecoration(
-                      //       border: Border.all(
-                      //         color:
-                      //             Colors.white, // Set the border color to white
-                      //         width: 2.0, // Set the width of the border
-                      //       ),
-                      //       borderRadius: BorderRadius.all(Radius.circular(
-                      //           8.0)), // Optional: Add rounded corners
-                      //     ),
-                      //     child: ListView.builder(
-                      //       itemCount: comments.length,
-                      //       itemBuilder: (context, index) {
-                      //         var comment = comments[index];
-                      //         var timestamp = comment['timestamp'];
-                      //         var otherUid = comment['uid'];
-
-                      //         String formattedTimestamp = timestamp != null
-                      //             ? timestamp
-                      //                 .toDate()
-                      //                 .toString() // Format the timestamp if not null
-                      //             : 'No timestamp available';
-
-                      //         return FutureBuilder(
-                      //           future: authServices.getDocument(otherUid),
-                      //           builder: (context, snapshot) {
-                      //             if (snapshot.connectionState ==
-                      //                 ConnectionState.waiting) {
-                      //               return ListTile(
-                      //                 title: Text(comment['comment']),
-                      //                 subtitle: Text(
-                      //                     'ユーザー: ローディング...'), ///////////////////loading
-                      //                 trailing: Text(formattedTimestamp),
-                      //               );
-                      //             }
-                      //             if (snapshot.hasError) {
-                      //               return ListTile(
-                      //                 title: Text(comment['comment']),
-                      //                 subtitle:
-                      //                     Text('ユーザー: Error loading user'),
-                      //                 trailing: Text(formattedTimestamp),
-                      //               );
-                      //             }
-
-                      //             var otherUser = snapshot.data;
-                      //             var otherUserName =
-                      //                 otherUser?['username'] ?? 'Unknown User';
-
-                      //             return ListTile(
-                      //               title: Text(comment['comment']),
-                      //               subtitle: Text('ユーザー: $otherUserName'),
-                      //               trailing: Text(formattedTimestamp),
-                      //             );
-                      //           },
-                      //         );
-                      //       },
-                      //     ),
-                      //   ),
-                      //   // Padding(
-                      //   //   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      //   //   child: TextField(
-                      //   //     controller: _commentController,
-                      //   //     decoration: InputDecoration(
-                      //   //       labelText: 'コメントを入力',
-                      //   //       border: OutlineInputBorder(),
-                      //   //       suffixIcon: IconButton(
-                      //   //         icon: Icon(Icons.cancel),
-                      //   //         onPressed: () {
-                      //   //           setState(() {
-                      //   //             isCommenting = false;
-                      //   //             _commentController.clear();
-                      //   //           });
-                      //   //         },
-                      //   //       ),
-                      //   //     ),
-                      //   //     onChanged: (text) {
-                      //   //       setState(() {
-                      //   //         commentText = text;
-                      //   //       });
-                      //   //     },
-                      //   //   ),
-                      //   // ),
-                      //   // ElevatedButton(
-                      //   //   onPressed: () {
-                      //   //     if (commentText.isNotEmpty) {
-                      //   //       otherService.addComment(widget.otherUid,
-                      //   //           commentText, widget.whichProfile);
-                      //   //       setState(() {
-                      //   //         _setUpInit();
-                      //   //         _commentController
-                      //   //             .clear(); // Clear the text field
-                      //   //       });
-                      //   //     }
-                      //   //   },
-                      //   //   child: Text(
-                      //   //       style: TextStyle(color: Colors.white), 'コメント投稿'),
-                      //   // ),
-                      // ]
-                    ])),
-                Positioned(
-                  bottom: 0,
-                  left: 0, // Adjusted to account for padding
-                  child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.undo)),
-                ),
-              ])));
+            MyMenuButton()
+          ],
+        ),
+        SizedBox(height: 10),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+                width: MediaQuery.of(context).size.width * 0.97,
+                height: MediaQuery.of(context).size.height * 0.8,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.grey,
+                    image: DecorationImage(
+                        image: NetworkImage(widget.imageURL),
+                        fit: BoxFit.cover))),
+          ],
+        ),
+      ])));
     } catch (e) {
       return Scaffold(
         backgroundColor: Colors.white,
@@ -353,7 +155,6 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
     return SizedBox(
         width: 55,
         child: PopupMenuButton<String>(
-          // color: Color.fromRGBO(0, 0, 0, 0),
           offset: Offset(0, 30),
           padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
           menuPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
@@ -387,16 +188,12 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                 value: "report",
                 child: Container(
                   alignment: Alignment.center,
-                  width: 100, // Set width here
+                  width: 100,
                   padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
                   decoration: BoxDecoration(
-                    // Background color
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),
-                  child: Text(
-                    "報告",
-                    style: TextStyle(fontSize: 10),
-                  ),
+                  child: Text("報告", style: TextStyle(fontSize: 15)),
                 ),
               ),
               PopupMenuItem(
@@ -404,19 +201,13 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
                 value: "share",
                 child: Container(
                   alignment: Alignment.center,
-                  width: 100, // Set width here
+                  width: 100,
                   padding: EdgeInsets.symmetric(
                       vertical: 6, horizontal: 0), // Add padding
                   decoration: BoxDecoration(
-                    color:
-                        const Color.fromARGB(149, 5, 4, 4), // Background color
-
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),
-                  child: Text(
-                    "投稿",
-                    style: TextStyle(fontSize: 10),
-                  ),
+                  child: Text("投稿", style: TextStyle(fontSize: 15)),
                 ),
               )
             ];

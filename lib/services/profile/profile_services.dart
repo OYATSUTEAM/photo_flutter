@@ -163,8 +163,9 @@ Future<String> getMainProfileUrl(String uid) async {
   String mainURL = globalData.profileURL;
 
   try {
-    final profileRef =
-        FirebaseStorage.instance.ref().child("images/$uid/profileImage");
+    final profileRef = FirebaseStorage.instance
+        .ref()
+        .child("images/$uid/profileImages/profileImage");
     String profileUrl = await profileRef.getDownloadURL();
     return profileUrl;
   } on FirebaseException catch (e) {
@@ -176,10 +177,11 @@ Future<String> getMainProfileUrl(String uid) async {
   }
 }
 
-Future<void> deleteProfile(String uid, String whichProfile) async {
+Future<void> deleteProfile(String uid, String imageName) async {
   // Create a reference to the Firebase Storage location where your file is stored
   FirebaseStorage storage = FirebaseStorage.instance;
-  Reference storageRef = storage.ref().child('images/$uid/$whichProfile');
+  Reference storageRef =
+      storage.ref().child('images/$uid/profileImages/$imageName');
 
   try {
     // Delete the file
@@ -285,7 +287,40 @@ Future<bool> isPublicAccount(String uid) async {
 //================================================================================================================================
 //================================================================================================================================
 //================================================================================================================================
-Future<Map<String, List<Map<String, dynamic>>>> getImageNames(
+
+Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(String uid) {
+  final collectionRef = FirebaseFirestore.instance
+      .collection("profileImages")
+      .doc(uid)
+      .collection("images")
+      .orderBy('timestamp', descending: true);
+
+  return collectionRef.snapshots().map((querySnapshot) {
+    List<Map<String, dynamic>> latestImages = [];
+    List<Map<String, dynamic>> otherImages = [];
+
+    for (int i = 0; i < querySnapshot.docs.length; i++) {
+      var doc = querySnapshot.docs[i];
+      Map<String, dynamic> imageData = {
+        'name': doc.id, // Image name (doc ID)
+        'status': doc['status'], // Image status
+      };
+
+      if (i < querySnapshot.docs.length / 2) {
+        latestImages.add(imageData);
+      } else {
+        otherImages.add(imageData);
+      }
+    }
+
+    return {
+      "latest": latestImages,
+      "others": otherImages,
+    };
+  });
+}
+
+Future<Map<String, List<Map<String, dynamic>>>> getOtherImageNames(
     String uid) async {
   final collectionRef = FirebaseFirestore.instance
       .collection("profileImages")

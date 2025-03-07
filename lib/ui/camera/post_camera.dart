@@ -146,8 +146,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
       name = globalData.myName;
     });
 
-    final directory = await getApplicationDocumentsDirectory();
-    final subDir = Directory('${directory.path}/$uid/postImages');
+    final subDir = Directory('${globalData.appDirPath}/$uid/postImages');
     if (widget.isDelete) {
       if (await subDir.exists()) {
         try {
@@ -226,10 +225,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                   ? Stack(children: [
                       Column(
                         children: [
-                          SizedBox(
-                            height: 15,
-                            width: MediaQuery.of(context).size.width,
-                          ),
+                          SizedBox(height: 10),
                           Container(
                             height: MediaQuery.of(context).size.height * 0.78,
                             width: MediaQuery.of(context).size.width * 0.99,
@@ -390,14 +386,13 @@ class _PostCameraScreenState extends State<PostCameraScreen>
                       ),
                       Positioned(
                         top: 10,
-                        left: 10,
+                        right: 10,
                         child: IconButton(
-                          icon: const Icon(Icons.close,
-                              color: Colors.red, size: 34),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
+                            icon: const Icon(Icons.close,
+                                color: Colors.red, size: 34),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            }),
                       ),
                     ])
                   : Center(

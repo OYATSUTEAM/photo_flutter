@@ -31,7 +31,9 @@ Future<void> uploadFile(
     'public': 'false', // Custom flag; does not affect actual public access
   });
 
-  final ref = FirebaseStorage.instance.ref().child("images/$uid/$profileURL");
+  final ref = FirebaseStorage.instance
+      .ref()
+      .child("images/$uid/profileImages/$profileURL");
 
   try {
     UploadTask uploadTask = ref.putFile(File(imageFilePath), metadata);

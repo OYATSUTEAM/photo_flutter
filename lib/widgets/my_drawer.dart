@@ -97,20 +97,15 @@ class _MyDrawer extends State<MyDrawer> {
                   SizedBox(height: 20),
                   Text(
                     "設定",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   SizedBox(height: 15),
                   MyButton(
                     text: "利用規約", //terms of service
                     onTap: () async {
-                      Navigator.pop(context);
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => TermsOfUsePage(),
-                        ),
+                            builder: (context) => TermsOfUsePage()),
                       );
                     },
                   ),
@@ -120,8 +115,7 @@ class _MyDrawer extends State<MyDrawer> {
                     onTap: () async {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SettingsScreen(),
-                        ),
+                            builder: (context) => SettingsScreen()),
                       );
                     },
                   ),
@@ -129,26 +123,10 @@ class _MyDrawer extends State<MyDrawer> {
                   MyButton(
                     text: "プライバシーポリシー", //privacy policy
                     onTap: () async {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CookieScreen()),
-                      );
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CookieScreen()));
                     },
                   ),
-                  // SizedBox(
-                  //   height: 15,
-                  // ),
-                  // MyButton(
-                  //   text: "その他", //others
-                  //   onTap: () async {
-                  //     // Navigator.pop(context);
-                  //     // Navigator.of(context).push(
-                  //     //   MaterialPageRoute(
-                  //     //     builder: (context) => EtcScreen(),
-                  //     //   ),
-                  //     // );
-                  //   },
-                  // ),
                   SizedBox(height: 15),
                   MyButton(
                     text: "他のユーザー", //others
@@ -162,21 +140,16 @@ class _MyDrawer extends State<MyDrawer> {
                   MyButton(
                     text: "フォローとフォロワー",
                     onTap: () async {
-                      Navigator.pop(context);
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => FollowAndFollower(),
-                        ),
+                            builder: (context) => FollowAndFollower()),
                       );
                     },
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   MyButton(
                     text: "ブロックとブロックされた",
                     onTap: () async {
-                      Navigator.pop(context);
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => BlockedUsers(),
@@ -205,7 +178,6 @@ class _MyDrawer extends State<MyDrawer> {
                       text: "ログアウト",
                       color: Colors.red,
                       onTap: () async {
-                        print('logout is called============');
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -215,17 +187,13 @@ class _MyDrawer extends State<MyDrawer> {
                         await AuthServices(locator.get(), locator.get())
                             .signOut();
                         if (mounted) {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          // Navigator.pop(context);
                           Navigator.of(context)
                               .push(MaterialPageRoute(builder: (context) {
                             return LoginScreen();
                           }));
                         }
-                        // await AuthServices(locator.get(), locator.get())
-                        //     .signOut();
-                        // await FirebaseAuth.instance.signOut();
-                        // Navigator.pop(context);
                       }),
                   SizedBox(height: 15),
                   MyButton(

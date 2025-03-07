@@ -26,6 +26,7 @@ class GlobalData {
   String otherUid = '1234567890';
   String otherUserName = 'defaultUserName';
   String otherName = 'defaultName';
+  String appDirPath = '';
   bool isAccountPublic = false;
 
   Directory appDir = Directory('');
@@ -53,6 +54,7 @@ class GlobalData {
 
   getAppDir() async {
     appDir = await getApplicationDocumentsDirectory();
+    appDirPath = appDir.path;
   }
 }
 

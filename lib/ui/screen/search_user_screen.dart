@@ -1,8 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/ui/screen/chat_screen.dart';
 import 'package:photo_sharing_app/widgets/usertile.dart';
 
 final ChatService _chatService = locator.get();
@@ -23,6 +25,7 @@ class _SearchUserState extends State<SearchUser> {
   @override
   void initState() {
     super.initState();
+    requestPermission();
     query = query;
     searchController = TextEditingController(text: query);
     searchFocusNode = FocusNode();
@@ -31,6 +34,22 @@ class _SearchUserState extends State<SearchUser> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       searchFocusNode.requestFocus();
     });
+  }
+
+  void requestPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print("User granted permission");
+    } else {
+      print("User denied permission");
+    }
   }
 
   void updateSearchQuery() {
@@ -58,7 +77,7 @@ class _SearchUserState extends State<SearchUser> {
               controller: searchController,
               focusNode: searchFocusNode,
               decoration: InputDecoration(
-                hintText: "検索", // Search
+                hintText: "検索",
                 hintStyle: const TextStyle(fontSize: 13.0, color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -100,9 +119,7 @@ class BuildUserList extends StatelessWidget {
             child: Text(
               "エラー", // Error
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 20.0,
-              ),
+                  color: Theme.of(context).colorScheme.primary, fontSize: 20.0),
             ),
           );
         }
@@ -114,21 +131,17 @@ class BuildUserList extends StatelessWidget {
                 Text(
                   "ローディング", // Loading
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 20,
-                  ),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 20),
                 ),
                 const SizedBox(width: 5),
                 SpinKitWanderingCubes(
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 30.0,
-                ),
+                    color: Theme.of(context).colorScheme.primary, size: 30.0),
               ],
             ),
           );
         }
 
-        // Filter users based on the search query
         final filteredUsers = query.isEmpty
             ? []
             : snapshot.data?.where((user) {
@@ -146,9 +159,8 @@ class BuildUserList extends StatelessWidget {
                       child: Text(
                         "ユーザーが見つかりません", // User not found
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 16,
-                        ),
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 16),
                       ),
                     )
                   : ListView.builder(
@@ -188,7 +200,15 @@ class BuilduserStreamList extends StatelessWidget {
       return Column(
         children: [
           SizedBox(height: 10),
-          UserTile(text: otherName, onTap: () {}, otherUid: otherUid)
+          UserTile(
+              text: otherName,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return ChatScreen(
+                      receiverEmail: otherEmail, receiverId: otherUid);
+                }));
+              },
+              otherUid: otherUid)
         ],
       );
     }

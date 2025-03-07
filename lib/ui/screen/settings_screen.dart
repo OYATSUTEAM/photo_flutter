@@ -51,9 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text("公開設定"),
-        backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.grey,
       ),
       body: GestureDetector(
         onTap: () async {

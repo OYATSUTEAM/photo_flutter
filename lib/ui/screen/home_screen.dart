@@ -294,7 +294,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop();
                         }
-                        // if (mounted) Navigator.pop(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {
@@ -304,7 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }),
                 ],
-                // )
               )
             ],
           )),
@@ -314,35 +312,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildImageTile(List<String> imageFiles, int index) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
+        Navigator.of(context).push(MaterialPageRoute(
             builder: (context) =>
-                OtherProfilePreviewScreen(imageURL: imageFiles[index]),
-          ),
-        );
+                OtherProfilePreviewScreen(imageURL: imageFiles[index])));
       },
       child: Padding(
-          padding: EdgeInsets.all(2),
+          padding: EdgeInsets.all(1),
           child: Stack(
             children: [
               Container(
                   decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                    image: NetworkImage(imageFiles[index]), fit: BoxFit.cover),
-              )),
-              Text('')
-              // Positioned(
-              //   bottom: 0,
-              //   right: 0,
-              //   child: IconButton(
-              //     icon: Icon(Icons.lock), // Change the icon if needed
-              //     color: Colors.green,
-              //     onPressed: () async {
-              //       // Implement lock/unlock functionality
-              //     },
-              //   ),
-              // ),
+                      borderRadius: BorderRadius.circular(8.0),
+                      image: DecorationImage(
+                          image: NetworkImage(imageFiles[index]),
+                          fit: BoxFit.cover))),
             ],
           )),
     );

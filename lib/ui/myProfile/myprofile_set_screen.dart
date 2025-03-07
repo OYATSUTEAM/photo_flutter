@@ -4,9 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
-import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
-import 'package:photo_sharing_app/ui/camera/captures_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
@@ -32,6 +30,7 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
   bool? shouldDelete = false;
   String myProfileImage = '';
   String imageURL = '';
+  List<File> allFileList = [];
 
   String editProfileImage = '';
   XFile? _selectImage;
@@ -64,12 +63,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
 
   Future<void> _loadImages() async {
     final directory = await getApplicationDocumentsDirectory();
-    // final fetchedURL = await getEditProfileUrl(uid);
 
     setState(() {
-      // imageURL = fetchedURL;
-      // '${directory.path}/$uid/editProfileImage.jpg';
-
       editProfileImage = '${directory.path}/$uid/editProfileImage.jpg';
       myProfileImage = '${directory.path}/$uid/myProfileImage.jpg';
       _selectImage = XFile(editProfileImage);
@@ -203,15 +198,8 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
                       myProfileImage =
                           '${directory.path}/$uid/editProfileImage.jpg';
                       await uploadFile(uid, 'profileImage', myProfileImage);
-                      // File imageFile = File(myProfileImage);
-                      // await imageFile
-                      //     .copy('${directory.path}/${uid}/myProfileImage.jpg');
 
                       if (mounted) {
-                        // await firestore.collection('Users').doc('$uid').update({
-                        //   'comments-${widget.whichProfile}': FieldValue.delete(),
-                        // });
-
                         deleteAllFileWithConfirmation(context);
                         Navigator.pop(context);
                         Navigator.pop(context);

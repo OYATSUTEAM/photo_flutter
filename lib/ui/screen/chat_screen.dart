@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/widgets/chat_bubble.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final ChatService chatServices = locator.get();
 final AuthServices authServices = locator.get();
@@ -35,10 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
     myFocusNode.addListener(
       () {
         if (myFocusNode.hasFocus) {
-          Future.delayed(
-            const Duration(milliseconds: 500),
-            () => scrollDown(),
-          );
+          Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
         }
       },
     );
@@ -60,7 +59,15 @@ class _ChatScreenState extends State<ChatScreen> {
   void scrollDown() {
     scrollController.animateTo(
       scrollController.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 10),
+      curve: Curves.decelerate,
+    );
+  }
+
+  void scrollDownInit() {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
       curve: Curves.decelerate,
     );
   }
@@ -68,10 +75,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void sendMessage() async {
     if (controller.text.isNotEmpty) {
       await chatServices.sendMessage(widget.receiverId, controller.text);
-
       controller.clear();
     }
-
     scrollDown();
   }
 
@@ -81,9 +86,6 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Scaffold(
       appBar: AppBar(
         title: Text(receiverUserName),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
         elevation: 0,
       ),
       body: Column(
@@ -95,8 +97,9 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 30.0),
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: MyTextField(
@@ -110,15 +113,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 Container(
                   margin: const EdgeInsets.only(right: 20.0),
                   decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
+                      shape: BoxShape.circle, color: Colors.green),
                   child: IconButton(
                     onPressed: sendMessage,
-                    icon: const Icon(
-                      Icons.arrow_upward,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.arrow_upward, color: Colors.white),
                   ),
                 ),
               ],
@@ -130,54 +128,91 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class MessageList extends StatelessWidget {
+class MessageList extends StatefulWidget {
   const MessageList(
       {super.key, required this.receiverID, required this.controller});
   final String receiverID;
   final ScrollController controller;
 
   @override
+  State<MessageList> createState() => _MessageListState();
+}
+
+class _MessageListState extends State<MessageList> {
+  int previousMessageCount = 0;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    _setupNotifications();
+  }
+
+  void _setupNotifications() {
+    var initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _showNotification(
+          message.notification?.title, message.notification?.body);
+    });
+  }
+
+  void _showNotification(String? title, String? body) {
+    var androidDetails = const AndroidNotificationDetails(
+      'channel_id',
+      'Chat Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    var notificationDetails = NotificationDetails(android: androidDetails);
+
+    flutterLocalNotificationsPlugin.show(
+      0, // Notification ID
+      title ?? "New Message",
+      body ?? "You have a new message",
+      notificationDetails,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     String senderID = authServices.getCurrentuser()!.uid;
     return StreamBuilder(
-      stream: chatServices.getMessage(receiverID, senderID),
+      stream: chatServices.getMessage(widget.receiverID, senderID),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Text(
-            "Error",
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 20,
-            ),
-          );
+          return Text("Error");
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "読み込み中",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 20,
-                  ),
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
-                SpinKitWanderingCubes(
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 30.0,
-                ),
-              ],
-            ),
-          );
+          return Center(child: CircularProgressIndicator());
         }
+
+        var messages = snapshot.data!.docs;
+
+        if (messages.length > previousMessageCount) {
+          _showNotification("New Message", "You received a new message!");
+        }
+
+        previousMessageCount = messages.length;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (widget.controller.hasClients) {
+            widget.controller
+                .jumpTo(widget.controller.position.maxScrollExtent);
+          }
+        });
+
         return ListView(
-          controller: controller,
-          children:
-              snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+          controller: widget.controller,
+          children: messages.map((doc) => _buildMessageItem(doc)).toList(),
         );
       },
     );
@@ -185,11 +220,10 @@ class MessageList extends StatelessWidget {
 
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    bool isCurentUser = data['senderId'] == authServices.getCurrentuser()!.uid;
+    bool isCurrentUser = data['senderId'] == authServices.getCurrentuser()!.uid;
 
     return ChatBubble(
-      isCurrentUser: isCurentUser,
+      isCurrentUser: isCurrentUser,
       message: data["message"],
     );
   }

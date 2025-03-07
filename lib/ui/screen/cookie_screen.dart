@@ -7,8 +7,7 @@ class CookieScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('プライバシーポリシー'),
-      ),
+          centerTitle: true, title: const Text("プライバシーポリシー"), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
