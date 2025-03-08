@@ -255,14 +255,13 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<String> shareImage() async {
-    final box = context.findRenderObject() as RenderBox?;
+    // final box = context.findRenderObject() as RenderBox?;
 
     List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
-    print('${globalData.postText}=================');
     await Share.shareXFiles(
       xFiles,
       subject: globalData.postText,
-      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+      // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     ).then((shareResult) async {
       if (shareResult.status.toString() == 'ShareResultStatus.success') {
         // showDialog(
@@ -290,32 +289,6 @@ class _PostScreenState extends State<PostScreen> {
 
     return 'failure';
   }
-
-  // Future<void> shareImage() async {
-  //   try {
-  //     final result = await _channel.invokeMethod('shareImage', {
-  //       'imagePath': allPostFileList.first.toString(),
-  //       'text': 'text',
-  //     });
-
-  //     if (result == 'shared') {
-  //       print("Sharing started...======");
-  //     }
-  //   } on PlatformException catch (e) {
-  //     print("Error==========: ${e.message}");
-  //   }
-
-  //   // Listen for result
-  //   _channel.setMethodCallHandler((call) async {
-  //     if (call.method == "shareSuccess") {
-  //       print("User successfully shared the image!=============");
-  //       // Perform your post-sharing logic here
-  //     } else if (call.method == "shareFailed") {
-  //       print("User did NOT share the image.=======");
-  //       // Handle cases where the user didn't share
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {

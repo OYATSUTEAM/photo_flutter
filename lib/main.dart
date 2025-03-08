@@ -10,17 +10,12 @@ import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_gate.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/theme/dark_mode.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 final AuthServices authServices = locator.get();
 List<CameraDescription> cameras = [];
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("New background message: ${message.messageId}");
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +28,6 @@ void main() async {
   }
   await initSerivceLocator();
   await globalData.getAppDir();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(BlocProvider(create: (context) => ThemeBloc(), child: MyApp()));
 }

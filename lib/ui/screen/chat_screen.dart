@@ -6,8 +6,6 @@ import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/widgets/chat_bubble.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 final ChatService chatServices = locator.get();
 final AuthServices authServices = locator.get();
@@ -139,47 +137,9 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
-  int previousMessageCount = 0;
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   @override
   void initState() {
     super.initState();
-    _setupNotifications();
-  }
-
-  void _setupNotifications() {
-    var initializationSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    var initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _showNotification(
-          message.notification?.title, message.notification?.body);
-    });
-  }
-
-  void _showNotification(String? title, String? body) {
-    var androidDetails = const AndroidNotificationDetails(
-      'channel_id',
-      'Chat Notifications',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    var notificationDetails = NotificationDetails(android: androidDetails);
-
-    flutterLocalNotificationsPlugin.show(
-      0, // Notification ID
-      title ?? "New Message",
-      body ?? "You have a new message",
-      notificationDetails,
-    );
   }
 
   @override
@@ -196,12 +156,6 @@ class _MessageListState extends State<MessageList> {
         }
 
         var messages = snapshot.data!.docs;
-
-        if (messages.length > previousMessageCount) {
-          _showNotification("New Message", "You received a new message!");
-        }
-
-        previousMessageCount = messages.length;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (widget.controller.hasClients) {

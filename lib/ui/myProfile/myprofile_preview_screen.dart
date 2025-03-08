@@ -6,8 +6,6 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/camera/profile_camera.dart';
-import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
-import 'package:photo_sharing_app/widgets/my_button.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
