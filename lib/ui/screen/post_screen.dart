@@ -256,7 +256,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<String> shareImage() async {
     // final box = context.findRenderObject() as RenderBox?;
-
+    allPostFileList.map((path) => {print('$path===============')});
     List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
     await Share.shareXFiles(
       xFiles,

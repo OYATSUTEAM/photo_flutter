@@ -68,7 +68,7 @@ Future<String> uploadImage(String uid, String name, String imagePath) async {
     UploadTask uploadTask = ref.putFile(File(imagePath), metadata);
     await uploadTask.whenComplete(() => null);
     String getDownloadURL = await ref.getDownloadURL();
-    addImageUrl(getDownloadURL, uid);
+    // addImageUrl(getDownloadURL, uid);
 
     return getDownloadURL;
   } catch (e) {
@@ -107,7 +107,7 @@ Future<void> addToPosted(String imageUrl, String uid) async {
       }, SetOptions(merge: true));
     }
 
-    print("Image URL added successfully!");
+    print("Image URL added successfully!   add to post");
   } catch (e) {
     print("Error adding image URL: $e");
   }
