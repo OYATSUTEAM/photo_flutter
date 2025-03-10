@@ -299,10 +299,11 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Widget _buildImageTile(String imageURL, String imageName, String status) {
+    print('$imageURL==================');
     return GestureDetector(
         onTap: () {
-          imageCache.clear();
-          imageCache.clearLiveImages();
+          // imageCache.clear();
+          // imageCache.clearLiveImages();
 
           Navigator.of(context).push(
             MaterialPageRoute(

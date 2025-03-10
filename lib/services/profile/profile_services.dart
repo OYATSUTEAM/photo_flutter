@@ -312,7 +312,7 @@ Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(String uid) {
         otherImages.add(imageData);
       }
     }
-
+    print('$latestImages=================');
     return {
       "latest": latestImages,
       "others": otherImages,
