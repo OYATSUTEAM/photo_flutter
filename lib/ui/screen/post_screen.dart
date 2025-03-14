@@ -8,7 +8,7 @@ import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:isolate';
+import 'package:path/path.dart' as p;
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -45,11 +45,11 @@ class _PostScreenState extends State<PostScreen> {
     });
   }
 
-  Future<void> runInBackground() async {
-    for (var path in allPostFileListBackground) {
-      await addToPostedImages(uid, globalData.postText, path);
-    }
-  }
+  // Future<void> runInBackground() async {
+  //   for (var path in allPostFileListBackground) {
+  //     await addToPostedImages(uid, globalData.postText, path);
+  //   }
+  // }
 
   void deleteAllFiles() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -116,40 +116,6 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  // Future<void> _loadImagesBack() async {
-  //   print(uid);
-  //   final directory = await getApplicationDocumentsDirectory();
-  //   final subDir = Directory('${directory.path}/$uid/postImages');
-  //   final subDirBack = Directory('${directory.path}/$uid/postImagesBack');
-  //   setState(() {
-  //     textController.text = globalData.postText;
-  //   });
-  //   if (await subDir.exists()) {
-  //     final fileList = subDir
-  //         .listSync()
-  //         .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
-  //         .map((file) => file.path)
-  //         .toList()
-  //       ..sort(); // Sort the list alphabetically
-  //     final fileListBack = subDirBack
-  //         .listSync(00)
-  //         .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
-  //         .map((file) => file.path)
-  //         .toList()
-  //       ..sort(); // Sort the list alphabetically
-  //     setState(() {
-  //       allPostFileList
-  //         ..clear()
-  //         ..addAll(fileList);
-  //       isLoading = false;
-  //       allPostFileListBackground
-  //         ..clear()
-  //         ..addAll(fileListBack);
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
   Future<void> deleteAllFileWithConfirm(
     BuildContext context,
   ) async {
@@ -187,7 +153,8 @@ class _PostScreenState extends State<PostScreen> {
             });
 
         for (var path in allPostFileList) {
-          await addToPostedImages(uid, globalData.postText, path);
+          await addToPostedImages(
+              uid, globalData.postText, path, p.basenameWithoutExtension(path));
         }
 
         for (final String filePath in allPostFileList) {
@@ -255,8 +222,6 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<String> shareImage() async {
-    // final box = context.findRenderObject() as RenderBox?;
-    allPostFileList.map((path) => {print('$path===============')});
     List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
     await Share.shareXFiles(
       xFiles,
@@ -282,25 +247,19 @@ class _PostScreenState extends State<PostScreen> {
         // });
 
         await deleteAllFileWithConfirm(context);
-
         return shareResult.status.toString();
       }
     });
-
     return 'failure';
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
-
     if (allPostFileList.isEmpty) {
       return Scaffold(
-        // backgroundColor: Colors.grey,
         appBar: AppBar(),
         body: Center(
             child: Column(
@@ -315,9 +274,7 @@ class _PostScreenState extends State<PostScreen> {
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => PostCameraScreen(
-                        isDelete: false,
-                      ),
+                      builder: (context) => PostCameraScreen(isDelete: false),
                     ),
                   );
                 },
@@ -398,13 +355,6 @@ class _PostScreenState extends State<PostScreen> {
                 child: TextButton(
                     onPressed: () async {
                       await shareImage();
-                      // print(
-                      // '${appinioSocialShare.getInstalledApps()}===========================');
-                      // appinioSocialShare.android
-                      //     .shareToTelegram('message', allPostFileList.first)
-                      //     .then((result) {
-                      //   print('$result==============');
-                      // });
                     },
                     child: const Text('投稿',
                         style: TextStyle(color: Colors.white, fontSize: 16)))),

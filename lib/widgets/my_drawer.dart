@@ -95,11 +95,24 @@ class _MyDrawer extends State<MyDrawer> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(height: 20),
-                  Text(
-                    "設定",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  Stack(
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => HomeScreen(),
+                            ));
+                          },
+                          icon: Icon(Icons.arrow_back)),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text("設定",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 20)),
+                      )
+                    ],
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 5),
                   MyButton(
                     text: "利用規約", //terms of service
                     onTap: () async {
@@ -203,15 +216,6 @@ class _MyDrawer extends State<MyDrawer> {
                       deleteFileWithConfirmation(context);
                     },
                   ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      },
-                      child: Text('戻る'))
                 ],
               ),
             )));

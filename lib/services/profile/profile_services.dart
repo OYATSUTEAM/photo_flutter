@@ -163,9 +163,8 @@ Future<String> getMainProfileUrl(String uid) async {
   String mainURL = globalData.profileURL;
 
   try {
-    final profileRef = FirebaseStorage.instance
-        .ref()
-        .child("images/$uid/profileImages/profileImage");
+    final profileRef =
+        FirebaseStorage.instance.ref().child("images/$uid/profileImage");
     String profileUrl = await profileRef.getDownloadURL();
     return profileUrl;
   } on FirebaseException catch (e) {
@@ -178,10 +177,9 @@ Future<String> getMainProfileUrl(String uid) async {
 }
 
 Future<void> deleteProfile(String uid, String imageName) async {
-  // Create a reference to the Firebase Storage location where your file is stored
   FirebaseStorage storage = FirebaseStorage.instance;
   Reference storageRef =
-      storage.ref().child('images/$uid/profileImages/$imageName');
+      storage.ref().child('images/$uid/postedImages/$imageName');
 
   try {
     // Delete the file
@@ -287,37 +285,61 @@ Future<bool> isPublicAccount(String uid) async {
 //================================================================================================================================
 //================================================================================================================================
 //================================================================================================================================
+Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
+    String uid) async* {
+  final docRef = FirebaseFirestore.instance.collection("Users").doc(uid);
 
-Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(String uid) {
-  final collectionRef = FirebaseFirestore.instance
-      .collection("profileImages")
-      .doc(uid)
-      .collection("images")
-      .orderBy('timestamp', descending: true);
+  await for (var documentSnapshot in docRef.snapshots()) {
+    if (!documentSnapshot.exists) {
+      yield {"latest": [], "others": []}; // Return empty if no data exists
+      continue;
+    }
 
-  return collectionRef.snapshots().map((querySnapshot) {
+    List<dynamic> otherArray = documentSnapshot.get('imageUrls') ?? [];
+
+    // Safely parse timestamp
+    otherArray.sort((a, b) {
+      Timestamp tsA = _parseTimestamp(a['timestamp']);
+      Timestamp tsB = _parseTimestamp(b['timestamp']);
+      return tsB.compareTo(tsA); // Sort in descending order
+    });
+
     List<Map<String, dynamic>> latestImages = [];
     List<Map<String, dynamic>> otherImages = [];
 
-    for (int i = 0; i < querySnapshot.docs.length; i++) {
-      var doc = querySnapshot.docs[i];
-      Map<String, dynamic> imageData = {
-        'name': doc.id, // Image name (doc ID)
-        'status': doc['status'], // Image status
+    for (int i = 0; i < otherArray.length; i++) {
+      var imageData = {
+        'url': otherArray[i]['url'],
+        'status': otherArray[i]['public'],
+        'name': otherArray[i]['name']
       };
 
-      if (i < querySnapshot.docs.length / 2) {
+      if (i < otherArray.length / 2) {
         latestImages.add(imageData);
       } else {
         otherImages.add(imageData);
       }
     }
-    print('$latestImages=================');
-    return {
+
+    print('${latestImages}${otherImages}============');
+    yield {
       "latest": latestImages,
       "others": otherImages,
     };
-  });
+  }
+}
+
+// Helper function to safely parse timestamp
+Timestamp _parseTimestamp(dynamic timestamp) {
+  if (timestamp is Timestamp) {
+    return timestamp;
+  } else if (timestamp is String) {
+    return Timestamp.fromMillisecondsSinceEpoch(
+        DateTime.parse(timestamp).millisecondsSinceEpoch);
+  } else if (timestamp is int) {
+    return Timestamp.fromMillisecondsSinceEpoch(timestamp);
+  }
+  return Timestamp.now(); // Default to current time if format is unknown
 }
 
 Future<Map<String, List<Map<String, dynamic>>>> getOtherImageNames(
@@ -590,14 +612,8 @@ Future<bool> getDirPathStatus(String uid, String dirpath) async {
   }
 }
 
-Future<void> deleteThisImage(String uid, String dirpath) async {
-  try {
-    final publicDoc =
-        FirebaseFirestore.instance.collection("PublicImages").doc(uid);
-    await publicDoc.update({
-      dirpath: FieldValue.delete(),
-    });
-  } catch (e) {
+Future<void> deleteThisImage(String uid, String name) async {
+  try {} catch (e) {
     print("Error updating profile: $e");
   }
 }
@@ -641,38 +657,106 @@ Future<void> addImageUrl(String imageUrl, String uid) async {
 }
 
 Future<void> removeImage(String uid, String name) async {
-  final docRef = FirebaseFirestore.instance
-      .collection("profileImages")
-      .doc(uid)
-      .collection("images")
-      .doc(name);
-  final docSnapshot = await docRef.get();
+  final docRef1 = FirebaseFirestore.instance.collection("Users").doc(uid);
+  final docRef2 =
+      FirebaseFirestore.instance.collection("PublicImageList").doc('imagesDoc');
 
-  if (docSnapshot.exists) {
-    await docRef.delete();
+  final docSnapshot1 = await docRef1.get();
+  final docSnapshot2 = await docRef2.get();
+
+  if (docSnapshot1.exists) {
+    List<dynamic> imageUrls =
+        List.from(docSnapshot1.data()?['imageUrls'] ?? []);
+
+    // Filter out the image that needs to be deleted
+    List<dynamic> updatedImages =
+        imageUrls.where((img) => img['name'] != name).toList();
+
+    // Update Firestore with the new list
+    await docRef1.update({'imageUrls': updatedImages});
+
+    print("Image removed successfully!");
   } else {
-    print("Document does not exist.");
+    print("User document does not exist.");
+  }
+
+  if (docSnapshot2.exists) {
+    List<dynamic> imageUrls =
+        List.from(docSnapshot2.data()?['imageUrls'] ?? []);
+
+    // Filter out the image that needs to be deleted
+    List<dynamic> updatedImages =
+        imageUrls.where((img) => img['name'] != name).toList();
+
+    // Update Firestore with the new list
+    await docRef2.update({'imageUrls': updatedImages});
+
+    print("Image removed successfully!");
+  } else {
+    print("User document does not exist.");
   }
 }
 
-Future<void> saveOrUpdateImage(String uid, String name, String status) async {
-  final docRef = FirebaseFirestore.instance
-      .collection("profileImages")
-      .doc(uid)
-      .collection("images")
-      .doc(name);
+Future<void> saveOrUpdateImage(
+    String uid, String imageName, bool status) async {
+  try {
+    if (globalData.isAccountPublic) {
+      DocumentReference publicImageDocRef = FirebaseFirestore.instance
+          .collection('PublicImageList')
+          .doc('imagesDoc');
+      DocumentReference myPostImageDocRef =
+          FirebaseFirestore.instance.collection('Users').doc(uid);
 
-  final docSnapshot = await docRef.get();
+      DocumentSnapshot publicImageDocSnapshot = await publicImageDocRef.get();
+      DocumentSnapshot myPostImageDocSnapshot = await myPostImageDocRef.get();
 
-  final data = {
-    "status": status,
-  };
+      if (publicImageDocSnapshot.exists) {
+        // Explicitly cast data() to Map<String, dynamic>
+        Map<String, dynamic> data =
+            publicImageDocSnapshot.data() as Map<String, dynamic>;
 
-  if (!docSnapshot.exists) {
-    data["timestamp"] = DateTime.now().toIso8601String();
+        // Get imageUrls array safely
+        List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
+        List<dynamic> imageUrls1 = List.from(data['imageUrls'] ?? []);
+
+        bool updated1 = false;
+        bool updated2 = false;
+
+        // Modify the 'public' field of the existing image object
+        for (int i = 0; i < imageUrls.length; i++) {
+          Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
+          if (img['name'] == imageName && img['uid'] == uid) {
+            imageUrls[i] = {
+              ...img,
+              'public': status, // Update only the 'public' field
+            };
+            updated1 = true;
+            break; // Stop looping once we find and update the image
+          }
+        }
+        for (int i = 0; i < imageUrls1.length; i++) {
+          Map<String, dynamic> img = imageUrls1[i] as Map<String, dynamic>;
+          if (img['name'] == imageName && img['uid'] == uid) {
+            imageUrls1[i] = {
+              ...img,
+              'public': status, // Update only the 'public' field
+            };
+            updated2 = true;
+            break; // Stop looping once we find and update the image
+          }
+        }
+
+        if (updated1 && updated2) {
+          // Update Firestore only if an image was modified
+          await publicImageDocRef.update({'imageUrls': imageUrls});
+          await myPostImageDocRef.update({'imageUrls': imageUrls1});
+          print("Image public status updated successfully!");
+        } else {
+          print("Image not found, no update performed.");
+        }
+      }
+    }
+  } catch (e) {
+    print("Error updating image public status: $e");
   }
-
-  await docRef.set(data, SetOptions(merge: true));
-
-  print("Document for $name updated/created successfully");
 }

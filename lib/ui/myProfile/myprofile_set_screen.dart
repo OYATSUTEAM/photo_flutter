@@ -201,8 +201,6 @@ class _ProfileSetScreenState extends State<ProfileSetScreen> {
 
                       if (mounted) {
                         deleteAllFileWithConfirmation(context);
-                        Navigator.pop(context);
-                        Navigator.pop(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (context) => MyProfileScreen()),

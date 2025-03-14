@@ -60,7 +60,6 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
 
   @override
   void dispose() {
-    // Add any cleanup logic here if needed in the future.
     super.dispose();
   }
 
@@ -73,7 +72,6 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
         final filePath = '${tempDir.path}/$currentUnix';
-
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes).then((_) async {
           await Share.shareXFiles([XFile(filePath)],
@@ -119,11 +117,8 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
+              Expanded(
+                  child: Container(
                       width: MediaQuery.of(context).size.width * 0.97,
                       height: MediaQuery.of(context).size.height * 0.8,
                       decoration: BoxDecoration(
@@ -132,22 +127,17 @@ class _PreviewScreenState extends State<ProfilePreviewScreen> {
                           image: DecorationImage(
                               image:
                                   CachedNetworkImageProvider(widget.imageURL),
-                              fit: BoxFit.cover)))
-                ],
-              ),
+                              fit: BoxFit.cover)))),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                       icon: Icon(Icons.undo)),
                   IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ProfileCameraScreen()));
-                      },
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => ProfileCameraScreen())),
                       icon: Icon(Icons.camera_alt))
                 ],
               )

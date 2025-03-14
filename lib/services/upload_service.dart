@@ -45,23 +45,25 @@ Future<void> uploadFile(
 }
 
 Future<void> addToPostedImages(
-    String uid, String name, String imagePath) async {
+    String uid, String postText, String imagePath, String imageName) async {
   try {
-    String imageURL = await uploadImage(uid, name, imagePath);
-    await addToPosted(imageURL, uid);
+    String imageURL = await uploadImage(uid, postText, imagePath, imageName);
+    await addToPosted(imageURL, uid, postText, imageName);
+    await addToMyPosted(imageURL, uid, postText, imageName);
   } catch (e) {
     print('$e this error occurred in my profile.');
   }
 }
 
-Future<String> uploadImage(String uid, String name, String imagePath) async {
+Future<String> uploadImage(
+    String uid, String name, String imagePath, String imageName) async {
   DateTime now = DateTime.now();
   String timestamp = now.toIso8601String();
   SettableMetadata metadata =
       SettableMetadata(customMetadata: {'timestamp': timestamp, 'uid': uid});
   final ref = FirebaseStorage.instance
       .ref()
-      .child("images/$uid/postedImages/$timestamp");
+      .child("images/$uid/postedImages/$imageName");
   try {
     UploadTask uploadTask = ref.putFile(File(imagePath), metadata);
     await uploadTask.whenComplete(() => null);
@@ -75,7 +77,8 @@ Future<String> uploadImage(String uid, String name, String imagePath) async {
   }
 }
 
-Future<void> addToPosted(String imageUrl, String uid) async {
+Future<void> addToPosted(
+    String imageUrl, String uid, String postText, String imageName) async {
   DateTime now = DateTime.now();
   String timestamp = now.toIso8601String();
   bool accoutPublic = globalData.isAccountPublic;
@@ -87,7 +90,9 @@ Future<void> addToPosted(String imageUrl, String uid) async {
       'url': imageUrl,
       'uid': uid,
       'timestamp': timestamp, // Firestore server timestamp
-      'public': accoutPublic
+      'public': false,
+      'name': imageName,
+      'postText': postText
     };
 
     // Add the new image object to an array
@@ -95,6 +100,42 @@ Future<void> addToPosted(String imageUrl, String uid) async {
 
     if (docSnapshot.exists) {
       await images.doc('imagesDoc').update(
+        {
+          'imageUrls': FieldValue.arrayUnion([imageObject])
+        },
+      );
+    } else {
+      await images.doc('imagesDoc').set({
+        'imageUrls': [imageObject]
+      }, SetOptions(merge: true));
+    }
+
+    print("Image URL added successfully!   add to post");
+  } catch (e) {
+    print("Error adding image URL: $e");
+  }
+}
+
+Future<void> addToMyPosted(
+    String imageUrl, String uid, String postText, String imageName) async {
+  DateTime now = DateTime.now();
+  String timestamp = now.toIso8601String();
+  try {
+    CollectionReference images = FirebaseFirestore.instance.collection('Users');
+
+    Map<String, dynamic> imageObject = {
+      'url': imageUrl,
+      'name': imageName,
+      'timestamp': timestamp, // Firestore server timestamp
+      'public': false,
+      'postText': postText
+    };
+
+    // Add the new image object to an array
+    DocumentSnapshot docSnapshot = await images.doc(uid).get();
+
+    if (docSnapshot.exists) {
+      await images.doc(uid).update(
         {
           'imageUrls': FieldValue.arrayUnion([imageObject])
         },

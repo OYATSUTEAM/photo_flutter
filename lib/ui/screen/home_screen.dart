@@ -311,7 +311,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildImageTile(List<String> imageFiles, int index) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        await globalData.updateOther(email, uid, username, name);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) =>
                 OtherProfilePreviewScreen(imageURL: imageFiles[index])));

@@ -5,8 +5,6 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
-import 'package:photo_sharing_app/ui/camera/preview_screen.dart';
-import 'package:photo_sharing_app/ui/camera/profile_add_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
@@ -74,9 +72,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
       setState(() {
         myMainProfileURL = fetchedUrl;
       });
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   Future<void> deleteFileWithConfirmation(
@@ -101,19 +96,16 @@ class _MyProfileScreen extends State<MyProfileScreen> {
     if (shouldDelete == true) {
       try {
         await removeImage(uid, imageName);
-
+        await deleteProfile(uid, imageName);
         if (mounted) {
           showDialog(
               context: context,
               builder: (context) {
                 return const Center(child: CircularProgressIndicator());
               });
-        }
-
-        setState(() {
-          _setProfileInitiate();
-        });
-        if (mounted) {
+          setState(() {
+            _setProfileInitiate();
+          });
           Navigator.pop(context);
         }
       } catch (e) {
@@ -180,16 +172,13 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ProfilePreviewScreen(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePreviewScreen(
                                     imageURL: myMainProfileURL,
-                                    imageName: 'profileImage',
-                                  ),
-                                ),
-                              );
-                            },
+                                    imageName: 'profileImage'),
+                              ),
+                            ),
                             child: CircleAvatar(
                               backgroundImage:
                                   CachedNetworkImageProvider(myMainProfileURL),
@@ -201,26 +190,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                       const SizedBox(height: 3),
 //============================================================                       name    ======================================
 
-                      Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: Text(name, style: TextStyle(fontSize: 30)),
-                          ),
-                          Align(
-                              alignment: Alignment.centerRight,
-                              child: IconButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProfileAddCameraScreen()),
-                                    );
-                                  },
-                                  icon: Icon(Icons.add),
-                                  iconSize: 30)),
-                        ],
-                      ),
+                      Text(name, style: TextStyle(fontSize: 30)),
 
                       const SizedBox(height: 10),
 //================================================          my images         ===============================================
@@ -235,71 +205,39 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                                 }
 
                                 if (!snapshot.hasData ||
+                                    snapshot.data?['latest'] == null ||
                                     snapshot.data!['latest']!.isEmpty) {
                                   return Center(child: Text(""));
                                 }
 
                                 final imagesData = snapshot.data!;
-                                final latestImages = imagesData["latest"]!;
-                                final otherImages = imagesData["others"]!;
+                                final latestImages = imagesData["latest"] ?? [];
+                                final otherImages = imagesData["others"] ?? [];
+
                                 return Row(children: [
                                   Expanded(
                                       child: ListView(
-                                          children: latestImages.map((image) {
-                                    return FutureBuilder<String>(
-                                        future: FirebaseStorage.instance
-                                            .ref(
-                                                'images/$uid/profileImages/${image['name']}')
-                                            .getDownloadURL(),
-                                        builder: (context, urlSnapshot) {
-                                          if (!urlSnapshot.hasData)
-                                            return Center(
-                                                child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                CircularProgressIndicator()
-                                              ],
-                                            ));
-                                          return _buildImageTile(
-                                              urlSnapshot.data!,
-                                              image['name'],
-                                              image['status']);
-                                        });
-                                  }).toList())),
+                                    children: latestImages.map((image) {
+                                      return _buildImageTile(image['url'],
+                                          image['name'], image['status']);
+                                    }).toList(),
+                                  )),
                                   SizedBox(width: 1),
                                   Expanded(
-                                    child: ListView(
-                                      children: otherImages.map((image) {
-                                        return FutureBuilder<String>(
-                                          future: FirebaseStorage.instance
-                                              .ref(
-                                                  'images/$uid/profileImages/${image['name']}')
-                                              .getDownloadURL(),
-                                          builder: (context, urlSnapshot) {
-                                            if (!urlSnapshot.hasData) {
-                                              return Center(
-                                                  child:
-                                                      CircularProgressIndicator());
-                                            }
-                                            return _buildImageTile(
-                                                urlSnapshot.data!,
-                                                image['name'],
-                                                image['status']);
-                                          },
-                                        );
-                                      }).toList(),
-                                    ),
-                                  )
+                                      child: ListView(
+                                    children: otherImages.map((image) {
+                                      return _buildImageTile(image['url'],
+                                          image['name'], image['status']);
+                                    }).toList(),
+                                  )),
                                 ]);
                               })),
                     ])))));
   }
 
-  Widget _buildImageTile(String imageURL, String imageName, String status) {
-    print('$imageURL==================');
+  Widget _buildImageTile(String imageURL, String imageName, bool status) {
+    print(imageURL);
+    print('image url ==========================');
     return GestureDetector(
         onTap: () {
           // imageCache.clear();
@@ -337,14 +275,15 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               bottom: 0,
               right: 0,
               child: IconButton(
-                  icon: Icon(status == 'true' ? Icons.lock_open : Icons.lock),
+                  icon: Icon(status ? Icons.lock_open : Icons.lock),
                   color: Colors.green,
                   onPressed: () async {
-                    await saveOrUpdateImage(
-                        uid, imageName, status == 'true' ? 'false' : 'true');
-                    setState(() {
-                      _setProfileInitiate();
-                    });
+                    await saveOrUpdateImage(uid, imageName, !status);
+                    if (mounted) {
+                      setState(() {
+                        _setProfileInitiate();
+                      });
+                    }
                   }))
         ]));
   }
