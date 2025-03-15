@@ -236,13 +236,8 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   }
 
   Widget _buildImageTile(String imageURL, String imageName, bool status) {
-    print(imageURL);
-    print('image url ==========================');
     return GestureDetector(
         onTap: () {
-          // imageCache.clear();
-          // imageCache.clearLiveImages();
-
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ProfilePreviewScreen(

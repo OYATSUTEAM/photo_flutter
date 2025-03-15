@@ -1,10 +1,8 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-
-import 'package:http/http.dart';
-import 'package:photo_sharing_app/data/global.dart';
-import 'package:photo_sharing_app/services/profile/profile_services.dart';
 
 class UploadService {
   late DocumentSnapshot documentSnapshot;
@@ -46,19 +44,24 @@ Future<void> uploadFile(
 
 Future<void> addToPostedImages(
     String uid, String postText, String imagePath, String imageName) async {
+  log(uid);
+  log(imagePath);
+  log(imageName);
   try {
-    String imageURL = await uploadImage(uid, postText, imagePath, imageName);
-    await addToPosted(imageURL, uid, postText, imageName);
-    await addToMyPosted(imageURL, uid, postText, imageName);
+    DateTime now = DateTime.now();
+    String timestamp = now.toIso8601String();
+
+    String imageURL =
+        await uploadImage(uid, postText, imagePath, imageName, timestamp);
+    await addToPosted(imageURL, uid, postText, imageName, timestamp);
+    await addToMyPosted(imageURL, uid, postText, imageName, timestamp);
   } catch (e) {
     print('$e this error occurred in my profile.');
   }
 }
 
-Future<String> uploadImage(
-    String uid, String name, String imagePath, String imageName) async {
-  DateTime now = DateTime.now();
-  String timestamp = now.toIso8601String();
+Future<String> uploadImage(String uid, String name, String imagePath,
+    String imageName, String timestamp) async {
   SettableMetadata metadata =
       SettableMetadata(customMetadata: {'timestamp': timestamp, 'uid': uid});
   final ref = FirebaseStorage.instance
@@ -77,11 +80,8 @@ Future<String> uploadImage(
   }
 }
 
-Future<void> addToPosted(
-    String imageUrl, String uid, String postText, String imageName) async {
-  DateTime now = DateTime.now();
-  String timestamp = now.toIso8601String();
-  bool accoutPublic = globalData.isAccountPublic;
+Future<void> addToPosted(String imageUrl, String uid, String postText,
+    String imageName, String timestamp) async {
   try {
     CollectionReference images =
         FirebaseFirestore.instance.collection('PublicImageList');
@@ -116,18 +116,17 @@ Future<void> addToPosted(
   }
 }
 
-Future<void> addToMyPosted(
-    String imageUrl, String uid, String postText, String imageName) async {
-  DateTime now = DateTime.now();
-  String timestamp = now.toIso8601String();
+Future<void> addToMyPosted(String imageUrl, String uid, String postText,
+    String imageName, String timestamp) async {
   try {
     CollectionReference images = FirebaseFirestore.instance.collection('Users');
 
     Map<String, dynamic> imageObject = {
       'url': imageUrl,
-      'name': imageName,
+      'uid': uid,
       'timestamp': timestamp, // Firestore server timestamp
       'public': false,
+      'name': imageName,
       'postText': postText
     };
 
@@ -141,7 +140,7 @@ Future<void> addToMyPosted(
         },
       );
     } else {
-      await images.doc('imagesDoc').set({
+      await images.doc(uid).set({
         'imageUrls': [imageObject]
       }, SetOptions(merge: true));
     }

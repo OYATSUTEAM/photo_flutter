@@ -700,6 +700,7 @@ Future<void> removeImage(String uid, String name) async {
 Future<void> saveOrUpdateImage(
     String uid, String imageName, bool status) async {
   try {
+    print(imageName);
     if (globalData.isAccountPublic) {
       DocumentReference publicImageDocRef = FirebaseFirestore.instance
           .collection('PublicImageList')
@@ -711,45 +712,45 @@ Future<void> saveOrUpdateImage(
       DocumentSnapshot myPostImageDocSnapshot = await myPostImageDocRef.get();
 
       if (publicImageDocSnapshot.exists) {
-        // Explicitly cast data() to Map<String, dynamic>
         Map<String, dynamic> data =
             publicImageDocSnapshot.data() as Map<String, dynamic>;
 
-        // Get imageUrls array safely
         List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
-        List<dynamic> imageUrls1 = List.from(data['imageUrls'] ?? []);
 
-        bool updated1 = false;
-        bool updated2 = false;
-
-        // Modify the 'public' field of the existing image object
+        bool updated = false;
         for (int i = 0; i < imageUrls.length; i++) {
           Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
           if (img['name'] == imageName && img['uid'] == uid) {
-            imageUrls[i] = {
-              ...img,
-              'public': status, // Update only the 'public' field
-            };
-            updated1 = true;
-            break; // Stop looping once we find and update the image
-          }
-        }
-        for (int i = 0; i < imageUrls1.length; i++) {
-          Map<String, dynamic> img = imageUrls1[i] as Map<String, dynamic>;
-          if (img['name'] == imageName && img['uid'] == uid) {
-            imageUrls1[i] = {
-              ...img,
-              'public': status, // Update only the 'public' field
-            };
-            updated2 = true;
-            break; // Stop looping once we find and update the image
+            imageUrls[i] = {...img, 'public': status};
+            updated = true;
+            break;
           }
         }
 
-        if (updated1 && updated2) {
-          // Update Firestore only if an image was modified
+        if (updated) {
           await publicImageDocRef.update({'imageUrls': imageUrls});
-          await myPostImageDocRef.update({'imageUrls': imageUrls1});
+          print("Image public status updated successfully!   this is public");
+        } else {
+          print("Image not found, no update performed.  this is public");
+        }
+      }
+
+      if (myPostImageDocSnapshot.exists) {
+        Map<String, dynamic> data =
+            myPostImageDocSnapshot.data() as Map<String, dynamic>;
+        List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
+        print(imageUrls);
+        bool updated = false;
+        for (int i = 0; i < imageUrls.length; i++) {
+          Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
+          if (img['name'] == imageName) {
+            imageUrls[i] = {...img, 'public': status};
+            updated = true;
+            break;
+          }
+        }
+        if (updated) {
+          await myPostImageDocRef.update({'imageUrls': imageUrls});
           print("Image public status updated successfully!");
         } else {
           print("Image not found, no update performed.");
