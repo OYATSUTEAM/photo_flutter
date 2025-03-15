@@ -7,10 +7,7 @@ import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
 import 'package:photo_sharing_app/ui/screen/home_screen.dart';
-import 'package:photo_sharing_app/ui/sns/telegram.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:telegram/telegram.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as p;
 
 class PostScreen extends StatefulWidget {
@@ -363,18 +360,6 @@ class _PostScreenState extends State<PostScreen> {
                 child: TextButton(
                     onPressed: () async {
                       await shareImage();
-                      // final Uri telegramUri = Uri.parse("https://t.me/");
-                      // if (await canLaunchUrl(telegramUri)) {
-                      //   await launchUrl(telegramUri,
-                      //       mode: LaunchMode.externalApplication);
-                      // } else {
-                      //   throw 'Could not launch Telegram';
-                      // }
-                      // sendImageToTelegram(allPostFileList.last);
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //       builder: (context) => TelegramAppPage()),
-                      // );
                     },
                     child: const Text('投稿',
                         style: TextStyle(color: Colors.white, fontSize: 16)))),
