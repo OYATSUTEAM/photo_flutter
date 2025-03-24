@@ -5,14 +5,15 @@ class TermsOfUsePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+          child: Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text("利用規約"),
-        elevation: 0,
+        // elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,6 +242,6 @@ class TermsOfUsePage extends StatelessWidget {
           ),
         ),
       ),
-    );
+     ) );
   }
 }

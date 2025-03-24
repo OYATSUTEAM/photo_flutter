@@ -6,8 +6,8 @@ import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/upload_service.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/camera/post_preview_screen.dart';
-import 'package:photo_sharing_app/ui/screen/home_screen.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:photo_sharing_app/home_screen.dart';
+import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:path/path.dart' as p;
 
 class PostScreen extends StatefulWidget {
@@ -45,12 +45,6 @@ class _PostScreenState extends State<PostScreen> {
     });
   }
 
-  // Future<void> runInBackground() async {
-  //   for (var path in allPostFileListBackground) {
-  //     await addToPostedImages(uid, globalData.postText, path);
-  //   }
-  // }
-
   void deleteAllFiles() async {
     final directory = await getApplicationDocumentsDirectory();
     final subDir = Directory('${directory.path}/$uid/postImages');
@@ -82,7 +76,7 @@ class _PostScreenState extends State<PostScreen> {
           .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
           .map((file) => file.path)
           .toList()
-        ..sort(); // Sort the list alphabetically
+        ..sort();
 
       setState(() {
         allPostFileList
@@ -106,7 +100,7 @@ class _PostScreenState extends State<PostScreen> {
           .where((file) => file.path.endsWith('.jpg')) // Filter only .jpg files
           .map((file) => file.path)
           .toList()
-        ..sort(); // Sort the list alphabetically
+        ..sort();
       setState(() {
         allPostFileListBackground
           ..clear()
@@ -124,7 +118,7 @@ class _PostScreenState extends State<PostScreen> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('投稿確認'),
-          content: const Text('投稿は正しく行われましたか？'),
+          content: const Text('投稿しますか？'),
           actions: [
             TextButton(
               onPressed: () {
@@ -170,7 +164,7 @@ class _PostScreenState extends State<PostScreen> {
         }
 
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => MyProfileScreen()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -221,36 +215,8 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  Future<String> shareImage() async {
-    List<XFile> xFiles = allPostFileList.map((path) => XFile(path)).toList();
-    await Share.shareXFiles(
-      xFiles,
-      subject: globalData.postText,
-      // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-    ).then((shareResult) async {
-      if (shareResult.status.toString() == 'ShareResultStatus.success') {
-        // showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return const Center(
-        //           child: Column(
-        //         mainAxisAlignment: MainAxisAlignment.center,
-        //         crossAxisAlignment: CrossAxisAlignment.center,
-        //         children: [CircularProgressIndicator(), Text('投稿アップロード中...')],
-        //       ));
-        //     });
-
-        // Future.delayed(Duration.zero, () async {
-        //   for (var path in allPostFileListBackground) {
-        //     await addToPostedImages(uid, globalData.postText, path);
-        //   }
-        // });
-
-        await deleteAllFileWithConfirm(context);
-        return shareResult.status.toString();
-      }
-    });
-    return 'failure';
+  Future<void> shareImage() async {
+    await deleteAllFileWithConfirm(context);
   }
 
   @override
@@ -258,22 +224,25 @@ class _PostScreenState extends State<PostScreen> {
     if (isLoading) {}
     if (allPostFileList.isEmpty) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => MyProfileScreen()));
+                },
+                icon: Icon(Icons.abc))),
         body: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              "画像が見つかりません！",
-              style: TextStyle(color: Colors.white),
-            ),
+            const Text("画像が見つかりません！", style: TextStyle(color: Colors.white)),
             const SizedBox(height: 50),
             IconButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => PostCameraScreen(isDelete: false),
-                    ),
+                        builder: (context) =>
+                            PostCameraScreen(isDelete: false)),
                   );
                 },
                 icon: const Icon(Icons.add_circle_sharp, size: 50))
@@ -284,89 +253,85 @@ class _PostScreenState extends State<PostScreen> {
 
     return SafeArea(
         child: Scaffold(
-            body: GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus(); // Hide keyboard when tapping outside
-      },
-      child: SingleChildScrollView(
-          child: Center(
-              child: Column(children: [
-        Row(
-          children: [
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                },
-                icon: Icon(Icons.arrow_back))
-          ],
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.7,
-          width: MediaQuery.of(context).size.width,
-          child: GridView.builder(
-            padding: const EdgeInsets.all(8.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Number of columns
-              crossAxisSpacing: 8.0, // Space between columns
-              mainAxisSpacing: 8.0, // Space between rows
-              childAspectRatio: 0.7, // Aspect ratio of each grid item
-            ),
-            itemCount: allPostFileList.length,
-            itemBuilder: (context, index) {
-              return Container(
-                child: _buildImageTile(index, allPostFileList.length),
-              );
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: TextField(
-            focusNode: focusNode,
-            controller: textController,
-            decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 1.0, horizontal: 18.0),
-              filled: true,
-              // fillColor: const Color.fromARGB(255, 0, 0, 0),
-              hintText: '投稿文',
-              hintStyle:
-                  TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-            minLines: 1,
-            maxLines: 5,
-            keyboardType: TextInputType.multiline,
-            onChanged: (text) {
-              globalData.updatePostText(text.trim());
-            },
-          ),
-        ),
-        const SizedBox(height: 20),
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-// ==========================================================        post file   =====================================================
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                child: TextButton(
-                    onPressed: () async {
-                      await shareImage();
+            appBar: AppBar(
+                title: Text('投稿'),
+                centerTitle: true,
+                leading: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => HomeScreen(),
+                      ));
                     },
-                    child: const Text('投稿',
-                        style: TextStyle(color: Colors.white, fontSize: 16)))),
-          ],
-        )
-      ]))),
-    )));
+                    icon: BackButtonIcon())),
+            body: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                  child: Center(
+                      child: Column(children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Number of columns
+                      crossAxisSpacing: 8.0, // Space between columns
+                      mainAxisSpacing: 8.0, // Space between rows
+                      childAspectRatio: 0.7, // Aspect ratio of each grid item
+                    ),
+                    itemCount: allPostFileList.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        child: _buildImageTile(index, allPostFileList.length),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: TextField(
+                    focusNode: focusNode,
+                    controller: textController,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 1.0, horizontal: 18.0),
+                      labelText: '投稿文',
+                    ),
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    onChanged: (text) {
+                      globalData.updatePostText(text.trim());
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+// ==========================================================        post file   =====================================================
+// ==========================================================        post file   =====================================================
+// ==========================================================        post file   =====================================================
+// ==========================================================        post file   =====================================================
+// ==========================================================        post file   =====================================================
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                        child: TextButton(
+                            onPressed: () async {
+                              await shareImage();
+                            },
+                            child: const Text('投稿',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16)))),
+                  ],
+                )
+              ]))),
+            )));
   }
 
   Widget _buildImageTile(int index, int count) {

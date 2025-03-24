@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/data/global.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/services/notification_service.dart';
 import 'package:photo_sharing_app/widgets/chat_bubble.dart';
 import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
@@ -30,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     _setUpInitiate();
+
     super.initState();
     myFocusNode.addListener(
       () {
@@ -41,6 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _setUpInitiate() async {
+    await globalData.updateChatScreen(true); // Set flag when screen opens
+
     var user = await authServices.getDocument(widget.receiverId);
     setState(() {
       receiverUserName = user?['username'];
@@ -50,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     myFocusNode.dispose();
+    globalData.updateChatScreen(false);
     super.dispose();
   }
 
@@ -74,6 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
       await chatServices.sendMessage(widget.receiverId, controller.text);
       controller.clear();
     }
+
     scrollDown();
   }
 
@@ -81,47 +88,41 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
-        title: Text(receiverUserName),
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: MessageList(
-              receiverID: widget.receiverId,
-              controller: scrollController,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: MyTextField(
-                    hint:
-                        "メッセージを入力する....", ////////////////////type a message////////////////////////////
-                    obsecure: false,
-                    controller: controller,
-                    focusNode: myFocusNode,
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(right: 20.0),
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.green),
-                  child: IconButton(
-                    onPressed: sendMessage,
-                    icon: const Icon(Icons.arrow_upward, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ));
+            appBar: AppBar(title: Text(receiverUserName), centerTitle: true),
+            body: Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(children: [
+                  Expanded(
+                      child: MessageList(
+                    receiverID: widget.receiverId,
+                    controller: scrollController,
+                  )),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: MyTextField(
+                                hint: "",
+                                obsecure: false,
+                                controller: controller,
+                                focusNode: myFocusNode,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Container(
+                                // margin: const EdgeInsets.only(right: 20.0),
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.green),
+                                child: IconButton(
+                                  onPressed: sendMessage,
+                                  icon: const Icon(Icons.arrow_upward,
+                                      color: Colors.white),
+                                ))
+                          ]))
+                ]))));
   }
 }
 
@@ -136,9 +137,12 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
+  late int lastMessageIndex;
   @override
   void initState() {
     super.initState();
+    lastMessageIndex =
+        0; 
   }
 
   @override
@@ -157,12 +161,18 @@ class _MessageListState extends State<MessageList> {
         var messages = snapshot.data!.docs;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (widget.controller.hasClients) {
-            widget.controller
-                .jumpTo(widget.controller.position.maxScrollExtent);
+          if (messages.isNotEmpty) {
+            var newMessage = messages[messages.length - 1];
+            if (newMessage['senderId'] != senderID) {
+              NotificationService().showNotification();
+            }
+
+            if (widget.controller.hasClients) {
+              widget.controller
+                  .jumpTo(widget.controller.position.maxScrollExtent);
+            }
           }
         });
-
         return ListView(
           controller: widget.controller,
           children: messages.map((doc) => _buildMessageItem(doc)).toList(),

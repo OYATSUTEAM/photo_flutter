@@ -9,7 +9,7 @@ import 'package:photo_sharing_app/ui/myProfile/myprofile_preview_screen.dart';
 import 'package:photo_sharing_app/ui/myProfile/myprofile_edit.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:photo_sharing_app/ui/screen/home_screen.dart';
+import 'package:photo_sharing_app/home_screen.dart';
 import '../../data/global.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
@@ -119,131 +119,170 @@ class _MyProfileScreen extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            body: SafeArea(
-                child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Column(children: [
-                      const SizedBox(height: 10),
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      icon: BackButtonIcon(),
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => HomeScreen()));
+                      }),
+                  Expanded(
+                      child: Text(
+                    username,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20),
+                  )),
+                  IconButton(
+                      onPressed: () async {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            });
+                        if (!mounted) return;
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                MyProfileEdit(whichImage: 'myProfileImage')));
+                      },
+                      icon: Icon(
+                        Icons.border_color_rounded,
+                        size: 20,
+                      ))
+                ],
+              ),
+          // leading: IconButton(onPressed: (){}, icon: BackButtonIcon()),
+      
+          
+            ),
+            // backgroundColor: Theme.of(context).colorScheme.surface,
+            body: Padding(
+                padding: EdgeInsets.all(5),
+                child: Column(children: [
+                  const SizedBox(height: 10),
 //===========================================================                         customized app bar       =====================================
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeScreen()));
-                              }),
-                          Expanded(
-                              child: Text(
-                            username,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 20),
-                          )),
-                          IconButton(
-                              onPressed: () async {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    });
-                                if (!mounted) return;
-                                Navigator.pop(context);
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (context) => MyProfileEdit(
-                                            whichImage: 'myProfileImage')));
-                              },
-                              icon: Icon(
-                                Icons.border_color_rounded,
-                                size: 20,
-                              ))
-                        ],
-                      ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     IconButton(
+                  //         icon: Icon(Icons.arrow_back),
+                  //         onPressed: () {
+                  //           Navigator.pop(context);
+                  //           Navigator.of(context).pushReplacement(
+                  //               MaterialPageRoute(
+                  //                   builder: (context) => HomeScreen()));
+                  //         }),
+                  //     Expanded(
+                  //         child: Text(
+                  //       username,
+                  //       textAlign: TextAlign.center,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       style: TextStyle(fontSize: 20),
+                  //     )),
+                  //     IconButton(
+                  //         onPressed: () async {
+                  //           showDialog(
+                  //               context: context,
+                  //               builder: (context) {
+                  //                 return const Center(
+                  //                     child: CircularProgressIndicator());
+                  //               });
+                  //           if (!mounted) return;
+                  //           Navigator.of(context).push(MaterialPageRoute(
+                  //               builder: (context) => MyProfileEdit(
+                  //                   whichImage: 'myProfileImage')));
+                  //         },
+                  //         icon: Icon(
+                  //           Icons.border_color_rounded,
+                  //           size: 20,
+                  //         ))
+                  //   ],
+                  // ),
 
 //===========================================================                         main profile image       =====================================
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ProfilePreviewScreen(
-                                    imageURL: myMainProfileURL,
-                                    imageName: 'profileImage'),
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  CachedNetworkImageProvider(myMainProfileURL),
-                              radius: MediaQuery.of(context).size.width * 0.26,
-                            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProfilePreviewScreen(
+                                imageURL: myMainProfileURL,
+                                imageName: 'profileImage'),
                           ),
-                        ],
+                        ),
+                        child: CircleAvatar(
+                          backgroundImage:
+                              CachedNetworkImageProvider(myMainProfileURL),
+                          radius: MediaQuery.of(context).size.width * 0.26,
+                        ),
                       ),
-                      const SizedBox(height: 3),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
 //============================================================                       name    ======================================
 
-                      Text(name, style: TextStyle(fontSize: 30)),
+                  Text(
+                    name,
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
 
-                      const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 //================================================          my images         ===============================================
-                      Expanded(
-                          child: StreamBuilder<
-                                  Map<String, List<Map<String, dynamic>>>>(
-                              stream: getImageNames(uid),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Center(
-                                      child: Text("Error: ${snapshot.error}"));
-                                }
+                  Expanded(
+                      child: StreamBuilder<
+                              Map<String, List<Map<String, dynamic>>>>(
+                          stream: getImageNames(uid),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                  child: Text("Error: ${snapshot.error}"));
+                            }
+                            if (!snapshot.hasData ||
+                                snapshot.data?['latest'] == null ||
+                                snapshot.data!['latest']!.isEmpty) {
+                              return Center(child: Text(""));
+                            }
 
-                                if (!snapshot.hasData ||
-                                    snapshot.data?['latest'] == null ||
-                                    snapshot.data!['latest']!.isEmpty) {
-                                  return Center(child: Text(""));
-                                }
+                            final imagesData = snapshot.data!;
+                            final latestImages = imagesData["latest"] ?? [];
+                            final otherImages = imagesData["others"] ?? [];
 
-                                final imagesData = snapshot.data!;
-                                final latestImages = imagesData["latest"] ?? [];
-                                final otherImages = imagesData["others"] ?? [];
-
-                                return Row(children: [
-                                  Expanded(
-                                      child: ListView(
-                                    children: latestImages.map((image) {
-                                      return _buildImageTile(image['url'],
-                                          image['name'], image['status']);
-                                    }).toList(),
-                                  )),
-                                  SizedBox(width: 1),
-                                  Expanded(
-                                      child: ListView(
-                                    children: otherImages.map((image) {
-                                      return _buildImageTile(image['url'],
-                                          image['name'], image['status']);
-                                    }).toList(),
-                                  )),
-                                ]);
-                              })),
-                    ])))));
+                            return Row(children: [
+                              Expanded(
+                                  child: ListView(
+                                children: latestImages.map((image) {
+                                  return _buildImageTile(image['url'],
+                                      image['name'], image['public']);
+                                }).toList(),
+                              )),
+                              SizedBox(width: 1),
+                              Expanded(
+                                  child: ListView(
+                                children: otherImages.map((image) {
+                                  return _buildImageTile(image['url'],
+                                      image['name'], image['public']);
+                                }).toList(),
+                              )),
+                            ]);
+                          })),
+                ]))));
   }
 
   Widget _buildImageTile(String imageURL, String imageName, bool status) {
     return GestureDetector(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ProfilePreviewScreen(
-                  imageURL: imageURL, imageName: imageName),
-            ),
-          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                ProfilePreviewScreen(imageURL: imageURL, imageName: imageName),
+          ));
         },
         child: Stack(children: [
           Padding(
@@ -270,7 +309,7 @@ class _MyProfileScreen extends State<MyProfileScreen> {
               bottom: 0,
               right: 0,
               child: IconButton(
-                  icon: Icon(status ? Icons.lock_open : Icons.lock),
+                  icon: Icon(status ? Icons.visibility : Icons.visibility_off),
                   color: Colors.green,
                   onPressed: () async {
                     await saveOrUpdateImage(uid, imageName, !status);

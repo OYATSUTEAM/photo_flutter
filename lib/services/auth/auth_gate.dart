@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_sharing_app/services/auth/auth_page.dart';
 import 'package:photo_sharing_app/ui/auth/login_screen.dart';
-import 'package:photo_sharing_app/ui/screen/home_screen.dart';
+import 'package:photo_sharing_app/home_screen.dart';
 // import 'package:photo_sharing_app/ui/home_screen.dart';
 
 class AuthGate extends StatelessWidget {

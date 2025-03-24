@@ -28,7 +28,7 @@ class GlobalData {
   String otherName = 'defaultName';
   String appDirPath = '';
   bool isAccountPublic = false;
-
+  bool isChatScreenOpen = false;
   Directory appDir = Directory('');
   updateUser(String email, String uid, String username, String name) async {
     myEmail = email;
@@ -48,6 +48,11 @@ class GlobalData {
     otherName = name;
   }
 
+  updateChatScreen (bool chaeScreenOpen) async{
+    isChatScreenOpen = chaeScreenOpen;
+  }
+
+  
   updatePublic(bool isAccountPublic1) async {
     isAccountPublic = isAccountPublic1;
   }

@@ -9,8 +9,8 @@ import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
-
+  const SettingsScreen({super.key, required this.setUpInit});
+  final VoidCallback setUpInit;
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
@@ -27,6 +27,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
   }
 
+  String email = 'default@gmail.com',
+      name = 'ローディング...',
+      username = 'ローディング...',
+      uid = 'default';
   void getCurrentUserUID() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -37,22 +41,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String email = 'default@gmail.com',
-      name = 'ローディング...',
-      username = 'ローディング...',
-      uid = 'default';
   bool switchResult = ThemeManager.readTheme();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("公開設定"),
-        elevation: 0,
-      ),
+      appBar: AppBar(centerTitle: true, title: const Text("公開設定")),
       body: GestureDetector(
         onTap: () async {
           context.read<ThemeBloc>().add(ThemeDarkedMode());
@@ -60,13 +55,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             switchResult = !switchResult;
           });
           if (switchResult) {
+            widget.setUpInit();
             ThemeManager.saveTheme(true);
             await globalData.updatePublic(true);
             await publicAccount(uid, true);
           } else {
+            widget.setUpInit();
             ThemeManager.saveTheme(false);
             await publicAccount(uid, false);
-            globalData.updatePublic(false);
+            await globalData.updatePublic(false);
           }
         },
         child: Container(

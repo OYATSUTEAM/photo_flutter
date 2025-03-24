@@ -1,16 +1,33 @@
 import 'package:flutter/material.dart';
 
-class MyTextField extends StatelessWidget {
-  const MyTextField(
+class PasswordTextfield extends StatefulWidget {
+  final String hint;
+  final bool obsecure;
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+  const PasswordTextfield(
       {super.key,
       required this.hint,
       required this.obsecure,
       required this.controller,
       this.focusNode});
-  final String hint;
-  final bool obsecure;
-  final TextEditingController controller;
-  final FocusNode? focusNode;
+  @override
+  _PasswordTextfield createState() => _PasswordTextfield();
+}
+
+class _PasswordTextfield extends State<PasswordTextfield> {
+  Icon passwordIcon = const Icon(Icons.visibility);
+
+  bool notvisible = true;
+  bool notVisiblePassword = true;
+
+  void passwordVisibility() {
+    if (notVisiblePassword) {
+      passwordIcon = const Icon(Icons.visibility);
+    } else {
+      passwordIcon = const Icon(Icons.visibility_off);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +36,19 @@ class MyTextField extends StatelessWidget {
         child: SizedBox(
           height: 40,
           child: TextField(
-            focusNode: focusNode,
-            controller: controller,
-            obscureText: obsecure,
+            focusNode: widget.focusNode,
+            controller: widget.controller,
+            obscureText: notvisible,
             decoration: InputDecoration(
+              suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      notvisible = !notvisible;
+                      notVisiblePassword = !notVisiblePassword;
+                      passwordVisibility();
+                    });
+                  },
+                  icon: passwordIcon),
               contentPadding: EdgeInsets.symmetric(
                 vertical: 10.0, // Adjust the vertical padding
                 horizontal: 18.0, // Adjust the horizontal padding if needed
@@ -43,7 +69,7 @@ class MyTextField extends StatelessWidget {
               ),
               filled: true,
               fillColor: Theme.of(context).colorScheme.secondary,
-              hintText: hint,
+              hintText: widget.hint,
               hintStyle: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
               ),

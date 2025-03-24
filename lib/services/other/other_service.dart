@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:photo_sharing_app/data/global.dart';
+import 'package:photo_sharing_app/services/config.dart';
+import 'package:photo_sharing_app/services/profile/profile_services.dart';
 // import 'package:firebase_database/firebase_database.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -294,54 +296,6 @@ class OtherService {
     return commentsList;
   }
 
-  // Future<List<String>> getRecentFollowImages(String uid) async {
-  //   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  //   try {
-  //     final firestoreRef =
-  //         FirebaseFirestore.instance.collection("Users").doc(uid);
-
-  //     final DocumentSnapshot userDoc = await firestoreRef.get();
-  //     if (!userDoc.exists || userDoc.data() == null) {
-  //       print("User document not found.");
-  //       return [];
-  //     }
-
-  //     final Map<String, dynamic> userData =
-  //         userDoc.data() as Map<String, dynamic>;
-  //     List<String> followList =
-  //         (userData["follow"] as List<dynamic>?)?.cast<String>() ?? [];
-
-  //     if (followList.isEmpty) {
-  //       print("Follow list is empty.");
-  //       return [];
-  //     }
-
-  //     List<String> allImageUrls = [];
-
-  //     for (String otherUid in followList) {
-  //       DocumentReference docRef =
-  //           firestore.collection("PublicImageList").doc("imagesDoc");
-  //       DocumentSnapshot docSnapshot = await docRef.get();
-  //       if (docSnapshot.exists) {
-  //         List<dynamic> imageUrls = docSnapshot["imageUrls"];
-  //         List<String> publicURLs = imageUrls.map((image) {
-  //           if (image["public"] && image['uid'] == otherUid) {
-  //             return image['url'].toString();
-  //           }
-  //           return '';
-  //         }).toList();
-  //         return publicURLs;
-  //       } else {
-  //         return [];
-  //       }
-  //     }
-  //     return [];
-  //   } catch (e) {
-  //     print("Error updating public status: $e");
-  //     return [];
-  //   }
-  // }
-
   Future<List<String>> getRecentFollowImages(String uid) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -439,8 +393,10 @@ class OtherService {
     }
   }
 
+
   Future<List<String>> getRecentImageUrls() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
+
     try {
       DocumentReference docRef =
           firestore.collection("PublicImageList").doc("imagesDoc");
@@ -451,28 +407,31 @@ class OtherService {
 
         // Get current date and subtract 3 days
         DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+        List<String> publicURLs = [];
 
-        List<String> publicURLs = imageUrls
-            .where((image) {
-              // Ensure required fields exist
-              if (!image.containsKey("public") ||
-                  !image.containsKey("url") ||
-                  !image.containsKey("timestamp")) {
-                return false;
-              }
+        // Create a list of Futures
+        List<Future<void>> futures = imageUrls.map((image) async {
+          if (!image.containsKey("public") ||
+              !image.containsKey("url") ||
+              !image.containsKey("timestamp")) {
+            return; // Skip invalid images
+          }
 
-              // Check if the image is public
-              if (image["public"] != true) {
-                return false;
-              }
+          String uid = image['uid'];
+          final profilePublic = await isPublicAccount(uid);
+          if (image["public"] != true || profilePublic != true) {
+            console([profilePublic]);
+            return;
+          }
 
-              // Parse timestamp and check if within 3 days
-              DateTime imageTimestamp = DateTime.parse(image["timestamp"]);
-              return imageTimestamp.isAfter(threeDaysAgo);
-            })
-            .map((image) => image["url"].toString())
-            .toList();
+          DateTime imageTimestamp = DateTime.parse(image["timestamp"]);
+          if (imageTimestamp.isAfter(threeDaysAgo)) {
+            publicURLs.add(image["url"].toString());
+          }
+        }).toList();
 
+        // Wait for all futures to complete
+        await Future.wait(futures);
         return publicURLs;
       } else {
         return [];

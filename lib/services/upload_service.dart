@@ -44,9 +44,6 @@ Future<void> uploadFile(
 
 Future<void> addToPostedImages(
     String uid, String postText, String imagePath, String imageName) async {
-  log(uid);
-  log(imagePath);
-  log(imageName);
   try {
     DateTime now = DateTime.now();
     String timestamp = now.toIso8601String();
@@ -54,7 +51,7 @@ Future<void> addToPostedImages(
     String imageURL =
         await uploadImage(uid, postText, imagePath, imageName, timestamp);
     await addToPosted(imageURL, uid, postText, imageName, timestamp);
-    await addToMyPosted(imageURL, uid, postText, imageName, timestamp);
+    // await addToMyPosted(imageURL, uid, postText, imageName, timestamp);
   } catch (e) {
     print('$e this error occurred in my profile.');
   }

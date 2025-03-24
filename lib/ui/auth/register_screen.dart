@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,28 +6,25 @@ import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/ui/auth/login_screen.dart';
 import 'package:photo_sharing_app/widgets/my_button.dart';
-import 'package:photo_sharing_app/widgets/my_textfield.dart';
 
 final ChatService chatService = locator.get();
 final AuthServices authService = locator.get();
 final FirebaseFirestore database = FirebaseFirestore.instance;
 
 class RegisterScreen extends StatefulWidget {
-  // const RegisterScreen({super.key});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-final authUser = AuthServices(locator.get(), locator.get());
-bool isLoading = true;
-
-bool isDialogShown = true;
-String uid = 'default@gmail.com';
-
 class _RegisterScreenState extends State<RegisterScreen> {
   final auth = FirebaseAuth.instance;
-
+  final authUser = AuthServices(locator.get(), locator.get());
+  bool isLoading = true;
+  bool isDialogShown = true;
+  String uid = 'default@gmail.com';
+  User? user = FirebaseAuth.instance.currentUser;
   void isEmailVerified() {
     User user = FirebaseAuth.instance.currentUser!;
     if (user.emailVerified) {
@@ -48,7 +43,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     user.sendEmailVerification();
   }
 
-  User? user = FirebaseAuth.instance.currentUser;
   Future<void> signUp(
     String email,
     String name,
@@ -100,37 +94,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           if (auth.currentUser?.uid != null) {
             sendVerificationEmail();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '登録されたメールアドレスに確認メールが届いています。アカウントを確認し、再度ログインしてください。',
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '登録されたメールアドレスに確認メールが届いています。アカウントを確認し、再度ログインしてください。',
+                  ),
+                  duration: Duration(seconds: 2),
                 ),
-                duration: Duration(seconds: 2),
-              ),
-            );
+              );
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
                   return LoginScreen();
-                },
-              ),
-            );
+                }),
+              );
+            }
             await authUser.register(email, password, name, username);
           }
         } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('お客様のアカウントは既に登録されていますので、ログインをお試しください。')),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return RegisterScreen();
-              },
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('お客様のアカウントは既に登録されていますので、ログインをお試しください。')),
+            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return LoginScreen();
+            }));
+          }
         }
       } on Exception catch (ex) {
         if (mounted) {
@@ -141,166 +132,244 @@ class _RegisterScreenState extends State<RegisterScreen> {
         showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              content: Text('${ex.toString()}'),
-            );
+            return AlertDialog(content: Text('${ex.toString()}'));
           },
         );
       }
     } else {
       showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            content: Text("パスワードが一致しない"),
-          );
-        },
-      );
+          context: context,
+          builder: (context) {
+            return const AlertDialog(content: Text("パスワードが一致しない"));
+          });
     }
   }
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController pwConfirmController = TextEditingController();
+  String selectedGender = '男';
+  bool notvisible = true;
+  bool notVisiblePassword = true;
+  Icon passwordIcon = const Icon(Icons.visibility);
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController =
+      TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController userNameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  void passwordVisibility() {
+    if (notVisiblePassword) {
+      passwordIcon = const Icon(Icons.visibility);
+    } else {
+      passwordIcon = const Icon(Icons.visibility_off);
+    }
+  }
+
+  setGender(String? value) async {
+    setState(() {
+      selectedGender = value!;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () {
-            FocusScope.of(context)
-                .unfocus(); // Hide keyboard when tapping outside
+            FocusScope.of(context).unfocus();
           },
           child: SingleChildScrollView(
-              child: SafeArea(
-            child: Center(
+            // physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 35),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    "メールアドレス",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontFamily: 'NotoSansJP',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyTextField(
-                    hint: "",
-                    obsecure: false,
-                    controller: emailController,
-                  ),
+// =========================================================  Sign Up Title =====================================================
+                  Text("登録",
+                      style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
-                  Text(
-                    "名前",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyTextField(
-                    hint: "",
-                    obsecure: false,
-                    controller: nameController,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "ユーザーネーム",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyTextField(
-                    hint: "",
-                    obsecure: false,
-                    controller: userNameController,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "パスワード",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyTextField(
-                    hint: "6文字以上のパスワードを入力して下さい。",
-                    obsecure: true,
-                    controller: passwordController,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "パスワードの確認",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyTextField(
-                    hint: "パスワードの確認",
-                    obsecure: true,
-                    controller: pwConfirmController,
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                  Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+// =========================================================  Email ID  =====================================================
+                          TextFormField(
+                            decoration: InputDecoration(
+                                icon: const Icon(Icons.alternate_email_outlined,
+                                    color: Colors.grey),
+                                labelText: "メールアドレス"),
+                            controller: emailController,
+                          ),
+                          const SizedBox(height: 10),
+
+// =========================================================  Name and Gender  =====================================================
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    child: TextFormField(
+                                  decoration: InputDecoration(
+                                    icon: const Icon(Icons.account_circle,
+                                        color: Colors.grey),
+                                    labelText: "名前",
+                                  ),
+                                  controller: nameController,
+                                )),
+
+// // =========================================================  Gender Dropdown Button =================================================
+
+                                DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    alignment: AlignmentDirectional.center,
+                                    value: selectedGender,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setGender(value);
+                                      }
+                                    },
+                                    items: [
+                                      DropdownMenuItem<String>(
+                                          value: "男", child: Text("男")),
+                                      DropdownMenuItem<String>(
+                                          value: "女", child: Text("女")),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+// =========================================================  Username  =====================================================
+                          TextFormField(
+                            decoration: InputDecoration(
+                                icon: const Icon(
+                                  Icons.alternate_email_outlined,
+                                  color: Colors.grey,
+                                ),
+                                labelText: "ユーザーネーム"),
+                            controller: userNameController,
+                          ),
+// // =========================================================  Password  =====================================================
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "パスワードを空にすることはできません。";
+                              } else if (value.length <= 5) {
+                                return "パスワードは6文字以上でなければなりません。";
+                              }
+                              return null;
+                            },
+                            obscureText: notvisible,
+                            decoration: InputDecoration(
+                                icon: const Icon(
+                                  Icons.lock_outline_rounded,
+                                  color: Colors.grey,
+                                ),
+                                labelText: "パスワード",
+                                suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        notvisible = !notvisible;
+                                        notVisiblePassword =
+                                            !notVisiblePassword;
+                                        passwordVisibility();
+                                      });
+                                    },
+                                    icon: passwordIcon)),
+                            controller: passwordController,
+                          ),
+
+// =========================================================  Password Confirm  =====================================================
+
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            obscureText: notvisible,
+                            decoration: InputDecoration(
+                                icon: const Icon(
+                                  Icons.lock_outline_rounded,
+                                  color: Colors.grey,
+                                ),
+                                labelText: "パスワードの確認",
+                                suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        notvisible = !notvisible;
+                                        notVisiblePassword =
+                                            !notVisiblePassword;
+                                        passwordVisibility();
+                                      });
+                                    },
+                                    icon: passwordIcon)),
+                            controller: passwordConfirmController,
+                          ),
+                        ],
+                      )),
+
+                  const SizedBox(height: 50),
+
+// =========================================================  SignUp Button =====================================================
+
                   MyButton(
-                    text: "続ける",
-                    onTap: () {
-                      signUp(
-                          emailController.text.trim(),
-                          nameController.text.trim(),
-                          userNameController.text.trim(),
-                          passwordController.text.trim(),
-                          pwConfirmController.text.trim());
+                    text: "登録",
+                    onTap: () async {
+                      if (_formKey.currentState!.validate()) {
+                        signUp(
+                            emailController.text.trim(),
+                            nameController.text.trim(),
+                            userNameController.text.trim(),
+                            passwordController.text.trim(),
+                            passwordConfirmController.text.trim());
+                      }
+                      ;
                     },
                   ),
-                  const SizedBox(height: 5),
-                  Row(
+
+                  const SizedBox(height: 25),
+                  Center(
+                      child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+// =========================================================  Joined us before?  =====================================================
+
                       Text(
-                        "すでにアカウントをお持ちの方?    ",
+                        "会員でない？",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey),
                       ),
+                      const SizedBox(width: 10),
+// =========================================================  Login  =====================================================
+
                       GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return LoginScreen();
-                              },
-                            ),
-                          );
-                        },
                         child: Text(
-                          "今すぐログイン",
+                          "ログイン",
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
                         ),
-                      ),
+                        onTap: () {
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) {
+                            return LoginScreen();
+                          }));
+                        },
+                      )
                     ],
-                  ),
+                  ))
                 ],
               ),
             ),
-          )),
+          ),
         ));
   }
 }

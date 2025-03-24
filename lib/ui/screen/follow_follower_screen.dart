@@ -47,7 +47,8 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+          child: Scaffold(
       appBar: AppBar(
         title: TabBar(
           controller: _tabController,
@@ -66,7 +67,7 @@ class _FollowAndFollowerState extends State<FollowAndFollower>
           FollowerScreen(),
         ],
       ),
-    );
+    ));
   }
 
   Widget FollowScreen() {

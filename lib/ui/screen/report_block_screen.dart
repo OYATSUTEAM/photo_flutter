@@ -40,7 +40,8 @@ class _Report_BlockState extends State<Report_Block> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+          child: Scaffold(
         appBar: AppBar(title: Text('Report and Block')),
         body: SafeArea(
           child: Column(
@@ -83,6 +84,6 @@ class _Report_BlockState extends State<Report_Block> {
               )
             ],
           ),
-        ));
+        )));
   }
 }

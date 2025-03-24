@@ -62,11 +62,7 @@ class _SearchUserState extends State<SearchUser> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
         toolbarHeight: 55,
         centerTitle: true,
         title: Padding(
@@ -84,10 +80,10 @@ class _SearchUserState extends State<SearchUser> {
                 ),
                 enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(20.0)),
+                    borderRadius: BorderRadius.circular(15.0)),
                 focusedBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(20.0)),
+                    borderRadius: BorderRadius.circular(15.0)),
                 filled: true,
                 fillColor: Colors.grey,
                 contentPadding:

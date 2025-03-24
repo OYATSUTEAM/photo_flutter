@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/data/global.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:photo_sharing_app/services/config.dart';
 
 class ProfileServices {
   FirebaseFirestore database = FirebaseFirestore.instance;
@@ -22,7 +23,6 @@ class ProfileServices {
       // Reference to the user's document
       final docRef =
           FirebaseFirestore.instance.collection('Users').doc(currentUserUid);
-
       // Fetch the user's document
       final docSnapshot = await docRef.get();
 
@@ -198,25 +198,6 @@ publicAccount(String uid, bool isPublic) async {
         .collection("Users")
         .doc(uid)
         .update({'public': isPublic});
-
-    DocumentReference docRef =
-        firestore.collection("PublicImageList").doc("imagesDoc");
-    DocumentSnapshot docSnapshot = await docRef.get();
-    if (docSnapshot.exists) {
-      List<dynamic> imageUrls = docSnapshot["imageUrls"];
-      List<dynamic> updatedImageUrls = imageUrls.map((image) {
-        if (image["uid"] == uid) {
-          return {
-            ...image, // Copy other fields
-            "public": isPublic, // Update public status
-          };
-        }
-        return image;
-      }).toList();
-
-      // Update Firestore document
-      await docRef.update({"imageUrls": updatedImageUrls});
-    } else {}
   } catch (e) {
     print("Error updating public status: $e");
   }
@@ -228,42 +209,23 @@ Future<List<String>> getRecentImageUrls() async {
       .doc('imagesDoc')
       .get();
 
-  if (doc.exists) {
-    List<dynamic> images = doc['imageUrls'];
+  if (!doc.exists) return [];
 
-    // Get current time and subtract 3 days
-    DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+  List<dynamic> images = doc['imageUrls'];
 
-    // Filter the URLs added within the last 3 days
-    List<String> recentUrls = images
-        .where((image) => image['timestamp'] != null) // Ensure timestamp exists
-        .where((image) =>
-            (image['timestamp'] as Timestamp).toDate().isAfter(threeDaysAgo))
-        .map((image) => image['url'] as String)
-        .toList();
+  DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
 
-    return recentUrls;
-  } else {
-    return [];
-  }
+  List<String> recentUrls = images
+      .where((image) => image['timestamp'] != null)
+      .where((image) {
+        DateTime imageDate = DateTime.parse(image['timestamp']);
+        return imageDate.isAfter(threeDaysAgo);
+      })
+      .map((image) => image['url'] as String)
+      .toList();
+
+  return recentUrls;
 }
-
-// Future<ListResult> getProfileURLs(String uid) async {
-//   ListResult listResult = [] as ListResult;
-//   try {
-//     List<String> publicImageUrls = [];
-
-//     final storageRef =
-//         FirebaseStorage.instance.ref("images/$uid/profileImages");
-
-//     final ListResult result = await storageRef.listAll();
-
-//     return result;
-//   } catch (e) {
-//     print("Error fetching public image URLs: $e");
-//     return listResult;
-//   }
-// }
 
 Future<bool> isPublicAccount(String uid) async {
   try {
@@ -280,24 +242,26 @@ Future<bool> isPublicAccount(String uid) async {
 //================================================================================================================================
 //================================================================================================================================
 //================================================================================================================================
-//================================================================================================================================
-//================================================================================================================================
-//================================================================================================================================
-//================================================================================================================================
-//================================================================================================================================
-Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
-    String uid) async* {
-  final docRef = FirebaseFirestore.instance.collection("Users").doc(uid);
 
+Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
+  String uid,
+) async* {
+  final docRef =
+      FirebaseFirestore.instance.collection("PublicImageList").doc('imagesDoc');
   await for (var documentSnapshot in docRef.snapshots()) {
     if (!documentSnapshot.exists) {
       yield {"latest": [], "others": []}; // Return empty if no data exists
       continue;
     }
 
-    List<dynamic> otherArray = documentSnapshot.get('imageUrls') ?? [];
+    List<dynamic> otherArray = documentSnapshot.data()?['imageUrls'] ?? [];
+    if (otherArray.isEmpty) {
+      yield {"latest": [], "others": []}; // Return empty if no images
+      continue;
+    }
+    otherArray = otherArray.where((img) => img['uid'] == uid).toList();
 
-    // Safely parse timestamp
+    // Parse timestamp safely
     otherArray.sort((a, b) {
       Timestamp tsA = _parseTimestamp(a['timestamp']);
       Timestamp tsB = _parseTimestamp(b['timestamp']);
@@ -310,7 +274,7 @@ Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
     for (int i = 0; i < otherArray.length; i++) {
       var imageData = {
         'url': otherArray[i]['url'],
-        'status': otherArray[i]['public'],
+        'public': otherArray[i]['public'],
         'name': otherArray[i]['name']
       };
 
@@ -321,7 +285,6 @@ Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
       }
     }
 
-    print('${latestImages}${otherImages}============');
     yield {
       "latest": latestImages,
       "others": otherImages,
@@ -339,11 +302,12 @@ Timestamp _parseTimestamp(dynamic timestamp) {
   } else if (timestamp is int) {
     return Timestamp.fromMillisecondsSinceEpoch(timestamp);
   }
-  return Timestamp.now(); // Default to current time if format is unknown
+  return Timestamp.now();
 }
 
 Future<Map<String, List<Map<String, dynamic>>>> getOtherImageNames(
-    String uid) async {
+  String uid,
+) async {
   final collectionRef = FirebaseFirestore.instance
       .collection("profileImages")
       .doc(uid)
@@ -700,61 +664,34 @@ Future<void> removeImage(String uid, String name) async {
 Future<void> saveOrUpdateImage(
     String uid, String imageName, bool status) async {
   try {
-    print(imageName);
-    if (globalData.isAccountPublic) {
-      DocumentReference publicImageDocRef = FirebaseFirestore.instance
-          .collection('PublicImageList')
-          .doc('imagesDoc');
-      DocumentReference myPostImageDocRef =
-          FirebaseFirestore.instance.collection('Users').doc(uid);
+    // if (globalData.isAccountPublic) {
+    DocumentReference publicImageDocRef = FirebaseFirestore.instance
+        .collection('PublicImageList')
+        .doc('imagesDoc');
 
-      DocumentSnapshot publicImageDocSnapshot = await publicImageDocRef.get();
-      DocumentSnapshot myPostImageDocSnapshot = await myPostImageDocRef.get();
+    DocumentSnapshot publicImageDocSnapshot = await publicImageDocRef.get();
 
-      if (publicImageDocSnapshot.exists) {
-        Map<String, dynamic> data =
-            publicImageDocSnapshot.data() as Map<String, dynamic>;
+    if (publicImageDocSnapshot.exists) {
+      Map<String, dynamic> data =
+          publicImageDocSnapshot.data() as Map<String, dynamic>;
 
-        List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
+      List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
 
-        bool updated = false;
-        for (int i = 0; i < imageUrls.length; i++) {
-          Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
-          if (img['name'] == imageName && img['uid'] == uid) {
-            imageUrls[i] = {...img, 'public': status};
-            updated = true;
-            break;
-          }
-        }
-
-        if (updated) {
-          await publicImageDocRef.update({'imageUrls': imageUrls});
-          print("Image public status updated successfully!   this is public");
-        } else {
-          print("Image not found, no update performed.  this is public");
+      bool updated = false;
+      for (int i = 0; i < imageUrls.length; i++) {
+        Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
+        if (img['name'] == imageName && img['uid'] == uid) {
+          imageUrls[i] = {...img, 'public': status};
+          updated = true;
+          break;
         }
       }
 
-      if (myPostImageDocSnapshot.exists) {
-        Map<String, dynamic> data =
-            myPostImageDocSnapshot.data() as Map<String, dynamic>;
-        List<dynamic> imageUrls = List.from(data['imageUrls'] ?? []);
-        print(imageUrls);
-        bool updated = false;
-        for (int i = 0; i < imageUrls.length; i++) {
-          Map<String, dynamic> img = imageUrls[i] as Map<String, dynamic>;
-          if (img['name'] == imageName) {
-            imageUrls[i] = {...img, 'public': status};
-            updated = true;
-            break;
-          }
-        }
-        if (updated) {
-          await myPostImageDocRef.update({'imageUrls': imageUrls});
-          print("Image public status updated successfully!");
-        } else {
-          print("Image not found, no update performed.");
-        }
+      if (updated) {
+        await publicImageDocRef.update({'imageUrls': imageUrls});
+        print("Image public status updated successfully!   this is public");
+      } else {
+        print("Image not found, no update performed.  this is public");
       }
     }
   } catch (e) {

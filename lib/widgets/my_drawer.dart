@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
+import 'package:photo_sharing_app/services/config.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/auth/login_screen.dart';
 import 'package:photo_sharing_app/ui/other/blocked_users.dart';
 import 'package:photo_sharing_app/ui/screen/cookie_screen.dart';
 import 'package:photo_sharing_app/ui/screen/follow_follower_screen.dart';
-import 'package:photo_sharing_app/ui/screen/home_screen.dart';
+import 'package:photo_sharing_app/home_screen.dart';
 import 'package:photo_sharing_app/ui/screen/manager_screen.dart';
 import 'package:photo_sharing_app/ui/screen/settings_screen.dart';
 import 'package:photo_sharing_app/ui/screen/terms_screen.dart';
@@ -18,7 +19,12 @@ ProfileServices profileServices = ProfileServices();
 
 class MyDrawer extends StatefulWidget {
   final String email, uid;
-  const MyDrawer({super.key, required this.email, required this.uid});
+  final VoidCallback setUpInit;
+  const MyDrawer(
+      {super.key,
+      required this.email,
+      required this.uid,
+      required this.setUpInit()});
   @override
   _MyDrawer createState() => _MyDrawer();
 }
@@ -47,10 +53,7 @@ class _MyDrawer extends State<MyDrawer> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(true); // User pressed Delete
               },
-              child: const Text(
-                '削除',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -88,104 +91,84 @@ class _MyDrawer extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Drawer(
-            width: MediaQuery.of(context).size.width * 0.9,
-            // backgroundColor: const Color.fromARGB(255, 29, 29, 29),
+            // appBar: AppBar(title: Text('設定'),centerTitle: true,),
+            // width: MediaQuery.of(context).size.width * 0.9,
+            backgroundColor: const Color.fromARGB(255, 27, 27, 27),
             child: SingleChildScrollView(
+                child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 35),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(height: 20),
-                  Stack(
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ));
-                          },
-                          icon: Icon(Icons.arrow_back)),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text("設定",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20)),
-                      )
-                    ],
-                  ),
+                  SizedBox(height: 5),
+                  Text('設定', style: TextStyle(fontSize: 24)),
                   SizedBox(height: 5),
                   MyButton(
-                    text: "利用規約", //terms of service
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => TermsOfUsePage()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  MyButton(
-                    text: "公開設定", //public setting
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => SettingsScreen()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  MyButton(
-                    text: "プライバシーポリシー", //privacy policy
-                    onTap: () async {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CookieScreen()));
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  MyButton(
-                    text: "他のユーザー", //others
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => OtherUsers()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  MyButton(
-                    text: "フォローとフォロワー",
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) => FollowAndFollower()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  MyButton(
-                    text: "ブロックとブロックされた",
-                    onTap: () async {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => BlockedUsers(),
-                        ),
-                      );
-                    },
-                  ),
-                  if (widget.email == 'topadminmanager123456@gmail.com')
-                    SizedBox(
-                      height: 15,
-                    ),
-                  if (widget.email == 'topadminmanager123456@gmail.com')
-                    MyButton(
-                      text: "ステータス管理",
+                      text: "利用規約",
                       onTap: () async {
-                        Navigator.pop(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => ManagerScreen(),
+                              builder: (context) => TermsOfUsePage()),
+                        );
+                      }),
+                  SizedBox(height: 15),
+                  MyButton(
+                      text: "公開設定",
+                      onTap: () async {
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => SettingsScreen(setUpInit: widget.setUpInit,)),
+                        );
+                          console([result]);
+                        if (result == null) {
+                          widget.setUpInit();
+                        }
+                      }),
+                  SizedBox(height: 15),
+                  MyButton(
+                      text: "プライバシーポリシー", //privacy policy
+                      onTap: () async {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => CookieScreen()));
+                      }),
+                  SizedBox(height: 15),
+                  MyButton(
+                      text: "他のユーザー", //others
+                      onTap: () async {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => OtherUsers()),
+                        );
+                      }),
+                  SizedBox(height: 15),
+                  MyButton(
+                      text: "フォローとフォロワー",
+                      onTap: () async {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => FollowAndFollower()),
+                        );
+                      }),
+                  SizedBox(height: 15),
+                  MyButton(
+                      text: "ブロックとブロックされた",
+                      onTap: () async {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BlockedUsers(),
                           ),
                         );
-                      },
-                    ),
+                      }),
+                  if (widget.email == 'topadminmanager123456@gmail.com')
+                    SizedBox(height: 15),
+                  if (widget.email == 'topadminmanager123456@gmail.com')
+                    MyButton(
+                        text: "ステータス管理",
+                        onTap: () async {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ManagerScreen(),
+                          ));
+                        }),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.12),
                   MyButton(
                       text: "ログアウト",
@@ -200,8 +183,6 @@ class _MyDrawer extends State<MyDrawer> {
                         await AuthServices(locator.get(), locator.get())
                             .signOut();
                         if (mounted) {
-                          // Navigator.pop(context);
-                          // Navigator.pop(context);
                           Navigator.of(context)
                               .push(MaterialPageRoute(builder: (context) {
                             return LoginScreen();
@@ -218,6 +199,6 @@ class _MyDrawer extends State<MyDrawer> {
                   ),
                 ],
               ),
-            )));
+            ))));
   }
 }

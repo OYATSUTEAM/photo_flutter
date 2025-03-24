@@ -98,12 +98,6 @@ class AuthServices {
     try {
       final auth = FirebaseAuth.instance;
 
-      // await FirebaseAuth.instance.signOut();
-      // final UserCredential userCredential =
-      //     await user.createUserWithEmailAndPassword(
-      //   email: email,
-      //   password: password,
-      // );
       await database.collection("Users").doc(auth.currentUser?.uid).set({
         "uid": auth.currentUser?.uid,
         "email": email,
@@ -113,16 +107,13 @@ class AuthServices {
         'other': [],
         'follow': [],
         'follower': [],
-        'isShowAll': true,
-        'public': true,
-      });
-      // await signIn(email, password);
+        'public': false,
+      }, SetOptions(merge: true));
       return;
     } on FirebaseAuthException {
       return null;
     } catch (e) {
       return null;
-      // Handle other exceptions
     }
   }
 }

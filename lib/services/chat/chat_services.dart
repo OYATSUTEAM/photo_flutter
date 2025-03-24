@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:photo_sharing_app/data/model/message.dart';
+import 'package:async/async.dart';
 
 class ChatService {
   final FirebaseFirestore database;
@@ -41,6 +42,53 @@ class ChatService {
           newMessage.toMap(),
         );
   }
+
+
+// Stream<QuerySnapshot> getAllMessages(String userID) {
+//   return database.collection("chat_rooms").snapshots().asyncExpand((chatRoomsSnapshot) {
+//     StreamGroup<QuerySnapshot> streamGroup = StreamGroup<QuerySnapshot>();
+
+//     for (var doc in chatRoomsSnapshot.docs) {
+//       if (doc.id.contains(userID)) {
+//         var messageStream = database
+//             .collection("chat_rooms")
+//             .doc(doc.id)
+//             .collection("message")
+//             .orderBy("timeStamp", descending: true)
+//             .snapshots();
+//         streamGroup.add(messageStream);
+//       }
+//     }
+
+//     streamGroup.close(); // Close the group after adding streams
+//     return streamGroup.stream;
+//   });
+// }
+
+
+Stream<QuerySnapshot> getAllMessages(String userID) {
+  return database.collection("chat_rooms").snapshots().asyncExpand((chatRoomsSnapshot) {
+    List<Stream<QuerySnapshot>> messageStreams = [];
+
+    for (var doc in chatRoomsSnapshot.docs) {
+      print('=============');
+      List<String> participants = doc.id.split("_");
+      if (participants.contains(userID)) {
+        var messageStream = database
+            .collection("chat_rooms")
+            .doc(doc.id)
+            .collection("message")
+            .orderBy("timeStamp", descending: true)
+            .snapshots();
+
+        messageStreams.add(messageStream);
+      }
+    }
+    return StreamGroup.merge(messageStreams);
+  });
+}
+
+
 
   Stream<QuerySnapshot> getMessage(String userID, otherUserID) {
     List<String> ids = [userID, otherUserID];

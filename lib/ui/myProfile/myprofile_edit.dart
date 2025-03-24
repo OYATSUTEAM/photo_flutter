@@ -113,11 +113,13 @@ class _MyProfileEdit extends State<MyProfileEdit> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Form(
-          key: _formKey, // Attach form key to the Form widget
+        body: SafeArea(
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
           child: Stack(
+            alignment: AlignmentDirectional.center,
             children: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -128,7 +130,7 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-//=========================================================                           edit profile image           =========================================
+//=========================================================      edit profile image           =========================================
                         Center(
                           child: CircleAvatar(
                             backgroundImage: NetworkImage(imageURL),
@@ -161,27 +163,25 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-//=========================================================                           name  =========================================
+//=========================================================      name  =========================================
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 25.0),
                         child: Text('名前', style: TextStyle(fontSize: 20)),
                       ),
                       SizedBox(
-                        width: 200,
-                        child: TextFormField(
-                          controller: nameController,
-                          decoration:
-                              const InputDecoration(border: InputBorder.none),
-                          style: const TextStyle(fontSize: 20.0),
-                          textAlign: TextAlign.center,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return '名前を空にすることはできない';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                          width: 200,
+                          child: TextFormField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                  border: InputBorder.none),
+                              style: const TextStyle(fontSize: 20.0),
+                              textAlign: TextAlign.center,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return '名前を空にすることはできない';
+                                }
+                                return null;
+                              }))
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -213,6 +213,12 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   ),
                   const SizedBox(height: 15),
 //=====================================================================                  reset password ==================================
+                  // ElevatedButton(
+                  //     onPressed: () async {
+
+                  //     },
+                  //     child: Text('パスワード変更'))
+
                   MyButton(
                       text: "パスワード変更",
                       onTap: () async {
@@ -224,9 +230,10 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                 ],
               ),
 //=======================================================================                Cancel Button ==================================
+
               Positioned(
                 top: 0,
-                left: 8,
+                left: -10,
                 child: TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
@@ -237,34 +244,31 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                   },
                   child: const Text(
                     'キャンセル',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    style: TextStyle(fontSize: 14, color: Colors.white),
                   ),
                 ),
               ),
 //=======================================================================                 edit profile ===============================
+
               Positioned(
-                left: MediaQuery.of(context).size.width * 0.3,
-                top: 0,
-                child: Text(
-                  'プロフィールを編集',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
+                  top: 0,
+                  child: Align(
+                    child: Text('プロフィールを編集',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                  )),
 //=======================================================================                 Save Button
               Positioned(
                 top: 0,
-                right: 8,
+                right: -10,
                 child: TextButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
                       showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                      );
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          });
                       if (mounted) {
                         await profileServices.updateProfile(
                             uid,
@@ -291,16 +295,14 @@ class _MyProfileEdit extends State<MyProfileEdit> {
                     ;
                   },
 //==============================================================================  save   ======================================================================
-                  child: const Text(
-                    '保存',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
+                  child: const Text('保存',
+                      style: TextStyle(fontSize: 14, color: Colors.white)),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
+    ));
   }
 }
