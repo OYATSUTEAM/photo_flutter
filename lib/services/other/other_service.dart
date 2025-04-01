@@ -296,7 +296,7 @@ class OtherService {
     return commentsList;
   }
 
-  Future<List<String>> getRecentFollowImages(String uid) async {
+  Future<List<Map<String, dynamic>>> getRecentFollowImages(String uid) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
@@ -331,11 +331,11 @@ class OtherService {
       List<dynamic> imageUrls = docSnapshot["imageUrls"];
 
       // Filter only public images from followed users
-      List<String> publicURLs = imageUrls
+      List<Map<String, dynamic>> publicURLs = imageUrls
           .where((image) {
             return image["public"] == true && followList.contains(image["uid"]);
           })
-          .map((image) => image["url"].toString())
+          .map((image) => {'url': image["url"].toString(), 'uid': image['uid']})
           .toList();
 
       return publicURLs;
@@ -393,8 +393,7 @@ class OtherService {
     }
   }
 
-
-  Future<List<String>> getRecentImageUrls() async {
+  Future<List<Map<String, dynamic>>> getRecentImageUrls() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
@@ -407,7 +406,7 @@ class OtherService {
 
         // Get current date and subtract 3 days
         DateTime threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
-        List<String> publicURLs = [];
+        List<Map<String, dynamic>> publicURLs = [];
 
         // Create a list of Futures
         List<Future<void>> futures = imageUrls.map((image) async {
@@ -420,13 +419,19 @@ class OtherService {
           String uid = image['uid'];
           final profilePublic = await isPublicAccount(uid);
           if (image["public"] != true || profilePublic != true) {
-            console([profilePublic]);
             return;
           }
 
           DateTime imageTimestamp = DateTime.parse(image["timestamp"]);
           if (imageTimestamp.isAfter(threeDaysAgo)) {
-            publicURLs.add(image["url"].toString());
+            publicURLs.add({
+              'url': image["url"].toString(),
+              'uid': image['uid'],
+              'name': image['name'],
+              'username': image['username'],
+              'email': image['email'],
+              'postText': image['postText'],
+            });
           }
         }).toList();
 

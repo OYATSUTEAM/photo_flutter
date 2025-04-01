@@ -89,8 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       if (mounted) {
         Navigator.pop(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
       }
-      isEmailVerified();
+      // isEmailVerified();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         const emailError = '有効なメールアドレスを入力してください。';

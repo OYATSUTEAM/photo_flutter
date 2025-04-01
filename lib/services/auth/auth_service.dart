@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:photo_sharing_app/services/config.dart';
 
 class AuthServices {
   final FirebaseAuth user;
@@ -97,7 +98,6 @@ class AuthServices {
       String email, String password, String name, String username) async {
     try {
       final auth = FirebaseAuth.instance;
-
       await database.collection("Users").doc(auth.currentUser?.uid).set({
         "uid": auth.currentUser?.uid,
         "email": email,

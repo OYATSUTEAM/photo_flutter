@@ -148,7 +148,7 @@ class _PostScreenState extends State<PostScreen> {
 
         for (var path in allPostFileList) {
           await addToPostedImages(
-              uid, globalData.postText, path, p.basenameWithoutExtension(path));
+              uid, name, username, email,  globalData.postText, path, p.basenameWithoutExtension(path));
         }
 
         for (final String filePath in allPostFileList) {

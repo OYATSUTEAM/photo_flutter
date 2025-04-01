@@ -34,7 +34,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       }
       if (user != null) {
         final currentPassword = await getUserPassword(user!.uid);
-        print('${widget.email}, !!!!!, $currentPassword');
         if (currentPasswordController.text.trim() == currentPassword) {
           if (newPasswordController.text.trim() ==
               confirmPasswordController.text.trim()) {

@@ -119,7 +119,6 @@ class _MyDrawer extends State<MyDrawer> {
                           MaterialPageRoute(
                               builder: (context) => SettingsScreen(setUpInit: widget.setUpInit,)),
                         );
-                          console([result]);
                         if (result == null) {
                           widget.setUpInit();
                         }

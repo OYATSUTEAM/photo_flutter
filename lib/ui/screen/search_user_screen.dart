@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
+import 'package:photo_sharing_app/services/config.dart';
 import 'package:photo_sharing_app/ui/screen/chat_screen.dart';
 import 'package:photo_sharing_app/widgets/usertile.dart';
 
@@ -188,20 +189,26 @@ class BuilduserStreamList extends StatelessWidget {
           child: Text("現在ログインしているユーザーはいません")); // No user is currently logged in
     }
 
-    final otherEmail = otherUserdata['email'] ?? ''; // Ensure non-null email
-    final otherUid = otherUserdata['uid'] ?? ''; // Ensure non-null uid
-    final otherName = otherUserdata['name'] ?? "ユーザー不明"; // User Unknown
-
+    final otherEmail = otherUserdata['email'] ?? '';
+    final otherUid = otherUserdata['uid'] ?? '';
+    final otherName = otherUserdata['name'] ?? "";
+    final otherUserName = otherUserdata['username'] ?? "";
     if (otherEmail != currentUser.email) {
       return Column(
         children: [
           SizedBox(height: 10),
           UserTile(
+              otherEmail: otherEmail,
+              otherUserName: otherUserName,
+              otherName: otherName,
               text: otherName,
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return ChatScreen(
-                      receiverEmail: otherEmail, receiverId: otherUid);
+                      receiverName: otherUserName,
+                      receiverUserName: otherUserName,
+                      receiverEmail: otherEmail,
+                      receiverId: otherUid);
                 }));
               },
               otherUid: otherUid)

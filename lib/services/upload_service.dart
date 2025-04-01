@@ -42,15 +42,16 @@ Future<void> uploadFile(
   }
 }
 
-Future<void> addToPostedImages(
-    String uid, String postText, String imagePath, String imageName) async {
+Future<void> addToPostedImages(String uid, String name, String username,
+    String email, String postText, String imagePath, String imageName) async {
   try {
     DateTime now = DateTime.now();
     String timestamp = now.toIso8601String();
 
     String imageURL =
         await uploadImage(uid, postText, imagePath, imageName, timestamp);
-    await addToPosted(imageURL, uid, postText, imageName, timestamp);
+    await addToPosted(
+        imageURL, uid, name, username, email, postText, imageName, timestamp);
     // await addToMyPosted(imageURL, uid, postText, imageName, timestamp);
   } catch (e) {
     print('$e this error occurred in my profile.');
@@ -77,8 +78,15 @@ Future<String> uploadImage(String uid, String name, String imagePath,
   }
 }
 
-Future<void> addToPosted(String imageUrl, String uid, String postText,
-    String imageName, String timestamp) async {
+Future<void> addToPosted(
+    String imageUrl,
+    String uid,
+    String name,
+    String username,
+    String email,
+    String postText,
+    String imageName,
+    String timestamp) async {
   try {
     CollectionReference images =
         FirebaseFirestore.instance.collection('PublicImageList');
@@ -86,9 +94,12 @@ Future<void> addToPosted(String imageUrl, String uid, String postText,
     Map<String, dynamic> imageObject = {
       'url': imageUrl,
       'uid': uid,
+      'name': name,
+      'username': username,
+      'email': email,
       'timestamp': timestamp, // Firestore server timestamp
-      'public': false,
-      'name': imageName,
+      'public': true,
+      'imageName': imageName,
       'postText': postText
     };
 

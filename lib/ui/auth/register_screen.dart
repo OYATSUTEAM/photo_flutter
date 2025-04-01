@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_sharing_app/DI/service_locator.dart';
+import 'package:photo_sharing_app/home_screen.dart';
 import 'package:photo_sharing_app/services/auth/auth_service.dart';
 import 'package:photo_sharing_app/services/chat/chat_services.dart';
 import 'package:photo_sharing_app/ui/auth/login_screen.dart';
@@ -88,30 +89,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
         //     });
         try {
           await auth.createUserWithEmailAndPassword(
-            email: emailController.text.toString().trim(),
-            password: passwordController.text.toString().trim(),
+            email: email,
+            password: password,
           );
 
           if (auth.currentUser?.uid != null) {
-            sendVerificationEmail();
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '登録されたメールアドレスに確認メールが届いています。アカウントを確認し、再度ログインしてください。',
-                  ),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return LoginScreen();
-                }),
-              );
-            }
+            //   sendVerificationEmail();
+            //   if (mounted) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text(
+            //           '登録されたメールアドレスに確認メールが届いています。アカウントを確認し、再度ログインしてください。',
+            //         ),
+            //         duration: Duration(seconds: 2),
+            //       ),
+            //     );
             await authUser.register(email, password, name, username);
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return HomeScreen();
+            }));
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) {
+            //         return LoginScreen();
+            //       }),
+            //     );
+            //   }
           }
         } catch (e) {
           if (mounted) {
@@ -328,7 +331,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             passwordController.text.trim(),
                             passwordConfirmController.text.trim());
                       }
-                      ;
                     },
                   ),
 

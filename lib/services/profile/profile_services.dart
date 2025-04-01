@@ -44,18 +44,14 @@ class ProfileServices {
 
   Future<bool> isMeBlocked(String currentUserUid, String otherUid) async {
     try {
-      // Reference to the user's document
       final docRef =
           FirebaseFirestore.instance.collection('Users').doc(otherUid);
 
-      // Fetch the user's document
       final docSnapshot = await docRef.get();
 
       if (docSnapshot.exists) {
-        // Get the block list
         List<dynamic> blockList = docSnapshot.data()?['blocked'] ?? [];
 
-        // Check if the otherUid is in the block list
         return blockList.contains(currentUserUid);
       } else {
         print("User document not found.");
@@ -190,7 +186,7 @@ Future<void> deleteProfile(String uid, String imageName) async {
   }
 }
 
-publicAccount(String uid, bool isPublic) async {
+Future<void> publicAccount(String uid, bool isPublic) async {
   // Step 1: Try to get the URL for the main profile image
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   try {
@@ -244,10 +240,58 @@ Future<bool> isPublicAccount(String uid) async {
 //================================================================================================================================
 
 Stream<Map<String, List<Map<String, dynamic>>>> getImageNames(
-  String uid,
-) async* {
+    String uid) async* {
   final docRef =
       FirebaseFirestore.instance.collection("PublicImageList").doc('imagesDoc');
+  await for (var documentSnapshot in docRef.snapshots()) {
+    if (!documentSnapshot.exists) {
+      yield {"latest": [], "others": []}; // Return empty if no data exists
+      continue;
+    }
+
+    List<dynamic> otherArray = documentSnapshot.data()?['imageUrls'] ?? [];
+    if (otherArray.isEmpty) {
+      yield {"latest": [], "others": []}; // Return empty if no images
+      continue;
+    }
+    otherArray = otherArray.where((img) => img['uid'] == uid).toList();
+
+    // Parse timestamp safely
+    otherArray.sort((a, b) {
+      Timestamp tsA = _parseTimestamp(a['timestamp']);
+      Timestamp tsB = _parseTimestamp(b['timestamp']);
+      return tsB.compareTo(tsA); // Sort in descending order
+    });
+
+    List<Map<String, dynamic>> latestImages = [];
+    List<Map<String, dynamic>> otherImages = [];
+
+    for (int i = 0; i < otherArray.length; i++) {
+      var imageData = {
+        'url': otherArray[i]['url'],
+        'public': otherArray[i]['public'],
+        'name': otherArray[i]['name']
+      };
+
+      if (i < otherArray.length / 2) {
+        latestImages.add(imageData);
+      } else {
+        otherImages.add(imageData);
+      }
+    }
+
+    yield {
+      "latest": latestImages,
+      "others": otherImages,
+    };
+  }
+}
+
+Stream<Map<String, List<Map<String, dynamic>>>> getOtherImageNames(
+    String uid) async* {
+  final docRef =
+      FirebaseFirestore.instance.collection("PublicImageList").doc('imagesDoc');
+  if (!await isPublicAccount(uid)) yield {"latest": [], "others": []};
   await for (var documentSnapshot in docRef.snapshots()) {
     if (!documentSnapshot.exists) {
       yield {"latest": [], "others": []}; // Return empty if no data exists
@@ -303,40 +347,6 @@ Timestamp _parseTimestamp(dynamic timestamp) {
     return Timestamp.fromMillisecondsSinceEpoch(timestamp);
   }
   return Timestamp.now();
-}
-
-Future<Map<String, List<Map<String, dynamic>>>> getOtherImageNames(
-  String uid,
-) async {
-  final collectionRef = FirebaseFirestore.instance
-      .collection("profileImages")
-      .doc(uid)
-      .collection("images");
-
-  final querySnapshot =
-      await collectionRef.orderBy('timestamp', descending: true).get();
-
-  List<Map<String, dynamic>> latestImages = [];
-  List<Map<String, dynamic>> otherImages = [];
-
-  for (int i = 0; i < querySnapshot.docs.length; i++) {
-    var doc = querySnapshot.docs[i];
-    Map<String, dynamic> imageData = {
-      'name': doc.id, // Image name (doc ID)
-      'status': doc['status'], // Image status
-    };
-
-    if (i < querySnapshot.docs.length / 2) {
-      latestImages.add(imageData);
-    } else {
-      otherImages.add(imageData);
-    }
-  }
-
-  return {
-    "latest": latestImages,
-    "others": otherImages,
-  };
 }
 
 Future<String> getUserPassword(String uid) async {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/bloc/theme_bloc.dart';
 import 'package:photo_sharing_app/bloc/theme_event.dart';
 import 'package:photo_sharing_app/data/global.dart';
+import 'package:photo_sharing_app/services/config.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ ProfileServices profileServices = ProfileServices();
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 final User? user = _auth.currentUser;
+bool switchResult = ThemeManager.readTheme();
 
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
@@ -31,17 +33,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       name = 'ローディング...',
       username = 'ローディング...',
       uid = 'default';
-  void getCurrentUserUID() {
+  void getCurrentUserUID() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      final profilePublic = await isPublicAccount(user.uid);
       setState(() {
+        switchResult = profilePublic;
         uid = user.uid;
         email = user.email!;
       });
     }
   }
-
-  bool switchResult = ThemeManager.readTheme();
 
   @override
   Widget build(BuildContext context) {

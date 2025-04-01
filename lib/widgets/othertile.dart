@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_sharing_app/services/other/other_service.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_screen.dart';
+import 'package:photo_sharing_app/ui/other/report_screen.dart';
 import 'package:photo_sharing_app/ui/screen/chat_screen.dart';
 
 OtherService otherService = OtherService();
@@ -31,10 +32,11 @@ bool isUserBlocked = false;
 bool isMeBlocked = false;
 
 class OtherTileState extends State<OtherTile> {
-  String? username;
+  String otherName = '';
+  String otherUserName = '';
   bool isLoading = true;
-  String useremail = 'default';
-  String? otherProfileURL;
+  String otherEmail = 'default';
+  String otherProfileURL = '';
   String _otherProfileURL = profileServices.mainURL;
   @override
   void initState() {
@@ -64,8 +66,8 @@ class OtherTileState extends State<OtherTile> {
       if (mounted) {
         setState(() {
           otherProfileURL = fetchedURL;
-          username = fetchedUsername ?? 'unknown user';
-          useremail = fetchedUserEmail ?? 'unknown user';
+          otherUserName = fetchedUsername ?? 'unknown user';
+          otherEmail = fetchedUserEmail ?? 'unknown user';
           isUserBlocked = fetchedIsUserBlocked;
           isMeBlocked = fetchedIsMeBlocked;
           isLoading = false;
@@ -73,7 +75,7 @@ class OtherTileState extends State<OtherTile> {
       }
     } catch (e) {
       setState(() {
-        username = 'Error loading username';
+        otherUserName = 'Error loading username';
 
         isLoading = false;
       });
@@ -96,11 +98,9 @@ class OtherTileState extends State<OtherTile> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // const SizedBox(width: 1),
             Container(
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 child: InkWell(
-                  // backgroundColor: Colors.transparent,
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(otherProfileURL != null
                         ? otherProfileURL!
@@ -112,45 +112,36 @@ class OtherTileState extends State<OtherTile> {
                         context: context,
                         builder: (context) {
                           return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                              child: CircularProgressIndicator());
                         });
-                    await Future.delayed(
-                        Duration(seconds: 1)); // Simulating a delay
+                    await Future.delayed(Duration(seconds: 1));
                     if (mounted) Navigator.pop(context);
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
-                          return OtherProfile(
-                            otherUid: widget.otherUid,
-                          );
+                          return OtherProfile(otherUid: widget.otherUid);
                         },
                       ),
                     );
                   },
                 )),
-            // const SizedBox(width: 1.0),
             Flexible(
               child: Text(
-                isLoading ? 'Loading...' : username!,
+                isLoading ? 'Loading...' : otherUserName,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.ellipsis),
                 maxLines: 1,
               ),
             ),
-
             if (isUserBlocked)
               TextButton(
                 onPressed: () async {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return const Center(child: CircularProgressIndicator());
                     },
                   );
                   await otherService.unBlockThisUser(widget.otherUid);
@@ -159,10 +150,7 @@ class OtherTileState extends State<OtherTile> {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
-                        content: Text(
-                            "このユーザーのブロックを解除した"), //////////////////////////it is added ///////////////////
-                      );
+                      return AlertDialog(content: Text("このユーザーのブロックを解除した"));
                     },
                   );
                   final currentContext = context;
@@ -175,9 +163,7 @@ class OtherTileState extends State<OtherTile> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(12),
-                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                   ),
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10.0, vertical: 5.0),
@@ -191,7 +177,6 @@ class OtherTileState extends State<OtherTile> {
                   ),
                 ),
               ),
-
             if (!isUserBlocked)
               TextButton(
                 onPressed: () async {
@@ -203,19 +188,16 @@ class OtherTileState extends State<OtherTile> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(12),
-                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                   ),
                   padding: const EdgeInsets.symmetric(
                       horizontal: 6.0, vertical: 5.0),
                   child: Text(
                     'delete',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14, // Font size
-                      fontWeight: FontWeight.bold, // Font weight (bold)
-                    ),
+                        color: Colors.white,
+                        fontSize: 14, // Font size
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -226,7 +208,9 @@ class OtherTileState extends State<OtherTile> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => ChatScreen(
-                          receiverEmail: useremail,
+                          receiverUserName: otherUserName,
+                          receiverName: otherName,
+                          receiverEmail: otherEmail,
                           receiverId: widget.otherUid,
                         ),
                       ),
@@ -252,7 +236,6 @@ class OtherTileState extends State<OtherTile> {
                   ),
                 ),
               ),
-
             if (isMeBlocked)
               Text(
                 'blocked',

@@ -12,15 +12,11 @@ import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:photo_sharing_app/ui/camera/post_camera.dart';
 import 'package:photo_sharing_app/ui/myProfile/myProfile.dart';
 import 'package:photo_sharing_app/ui/other/other_profile_preview_screen.dart';
+import 'package:photo_sharing_app/ui/screen/following_screeen.dart';
+import 'package:photo_sharing_app/ui/screen/recommended_screen.dart';
 import 'package:photo_sharing_app/ui/screen/search_user_screen.dart';
 import 'package:photo_sharing_app/widgets/my_drawer.dart';
 import 'data/global.dart';
-
-final AuthServices authServices = locator.get();
-ProfileServices profileServices = ProfileServices();
-late String fromWhere;
-
-String myProfileURL = "";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,30 +27,52 @@ class HomeScreen extends StatefulWidget {
 
 OtherService otherService = OtherService();
 ChatService chatService = locator.get();
+final AuthServices authServices = locator.get();
+ProfileServices profileServices = ProfileServices();
+late String fromWhere;
 
-class _HomeScreenState extends State<HomeScreen> {
+String myProfileURL = "";
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  late PageController _pageController;
+  late TabController _tabController;
   bool isLoading = true;
   String email = 'default@gmail.com',
       name = 'ローディング...',
       username = 'ローディング...',
-      postedText = '',
+      postText = '',
       uid = 'default';
   bool isAccountPublic = false;
   bool loading = true;
-  List<String>? recommendedOtherUsers;
-  List<String>? recommendedFollowUsers;
+  List<Map<String, dynamic>>? recommendedOtherUsers;
+  List<Map<String, dynamic>>? recommendedFollowUsers;
   final List<String> allFileListPath = [];
   final List<String> allCacheFileListPath = [];
 
   @override
   void initState() {
+    _pageController = PageController(initialPage: 0);
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        _pageController.jumpToPage(_tabController.index);
+        setState(() {}); // Force rebuild
+      }
+    });
     _setUpInit();
     _isAndroidPermissionGranted();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
+    _tabController.dispose();
   }
 
   bool _notificationsEnabled = false;
@@ -75,7 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void listenForNewMessages(String currentUserID) {
     try {
       chatService.getAllMessages(currentUserID).listen((snapshot) {
-        console([currentUserID]);
         if (!globalData.isChatScreenOpen) {
           for (var doc in snapshot.docs) {
             var message = doc.data() as Map<String, dynamic>;
@@ -104,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         uid = currentUser.uid;
         email = currentUser.email!;
 
-        globalData.updatePostText(postedText);
+        globalData.updatePostText(postText);
         globalData.updateUser(email, uid, username, name);
         globalData.updatePublic(isAccountPublic);
       }
@@ -115,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
       listenForNewMessages(currentUser!.uid);
       final fetchedFollowFiles = await otherService.getRecentFollowImages(uid);
       final fetchedOtherFiles = await otherService.getRecentImageUrls();
-
       if (mounted && (userDetail != null)) {
         setState(() {
           isAccountPublic = userDetail['public'];
@@ -123,9 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
           username = userDetail['username'];
           uid = currentUser.uid;
           email = currentUser.email!;
-          loading = false;
           recommendedOtherUsers = fetchedOtherFiles;
           recommendedFollowUsers = fetchedFollowFiles;
+          loading = false;
         });
       }
     } catch (e) {
@@ -194,212 +210,162 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            key: _scaffoldKey,
-            drawer: MyDrawer(email: email, uid: uid, setUpInit: _setUpInit),
-            body: SingleChildScrollView(
-              child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 10),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Expanded(
-                                  child: Column(children: [
-                                    Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 10),
-                                        child: Text('おすすめ',
-                                            style: TextStyle(fontSize: 18))),
-                                    Expanded(
-                                      child: recommendedOtherUsers == null
-                                          ? Center(
-                                              child:
-                                                  CircularProgressIndicator())
-                                          : GridView.builder(
-                                              gridDelegate:
-                                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 1,
-                                                crossAxisSpacing: 1.0,
-                                                mainAxisSpacing: 1.0,
-                                                childAspectRatio: 0.7,
-                                              ),
-                                              itemCount:
-                                                  recommendedOtherUsers!.length,
-                                              itemBuilder: (context, index) {
-                                                return _buildImageTile(
-                                                    recommendedOtherUsers!,
-                                                    index);
-                                              },
-                                            ),
-                                    ),
-                                  ]),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 0, vertical: 10),
-                                          child: Text('フォロー',
-                                              style: TextStyle(fontSize: 18))),
-                                      Expanded(
-                                        child: recommendedFollowUsers == null
-                                            ? Center(
-                                                child:
-                                                    CircularProgressIndicator())
-                                            : GridView.builder(
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 1,
-                                                  crossAxisSpacing: 1.0,
-                                                  mainAxisSpacing: 1.0,
-                                                  childAspectRatio: 0.7,
-                                                ),
-                                                itemCount:
-                                                    recommendedFollowUsers!
-                                                        .length,
-                                                itemBuilder: (context, index) {
-                                                  return _buildImageTile(
-                                                      recommendedFollowUsers!,
-                                                      index);
-                                                }),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ])),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
+      key: _scaffoldKey,
+      drawer: MyDrawer(email: email, uid: uid, setUpInit: _setUpInit),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        toolbarHeight: 80,
+        title: TabBar(
+          dividerHeight: 0,
+          unselectedLabelStyle: TextStyle(color: Colors.grey),
+          labelStyle: TextStyle(color: Colors.white),
+          controller: _tabController,
+          tabs: [
+            Tab(
+                height: 50,
+                child: TabCard(
+                    isSelected: _tabController.index == 0, title: 'おすすめ')),
+            Tab(
+                height: 50,
+                child: TabCard(
+                    isSelected: _tabController.index == 1, title: 'フォロー'))
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Expanded(
+                child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _tabController.index = index;
+                  _setUpInit();
+                });
+              },
+              children: [
+                RecommendedScreen(
+                    recommendedOtherUsers: recommendedOtherUsers == null
+                        ? []
+                        : recommendedOtherUsers!,
+                    setUpInit: _setUpInit),
+                FollowingScreeen(setUpInit: _setUpInit, recommendedFollowUsers: recommendedFollowUsers == null
+                        ? []
+                        : recommendedFollowUsers!)
+              ],
+            )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
 //===================================================                             home button======================================
 
-                          IconButton(
-                            onPressed: () async {
-                              _scaffoldKey.currentState?.openDrawer();
-                            },
-                            iconSize: 38,
-                            icon: const Icon(Icons.settings,
-                                color: Colors.white, weight: 90),
-                          ),
+                IconButton(
+                  onPressed: () async {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                  iconSize: 38,
+                  icon: const Icon(Icons.settings,
+                      color: Colors.white, weight: 90),
+                ),
 
 //===================================================                             post button======================================
 
-                          IconButton(
-                              onPressed: () async {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    });
-                                List<File> filesToRemove = [];
+                IconButton(
+                    onPressed: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          });
+                      List<File> filesToRemove = [];
 
-                                for (final String filePath
-                                    in allCacheFileListPath) {
-                                  File file = File(filePath);
-                                  if (await file.exists()) {
-                                    await file.delete();
-                                    filesToRemove.add(file);
-                                  }
-                                }
-                                if (!mounted) return;
-                                globalData.updatePostText('');
-                                Navigator.pop(context);
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        PostCameraScreen(isDelete: true)));
-                              },
-                              iconSize: 42,
-                              icon: const Icon(Icons.add, color: Colors.white)),
+                      for (final String filePath in allCacheFileListPath) {
+                        File file = File(filePath);
+                        if (await file.exists()) {
+                          await file.delete();
+                          filesToRemove.add(file);
+                        }
+                      }
+                      if (!mounted) return;
+                      globalData.updatePostText('');
+                      Navigator.pop(context);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              PostCameraScreen(isDelete: true)));
+                    },
+                    iconSize: 42,
+                    icon: const Icon(Icons.add, color: Colors.white)),
 
 //===================================================                             search button      ===================================
 
-                          IconButton(
-                            onPressed: () async {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  });
-                              if (!mounted) return;
-                              // await NotificationService().showNotification();
+                IconButton(
+                  onPressed: () async {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        });
+                    if (!mounted) return;
+                    // await NotificationService().showNotification();
 
-                              Navigator.pop(context);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => SearchUser(),
-                                ),
-                              );
-                            },
-                            iconSize: 40,
-                            icon: const Icon(Icons.search, color: Colors.white),
-                          ),
+                    Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SearchUser(),
+                      ),
+                    );
+                  },
+                  iconSize: 40,
+                  icon: const Icon(Icons.search, color: Colors.white),
+                ),
 //===================================================   avatar button ===================================
 
-                          IconButton(
-                              icon: CircleAvatar(
-                                backgroundImage:
-                                    AssetImage('assets/avatar.png'),
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.white,
-                              ),
-                              onPressed: () async {
-                                BuildContext dialogContext = context;
-                                showDialog(
-                                    context: dialogContext,
-                                    barrierDismissible: false,
-                                    builder: (context) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    });
-                                await Future.delayed(
-                                    Duration(milliseconds: 50));
-                                if (dialogContext.mounted) {
-                                  Navigator.of(dialogContext).pop();
-                                }
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return MyProfileScreen();
-                                    },
-                                  ),
-                                );
-                              }),
-                        ],
-                      )
-                    ],
-                  )),
-            )));
+                IconButton(
+                    icon: CircleAvatar(
+                      backgroundImage: AssetImage('assets/avatar.png'),
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      BuildContext dialogContext = context;
+                      showDialog(
+                          context: dialogContext,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          });
+                      await Future.delayed(Duration(milliseconds: 50));
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return MyProfileScreen();
+                          },
+                        ),
+                      );
+                    }),
+              ],
+            )
+          ],
+        ),
+      ),
+    ));
   }
+}
 
-  Widget _buildImageTile(List<String> imageFiles, int index) {
-    return GestureDetector(
-      onTap: () async {
-        await globalData.updateOther(email, uid, username, name);
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) =>
-                OtherProfilePreviewScreen(imageURL: imageFiles[index])));
-      },
-      child: Padding(
-          padding: EdgeInsets.all(1),
-          child: Stack(
-            children: [
-              Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      image: DecorationImage(
-                          image: NetworkImage(imageFiles[index]),
-                          fit: BoxFit.cover))),
-            ],
-          )),
-    );
+class TabCard extends StatelessWidget {
+  final bool isSelected;
+  final String title;
+  const TabCard({super.key, required this.isSelected, required this.title});
+  @override
+  Widget build(BuildContext context) {
+    return Text(title, style: TextStyle(fontSize: 20));
   }
 }

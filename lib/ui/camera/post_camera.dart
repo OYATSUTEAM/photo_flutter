@@ -51,23 +51,7 @@ class _PostCameraScreenState extends State<PostCameraScreen>
   }
 
   refreshAlreadyCapturedImages() async {
-    // final directory = await getApplicationDocumentsDirectory();
-    // final subDir = Directory('${directory.path}/$uid/postImages');
 
-    // if (await subDir.exists()) {
-    //   try {
-    //     for (final file in subDir.listSync()) {
-    //       if (file is File) {
-    //         await file.delete();
-    //       }
-    //     }
-    //     print("All files deleted successfully.");
-    //   } catch (e) {
-    //     print("Error deleting files: $e");
-    //   }
-    // } else {
-    //   print("Directory does not exist: ${subDir.path}");
-    // }
   }
 
   Future<XFile?> takePicture() async {

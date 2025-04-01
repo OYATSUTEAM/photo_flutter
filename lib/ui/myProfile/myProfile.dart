@@ -156,60 +156,19 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                       ))
                 ],
               ),
-          // leading: IconButton(onPressed: (){}, icon: BackButtonIcon()),
-      
-          
+              // leading: IconButton(onPressed: (){}, icon: BackButtonIcon()),
             ),
             // backgroundColor: Theme.of(context).colorScheme.surface,
             body: Padding(
                 padding: EdgeInsets.all(5),
                 child: Column(children: [
                   const SizedBox(height: 10),
-//===========================================================                         customized app bar       =====================================
-
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     IconButton(
-                  //         icon: Icon(Icons.arrow_back),
-                  //         onPressed: () {
-                  //           Navigator.pop(context);
-                  //           Navigator.of(context).pushReplacement(
-                  //               MaterialPageRoute(
-                  //                   builder: (context) => HomeScreen()));
-                  //         }),
-                  //     Expanded(
-                  //         child: Text(
-                  //       username,
-                  //       textAlign: TextAlign.center,
-                  //       overflow: TextOverflow.ellipsis,
-                  //       style: TextStyle(fontSize: 20),
-                  //     )),
-                  //     IconButton(
-                  //         onPressed: () async {
-                  //           showDialog(
-                  //               context: context,
-                  //               builder: (context) {
-                  //                 return const Center(
-                  //                     child: CircularProgressIndicator());
-                  //               });
-                  //           if (!mounted) return;
-                  //           Navigator.of(context).push(MaterialPageRoute(
-                  //               builder: (context) => MyProfileEdit(
-                  //                   whichImage: 'myProfileImage')));
-                  //         },
-                  //         icon: Icon(
-                  //           Icons.border_color_rounded,
-                  //           size: 20,
-                  //         ))
-                  //   ],
-                  // ),
 
 //===========================================================                         main profile image       =====================================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      InkWell(
+                      GestureDetector(
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ProfilePreviewScreen(
@@ -228,11 +187,9 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                   const SizedBox(height: 3),
 //============================================================                       name    ======================================
 
-                  Text(
-                    name,
-                    style: TextStyle(fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(name,
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center),
 
                   const SizedBox(height: 10),
 //================================================          my images         ===============================================
@@ -305,20 +262,6 @@ class _MyProfileScreen extends State<MyProfileScreen> {
                       _setProfileInitiate();
                     });
                   })),
-          Positioned(
-              bottom: 0,
-              right: 0,
-              child: IconButton(
-                  icon: Icon(status ? Icons.visibility : Icons.visibility_off),
-                  color: Colors.green,
-                  onPressed: () async {
-                    await saveOrUpdateImage(uid, imageName, !status);
-                    if (mounted) {
-                      setState(() {
-                        _setProfileInitiate();
-                      });
-                    }
-                  }))
         ]));
   }
 }

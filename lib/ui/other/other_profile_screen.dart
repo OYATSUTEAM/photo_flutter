@@ -16,7 +16,15 @@ enum Options { option1, option2, option3 }
 
 class OtherProfile extends StatefulWidget {
   final String otherUid;
-  const OtherProfile({super.key, required this.otherUid});
+  // final String otherUserName;
+  // final String otherName;
+  // final String otherEmail;
+  const OtherProfile(
+      {super.key,
+      // required this.otherEmail,
+      // required this.otherName,
+      // required this.otherUserName,
+      required this.otherUid});
 
   @override
   _OtherProfile createState() => _OtherProfile();
@@ -98,51 +106,24 @@ class _OtherProfile extends State<OtherProfile> {
     }
   }
 
-  Future<void> deleteFileWithConfirmation(
-      BuildContext context, String whichProfile) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('削除確認'),
-        content: const Text('本当にこのファイルを削除しますか？'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('キャンセル')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('削除', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldDelete == true) {
-      try {
-        final ref =
-            FirebaseStorage.instance.ref().child("images/${whichProfile}");
-
-        await ref.delete();
-        print("File deleted successfully.");
-      } catch (e) {
-        if (e.toString().contains('object-not-found')) {
-          print("File does not exist.");
-        } else {
-          print("An error occurred while deleting the file: $e");
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    int midIndex = (otherProfileImagesURL.length / 2).floor();
+    // int midIndex = (otherProfileImagesURL.length / 2).floor();
 
-    List<String> latestImages = otherProfileImagesURL.sublist(0, midIndex);
-    List<String> oldestImages = otherProfileImagesURL.sublist(midIndex);
+    // List<String> latestImages = otherProfileImagesURL.sublist(0, midIndex);
+    // List<String> oldestImages = otherProfileImagesURL.sublist(midIndex);
     return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Expanded(
+              child: Text(globalData.otherUserName,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 20))),
+        ),
+
         // drawer: ReportScreen(),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        // backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(3.0),
@@ -150,27 +131,16 @@ class _OtherProfile extends State<OtherProfile> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        icon: Icon(Icons.arrow_back),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        }),
-                    Expanded(
-                        child: Text(globalData.otherName,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 20))),
-                    MyMenuButton()
-                  ],
-                ),
-                InkWell(
+                GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => OtherProfilePreviewScreen(
-                          imageURL: otherMainProfileURL),
+                        imageURL: otherMainProfileURL,
+                        otherUid: widget.otherUid,
+                        otherName: name,
+                        otherUserName: username,
+                        otherEmail: email,
+                      ),
                     ));
                   },
                   child: CircleAvatar(
@@ -204,62 +174,42 @@ class _OtherProfile extends State<OtherProfile> {
                       )),
                 ),
                 Expanded(
-                  child: FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-                      future: getOtherImageNames(widget.otherUid),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Center(
-                              child: Text("Error: ${snapshot.error}"));
-                        }
+                    child:
+                        StreamBuilder<Map<String, List<Map<String, dynamic>>>>(
+                            stream: getImageNames(widget.otherUid),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text("Error: ${snapshot.error}"));
+                              }
+                              if (!snapshot.hasData ||
+                                  snapshot.data?['latest'] == null ||
+                                  snapshot.data!['latest']!.isEmpty) {
+                                return Center(child: Text(""));
+                              }
 
-                        if (!snapshot.hasData ||
-                            snapshot.data!['latest']!.isEmpty) {
-                          return Center(child: Text(""));
-                        }
+                              final imagesData = snapshot.data!;
+                              final latestImages = imagesData["latest"] ?? [];
+                              final otherImages = imagesData["others"] ?? [];
 
-                        final imagesData = snapshot.data!;
-                        final latestImages = imagesData["latest"]!;
-                        final otherImages = imagesData["others"]!;
-                        return Row(children: [
-                          Expanded(
-                            child: ListView(
-                              children: latestImages.map((image) {
-                                return FutureBuilder<String>(
-                                    future: FirebaseStorage.instance
-                                        .ref(
-                                            'images/${widget.otherUid}/profileImages/${image['name']}')
-                                        .getDownloadURL(),
-                                    builder: (context, urlSnapshot) {
-                                      if (!urlSnapshot.hasData)
-                                        return Center(
-                                            child: CircularProgressIndicator());
-                                      return _buildImageTile(
-                                          urlSnapshot.data!, image['status']);
-                                    });
-                              }).toList(),
-                            ),
-                          ),
-                          SizedBox(width: 2),
-                          Expanded(
-                              child: ListView(
-                            children: otherImages.map((image) {
-                              return FutureBuilder<String>(
-                                  future: FirebaseStorage.instance
-                                      .ref(
-                                          'images/${widget.otherUid}/profileImages/${image['name']}')
-                                      .getDownloadURL(),
-                                  builder: (context, urlSnapshot) {
-                                    if (!urlSnapshot.hasData)
-                                      return Center(
-                                          child: CircularProgressIndicator());
+                              return Row(children: [
+                                Expanded(
+                                    child: ListView(
+                                  children: latestImages.map((image) {
                                     return _buildImageTile(
-                                        urlSnapshot.data!, image['status']);
-                                  });
-                            }).toList(),
-                          ))
-                        ]);
-                      }),
-                )
+                                        image['url'], );
+                                  }).toList(),
+                                )),
+                                SizedBox(width: 1),
+                                Expanded(
+                                    child: ListView(
+                                  children: otherImages.map((image) {
+                                    return _buildImageTile(
+                                        image['url'],   );
+                                  }).toList(),
+                                )),
+                              ]);
+                            })),
               ],
             ),
           ),
@@ -340,11 +290,17 @@ class _OtherProfile extends State<OtherProfile> {
         ));
   }
 
-  Widget _buildImageTile(String imageURL, String status) {
+  Widget _buildImageTile(String imageURL, ) {
     return GestureDetector(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => OtherProfilePreviewScreen(imageURL: imageURL),
+            builder: (context) => OtherProfilePreviewScreen(
+              imageURL: imageURL,
+              otherUid: widget.otherUid,
+              otherName: name,
+              otherUserName: username,
+              otherEmail: email,
+            ),
           ));
         },
         child: Padding(

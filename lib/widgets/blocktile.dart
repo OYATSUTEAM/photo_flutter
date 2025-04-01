@@ -96,11 +96,9 @@ class BlocktileState extends State<Blocktile> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // const SizedBox(width: 1),
             Container(
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 child: InkWell(
-                  // backgroundColor: Colors.transparent,
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(otherProfileURL != null
                         ? otherProfileURL!

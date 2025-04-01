@@ -23,7 +23,7 @@ void main() async {
   cameras = await availableCameras();
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-      name: "unprocessedsns",
+      // name: "unprocessedsns",
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
@@ -42,8 +42,8 @@ class MyApp extends StatelessWidget {
       builder: (context, state) {
         if (state is ThemeInitState) {
           return MaterialApp(
-            navigatorObservers: [FlutterSmartDialog.observer],
-            builder: FlutterSmartDialog.init(),
+            // navigatorObservers: [FlutterSmartDialog.observer],
+            // builder: FlutterSmartDialog.init(),
             locale: Locale('ja', 'JP'),
             supportedLocales: [Locale('ja', 'JP')],
             localizationsDelegates: [

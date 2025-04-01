@@ -16,9 +16,13 @@ class ChatScreen extends StatefulWidget {
     super.key,
     required this.receiverEmail,
     required this.receiverId,
+    required this.receiverName,
+    required this.receiverUserName,
   });
   final String receiverEmail;
   final String receiverId;
+  final String receiverName;
+  final String receiverUserName;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -28,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final controller = TextEditingController();
   FocusNode myFocusNode = FocusNode();
   final ScrollController scrollController = ScrollController();
-  String receiverUserName = 'ローディング...';
+  // String receiverUserName = 'ローディング...';
   @override
   void initState() {
     _setUpInitiate();
@@ -46,9 +50,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _setUpInitiate() async {
     await globalData.updateChatScreen(true); // Set flag when screen opens
 
-    var user = await authServices.getDocument(widget.receiverId);
+    // var user = await authServices.getDocument(widget.receiverId);
     setState(() {
-      receiverUserName = user?['username'];
+      // receiverUserName = user?['username'];
     });
   }
 
@@ -88,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            appBar: AppBar(title: Text(receiverUserName), centerTitle: true),
+            appBar: AppBar(title: Text(widget.receiverUserName), centerTitle: true),
             body: Padding(
                 padding: EdgeInsets.all(10),
                 child: Column(children: [
@@ -104,15 +108,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           children: [
                             Expanded(
                               child: MyTextField(
-                                hint: "",
-                                obsecure: false,
-                                controller: controller,
-                                focusNode: myFocusNode,
-                              ),
+                                  hint: "",
+                                  obsecure: false,
+                                  controller: controller,
+                                  focusNode: myFocusNode),
                             ),
                             SizedBox(width: 10),
                             Container(
-                                // margin: const EdgeInsets.only(right: 20.0),
                                 decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: Colors.green),
@@ -141,8 +143,7 @@ class _MessageListState extends State<MessageList> {
   @override
   void initState() {
     super.initState();
-    lastMessageIndex =
-        0; 
+    lastMessageIndex = 0;
   }
 
   @override

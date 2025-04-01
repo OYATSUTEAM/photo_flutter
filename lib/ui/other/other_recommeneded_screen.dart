@@ -4,26 +4,29 @@ import 'package:photo_sharing_app/DI/service_locator.dart';
 import 'package:photo_sharing_app/services/profile/profile_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_sharing_app/ui/other/other_profile_screen.dart';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
 import '../../data/global.dart';
 
-class OtherProfilePreviewScreen extends StatefulWidget {
+class OtherRecommendedScreen extends StatefulWidget {
   final String imageURL;
   final String otherUid;
   final String otherName;
   final String otherUserName;
   final String otherEmail;
+  final String postText;
 
-  const OtherProfilePreviewScreen(
+  const OtherRecommendedScreen(
       {required this.imageURL,
+      required this.postText,
       required this.otherUid,
       required this.otherName,
       required this.otherUserName,
       required this.otherEmail});
 
   @override
-  _OtherPreviewScreenState createState() => _OtherPreviewScreenState();
+  _OtherRecommendedScreenState createState() => _OtherRecommendedScreenState();
 }
 
 ProfileServices profileServices = ProfileServices();
@@ -32,7 +35,7 @@ final AuthServices authServices = locator.get();
 String email = '', uid = '', username = '', name = '';
 List<dynamic> like = [], dislike = [], favourite = [];
 
-class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
+class _OtherRecommendedScreenState extends State<OtherRecommendedScreen> {
   ScrollController _scrollController = ScrollController();
   TextEditingController _commentController = TextEditingController();
 
@@ -88,48 +91,43 @@ class _OtherPreviewScreenState extends State<OtherProfilePreviewScreen> {
     try {
       return SafeArea(
           child: Scaffold(
-              body: Column(children: [
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  //     builder: (context) =>
-                  //         OtherProfile(otherUid: globalData.otherUid)));
-                }),
-            Expanded(
-                child: Text(
-              widget.otherName,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 20),
-            )),
-            // IconButton(
-
-            MyMenuButton()
-          ],
+        appBar: AppBar(
+          centerTitle: true,
+          title: Expanded(
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                OtherProfile(otherUid: widget.otherUid)));
+                  },
+                  child: Text(
+                    widget.otherName,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20),
+                  ))),
         ),
-        SizedBox(height: 10),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                width: MediaQuery.of(context).size.width * 0.97,
-                height: MediaQuery.of(context).size.height * 0.8,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30.0),
-                    color: Colors.grey,
-                    image: DecorationImage(
-                        image: NetworkImage(widget.imageURL),
-                        fit: BoxFit.cover))),
+            Center(
+                child: Container(
+                    width: MediaQuery.of(context).size.width * 0.97,
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30.0),
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            image: NetworkImage(widget.imageURL),
+                            fit: BoxFit.cover)))),
+            Expanded(
+                child: Text(widget.postText, style: TextStyle(fontSize: 20)))
           ],
         ),
-      ])));
+      ));
     } catch (e) {
       return Scaffold(
         backgroundColor: Colors.white,
