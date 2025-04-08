@@ -171,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   setGender(String? value) async {
-    setState(() { 
+    setState(() {
       selectedGender = value!;
     });
   }
@@ -359,12 +359,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               fontWeight: FontWeight.w600,
                               color: Colors.white),
                         ),
-                        onTap: () {
-                          Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (context) {
-                            return LoginScreen();
-                          }));
-                        },
                       )
                     ],
                   ))
