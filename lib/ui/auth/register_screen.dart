@@ -171,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   setGender(String? value) async {
-    setState(() {
+    setState(() { 
       selectedGender = value!;
     });
   }
