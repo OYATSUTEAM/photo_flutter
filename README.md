@@ -1,16 +1,7 @@
-# photo_sharing
+アプリの説明:
 
-A new Flutter project.
+フラッターを使用して開発された私たちの革新的な写真共有アプリで、まったく新しい写真体験をお楽しみください。瞬間をそのまま捉えた写真をシェアするプラットフォームを提供し、編集やフィルターは一切なし。ありのままの美しさを信じる人々のためのアプリです。
 
-## Getting Started
+「撮った瞬間が、そのまま投稿になる」というスローガンのもと、すべてのスナップショットは人生の真髄を伝えます。友達や愛する人とあなたの瞬間をシェアし、彼らにもあなたの目を通して世界を見てもらいましょう。アプリは使いやすく、アップロードはシームレスで楽しい体験を提供します。
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+フィルターのない現実の美しさを称えるコミュニティに参加し、ありのままの世界を楽しもう。あなたの思い出を、私たちと共にシェアしましょう。
